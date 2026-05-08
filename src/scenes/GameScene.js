@@ -6,6 +6,7 @@ import EnemyManager from '../enemies/EnemyManager.js';
 import CombatManager from '../combat/CombatManager.js';
 import EconomyManager from '../economy/EconomyManager.js';
 import StageManager from '../stages/StageManager.js';
+import MagicManager from '../magic/MagicManager.js';
 import { HAND_RANK } from '../cards/HandEvaluator.js';
 
 const BASE_HP = 100;
@@ -21,6 +22,9 @@ export default class GameScene extends Phaser.Scene {
     this.combatManager = new CombatManager(this);
     this.economyManager = new EconomyManager();
     this.stageManager = new StageManager(this);
+    this.magicManager = new MagicManager(this);
+
+    this.events.on('castMagic', ({ rank, suit }) => { this.magicManager.cast(rank, suit); });
 
     this.baseHp = BASE_HP;
     this.gameOver = false;
