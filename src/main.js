@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import Grid from './grid/Grid.js';
+import GridRenderer from './grid/GridRenderer.js';
 
 class BootScene extends Phaser.Scene {
   constructor() { super('BootScene'); }
@@ -27,7 +29,17 @@ class MenuScene extends Phaser.Scene {
 class GameScene extends Phaser.Scene {
   constructor() { super('GameScene'); }
   create() {
-    this.add.text(240, 427, 'GameScene', { color: '#fff' }).setOrigin(0.5);
+    this.grid = new Grid();
+    this.gridRenderer = new GridRenderer(this, this.grid);
+    this.input.on('pointerdown', (ptr) => {
+      const { col, row } = this.grid.worldToCell(ptr.x, ptr.y);
+      if (this.grid.isWalkable(col, row)) {
+        this.grid.setCell(col, row, 2);
+        const pos = this.grid.cellToWorld(col, row);
+        this.add.rectangle(pos.x, pos.y, 36, 36, 0x44aaff);
+        this.gridRenderer.refresh();
+      }
+    });
   }
 }
 
