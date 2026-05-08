@@ -3,6 +3,7 @@ import Grid, { GRID_ROWS } from '../grid/Grid.js';
 import GridRenderer from '../grid/GridRenderer.js';
 import UnitManager from '../units/UnitManager.js';
 import EnemyManager from '../enemies/EnemyManager.js';
+import CombatManager from '../combat/CombatManager.js';
 import { HAND_RANK } from '../cards/HandEvaluator.js';
 import { ENEMY_TYPE } from '../enemies/EnemyData.js';
 
@@ -14,6 +15,7 @@ export default class GameScene extends Phaser.Scene {
     this.gridRenderer = new GridRenderer(this, this.grid);
     this.unitManager = new UnitManager(this);
     this.enemyManager = new EnemyManager(this, GRID_ROWS - 1);
+    this.combatManager = new CombatManager(this);
     this.scene.launch('UIScene');
 
     this.input.on('pointerdown', (ptr) => {
@@ -25,7 +27,6 @@ export default class GameScene extends Phaser.Scene {
 
     this.unitManager.setupMergeInteraction();
 
-    // Test: spacebar spawns a basic enemy
     this.input.keyboard.on('keydown-SPACE', () => {
       this.enemyManager.spawnEnemy(ENEMY_TYPE.BASIC);
     });
@@ -34,5 +35,6 @@ export default class GameScene extends Phaser.Scene {
   update(time, delta) {
     this.unitManager.update(time, delta);
     this.enemyManager.update(time, delta);
+    this.combatManager.update(time, delta);
   }
 }
