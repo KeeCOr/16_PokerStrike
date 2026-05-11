@@ -5,7 +5,6 @@ import { GRID_COLS, GRID_ROWS } from '../grid/Grid.js';
 export default class MagicManager {
   constructor(scene) {
     this.scene = scene;
-    this.freeDrawNext = false;
   }
 
   cast(rank, suit) {
@@ -79,8 +78,8 @@ export default class MagicManager {
         eco.addGold(skill.amount);
         break;
 
-      case 'freeDraw':
-        this.freeDrawNext = true;
+      case 'resetDrawCost':
+        eco.summonCount = 0;
         break;
 
       case 'refreshShared':

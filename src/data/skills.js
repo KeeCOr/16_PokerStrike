@@ -44,9 +44,9 @@ export const SKILLS = {
     description: '골드 30 즉시 획득',
   },
   [HAND_RANK.ONE_PAIR]: {
-    name: '무료 드로우',
-    effect: 'freeDraw',
-    description: '다음 드로우 비용 무료',
+    name: '소환 비용 초기화',
+    effect: 'resetDrawCost',
+    description: '소환 비용을 초기값으로 되돌림',
   },
   [HAND_RANK.HIGH_CARD]: {
     name: '공용 패 교체',

@@ -10,6 +10,7 @@ export default class StageManager {
     this.waveActive = false;
     this.onWaveCleared = null;
     this.onStageCleared = null;
+    this.onWaveChoiceNeeded = null; // (resumeFn) => void
   }
 
   startStage(stageIndex) {
@@ -31,8 +32,10 @@ export default class StageManager {
       }
     }
     this.spawnQueue.sort((a, b) => a.delay - b.delay);
+    this.waveTotal = this.spawnQueue.length;
     this.spawnTimer = 0;
     this.waveActive = true;
+    this._lastPublishedCount = -1;
   }
 
   update(delta) {
@@ -42,6 +45,12 @@ export default class StageManager {
     while (this.spawnQueue.length > 0 && this.spawnQueue[0].delay <= this.spawnTimer) {
       const { type } = this.spawnQueue.shift();
       this.scene.enemyManager.spawnEnemy(type);
+    }
+
+    const remaining = this.spawnQueue.length + this.scene.enemyManager.getAll().length;
+    if (remaining !== this._lastPublishedCount) {
+      this._lastPublishedCount = remaining;
+      this.scene.registry.set('enemyCount', `${remaining} / ${this.waveTotal}`);
     }
 
     if (this.spawnQueue.length === 0 && this.scene.enemyManager.getAll().length === 0) {
@@ -58,6 +67,10 @@ export default class StageManager {
     this.waveIndex++;
     if (this.waveIndex >= stage.waves.length) {
       if (this.onStageCleared) this.onStageCleared(this.stageIndex);
+    } else if (this.onWaveChoiceNeeded) {
+      this.onWaveChoiceNeeded(() => {
+        this.scene.time.delayedCall(1000, () => this._startNextWave());
+      });
     } else {
       this.scene.time.delayedCall(3000, () => this._startNextWave());
     }

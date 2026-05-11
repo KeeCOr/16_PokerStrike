@@ -3,47 +3,71 @@ import { evaluateHand, HAND_NAMES } from '../cards/HandEvaluator.js';
 
 const CARD_W = 52;
 const CARD_H = 76;
-const CARD_Y = 730;
+const CARD_Y = 820;
+const SHARED_SCALE = 0.65;
 
 export default class CardUI {
   constructor(scene) {
     this.scene = scene;
     this.cardObjects = [];
     this.sharedObjects = [];
-    this.handLabel = null;
+    this._buttons = {};
+    this._replaceModeHint = null;
+  }
+
+  clear() {
+    this.cardObjects.forEach(objs => objs.forEach(g => { if (g && g.active) g.destroy(); }));
+    this.sharedObjects.forEach(objs => objs.forEach(g => { if (g && g.active) g.destroy(); }));
+    ['summonBtn', 'magicBtn', 'replaceBtn', 'summonPreview', 'magicPreview'].forEach(k => {
+      if (this._buttons[k]) { this._buttons[k].destroy(); delete this._buttons[k]; }
+    });
+    if (this._replaceModeHint) { this._replaceModeHint.destroy(); this._replaceModeHint = null; }
+    this.cardObjects = [];
+    this.sharedObjects = [];
     this._buttons = {};
   }
 
   render(hand, sharedCards) {
     // Destroy old card objects
-    this.cardObjects.forEach(objs => objs.forEach(g => g.destroy()));
-    this.sharedObjects.forEach(objs => objs.forEach(g => g.destroy()));
-    if (this.handLabel) { this.handLabel.destroy(); this.handLabel = null; }
+    this.cardObjects.forEach(objs => objs.forEach(g => { if (g && g.active) g.destroy(); }));
+    this.sharedObjects.forEach(objs => objs.forEach(g => { if (g && g.active) g.destroy(); }));
 
     this.cardObjects = [];
     this.sharedObjects = [];
 
-    // Hand cards (5 slots)
+    // Hand label
+    const handLabelY = CARD_Y - 46;
+    const handLbl = this.scene.add.text(280, handLabelY, '패', {
+      fontSize: '10px', color: '#88aacc'
+    }).setOrigin(0.5).setDepth(12);
+    this.cardObjects.push([handLbl]);
+
+    // Hand cards (5 slots) — shifted left to leave room for shared cards
     const totalW = hand.cards.length * (CARD_W + 6);
-    const startX = (480 - totalW) / 2 + CARD_W / 2;
+    const startX = (460 - totalW) / 2 + CARD_W / 2;
     hand.cards.forEach((card, i) => {
       const x = startX + i * (CARD_W + 6);
       this.cardObjects.push(this._drawCard(x, CARD_Y, card));
     });
 
-    // Hand evaluation label
-    if (hand.cards.length === 5) {
-      const { rank } = evaluateHand(hand.cards);
-      this.handLabel = this.scene.add.text(240, CARD_Y + CARD_H / 2 + 14, HAND_NAMES[rank], {
-        fontSize: '13px', color: '#ffdd88'
-      }).setOrigin(0.5).setDepth(12);
-    }
+    // Divider line
+    const sepX = 460;
+    const sep = this.scene.add.graphics().setDepth(12);
+    sep.lineStyle(1, 0x3a5070, 1);
+    sep.lineBetween(sepX, CARD_Y - 40, sepX, CARD_Y + 40);
+    this.sharedObjects.push([sep]);
 
-    // Shared cards (top-right area)
+    // Shared cards label
+    const sharedLbl = this.scene.add.text(550, handLabelY, '공용패', {
+      fontSize: '10px', color: '#cc88ff'
+    }).setOrigin(0.5).setDepth(12);
+    this.sharedObjects.push([sharedLbl]);
+
+    // Shared cards
+    const sharedCardW = CARD_W * SHARED_SCALE;
     sharedCards.cards.forEach((card, i) => {
-      const x = 390 + i * (CARD_W * 0.75 + 4);
-      const y = CARD_Y - 90;
-      this.sharedObjects.push(this._drawCard(x, y, card, 0.75));
+      const x = 475 + i * (sharedCardW + 4);
+      this.sharedObjects.push(this._drawCard(x, CARD_Y, card, SHARED_SCALE));
     });
   }
 
@@ -63,28 +87,83 @@ export default class CardUI {
     return [bg, border, suitText, valText];
   }
 
-  renderButtons(drawCost, replaceCost) {
-    // Destroy old buttons if they exist
-    ['summonBtn', 'magicBtn', 'replaceBtn'].forEach(k => {
+  // Enter replace mode: highlight cards and call onSelect(index) when clicked
+  enterReplaceMode(hand, onSelect) {
+    this.exitReplaceMode(); // clean up any existing replace mode first
+
+    const totalW = hand.cards.length * (CARD_W + 6);
+    const startX = (460 - totalW) / 2 + CARD_W / 2;
+
+    // Show hint label
+    this._replaceModeHint = this.scene.add.text(230, CARD_Y - 46, '교체할 카드를 선택하세요', {
+      fontSize: '11px', color: '#ffdd44'
+    }).setOrigin(0.5).setDepth(15);
+
+    // Make each hand card clickable
+    this.cardObjects.slice(1).forEach((objs, i) => { // slice(1) skips the '패' label
+      const [bg] = objs;
+      if (!bg?.active) return;
+      bg.setInteractive({ useHandCursor: true });
+      bg.setFillStyle(0x2a3f22); // green tint to show selectable
+      bg.once('pointerdown', () => {
+        this.exitReplaceMode();
+        onSelect(i);
+      });
+      bg.on('pointerover', () => bg.setFillStyle(0x446633));
+      bg.on('pointerout',  () => bg.setFillStyle(0x2a3f22));
+    });
+  }
+
+  exitReplaceMode() {
+    if (this._replaceModeHint) { this._replaceModeHint.destroy(); this._replaceModeHint = null; }
+    // Restore card bg colors and remove listeners
+    this.cardObjects.slice(1).forEach((objs) => {
+      const [bg] = objs;
+      if (!bg?.active) return;
+      bg.setFillStyle(0x1a2a3a);
+      bg.removeAllListeners();
+    });
+  }
+
+  // summonHandName: hand rank name string (e.g. "원페어")
+  // magicSkillName: skill name string (e.g. "소환 지원")
+  renderButtons(drawCost, replaceCost, summonHandName = null, magicSkillName = null) {
+    ['summonBtn', 'magicBtn', 'replaceBtn', 'summonPreview', 'magicPreview'].forEach(k => {
       if (this._buttons[k]) { this._buttons[k].destroy(); delete this._buttons[k]; }
     });
 
-    const summonBtn = this.scene.add.text(80, 820, `소환 (${drawCost}G)`, {
-      fontSize: '13px', color: '#ffffff',
-      backgroundColor: '#2244aa', padding: { x: 8, y: 5 }
-    }).setOrigin(0.5).setDepth(12).setInteractive();
+    // Preview labels above buttons
+    let summonPreview = null;
+    if (summonHandName) {
+      summonPreview = this.scene.add.text(320, 872, summonHandName, {
+        fontSize: '11px', color: '#ffdd88'
+      }).setOrigin(0.5).setDepth(12);
+    }
 
-    const magicBtn = this.scene.add.text(240, 820, `마법`, {
+    let magicPreview = null;
+    if (magicSkillName) {
+      magicPreview = this.scene.add.text(100, 872, magicSkillName, {
+        fontSize: '11px', color: '#cc88ff'
+      }).setOrigin(0.5).setDepth(12);
+    }
+
+    // Buttons: magic left (x=100), summon center (x=320), replace right (x=530)
+    const magicBtn = this.scene.add.text(100, 904, `마법`, {
       fontSize: '13px', color: '#ffffff',
       backgroundColor: '#883399', padding: { x: 8, y: 5 }
     }).setOrigin(0.5).setDepth(12).setInteractive();
 
-    const replaceBtn = this.scene.add.text(400, 820, `교체 (${replaceCost}G)`, {
+    const summonBtn = this.scene.add.text(320, 904, `소환 (${drawCost}G)`, {
+      fontSize: '13px', color: '#ffffff',
+      backgroundColor: '#2244aa', padding: { x: 8, y: 5 }
+    }).setOrigin(0.5).setDepth(12).setInteractive();
+
+    const replaceBtn = this.scene.add.text(530, 904, `교체 (${replaceCost}G)`, {
       fontSize: '13px', color: '#ffffff',
       backgroundColor: '#226644', padding: { x: 8, y: 5 }
     }).setOrigin(0.5).setDepth(12).setInteractive();
 
-    this._buttons = { summonBtn, magicBtn, replaceBtn };
-    return this._buttons;
+    this._buttons = { summonBtn, magicBtn, replaceBtn, summonPreview, magicPreview };
+    return { summonBtn, magicBtn, replaceBtn };
   }
 }

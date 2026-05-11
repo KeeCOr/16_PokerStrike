@@ -1,12 +1,16 @@
-export const CELL_SIZE = 44;
-export const GRID_COLS = 10;
-export const GRID_ROWS = 14;
+export const CELL_SIZE = 80;
+export const GRID_COLS = 7;
+export const GRID_ROWS = 9;
+export const GAME_WIDTH = 640;
+export const GAME_HEIGHT = 960;
 export const CELL_EMPTY = 0;
 export const CELL_BLOCKED = 1;
 export const CELL_UNIT = 2;
 
-export const GRID_OFFSET_X = (480 - GRID_COLS * CELL_SIZE) / 2; // 8px
+export const GRID_OFFSET_X = (GAME_WIDTH - GRID_COLS * CELL_SIZE) / 2; // 20
 export const GRID_OFFSET_Y = 20;
+// Bottom of grid → top of UI panel
+export const PANEL_Y = GRID_OFFSET_Y + GRID_ROWS * CELL_SIZE + 4; // 744
 
 export default class Grid {
   constructor() {

@@ -3,12 +3,13 @@ import Pathfinder from './Pathfinder.js';
 import { GRID_COLS } from '../grid/Grid.js';
 
 const SPAWN_COL = Math.floor(GRID_COLS / 2);
-const BASE_COL = Math.floor(GRID_COLS / 2);
+const BASE_COL  = Math.floor(GRID_COLS / 2);
 
 export default class EnemyManager {
   constructor(scene, baseRow) {
     this.scene = scene;
     this.baseRow = baseRow;
+    this.baseCol = BASE_COL;
     this.enemies = [];
     this.pathfinder = new Pathfinder(scene.grid);
     this.onEnemyReachBase = null;
@@ -22,7 +23,7 @@ export default class EnemyManager {
     return enemy;
   }
 
-  _assignPath(enemy) {
+  _assignPath(enemy, skipCurrentCell = false) {
     if (enemy.isAerial) {
       const path = [];
       for (let r = enemy.row + 1; r <= this.baseRow; r++) {
@@ -32,12 +33,24 @@ export default class EnemyManager {
       return;
     }
 
-    const path = this.pathfinder.findPath(enemy.col, enemy.row, BASE_COL, this.baseRow);
+    const path = this.pathfinder.findPath(enemy.col, enemy.row, this.baseRow, this.baseCol);
     if (path) {
-      enemy.setPath(path);
+      enemy.path = path;
+      enemy.pathIndex = (skipCurrentCell && path.length > 1) ? 1 : 0;
     } else {
       this._setNearestUnitTarget(enemy);
     }
+  }
+
+  _isRemainingPathBlocked(enemy) {
+    if (!enemy.path || enemy.path.length === 0) return true;
+    for (let i = enemy.pathIndex; i < enemy.path.length; i++) {
+      const { col, row } = enemy.path[i];
+      if (!this.scene.grid.isWalkable(col, row) && row !== this.baseRow) {
+        return true;
+      }
+    }
+    return false;
   }
 
   _setNearestUnitTarget(enemy) {
@@ -57,7 +70,11 @@ export default class EnemyManager {
 
   recalculateAllPaths() {
     for (const enemy of this.enemies) {
-      if (!enemy.isAerial) this._assignPath(enemy);
+      if (!enemy.isAerial && !enemy.attackingBase) {
+        if (this._isRemainingPathBlocked(enemy)) {
+          this._assignPath(enemy, true); // skipCurrentCell=true to avoid backward step
+        }
+      }
     }
   }
 
@@ -66,10 +83,19 @@ export default class EnemyManager {
       const enemy = this.enemies[i];
       enemy.update(time, delta);
 
-      if (enemy.isAtDestination(BASE_COL, this.baseRow)) {
-        if (this.onEnemyReachBase) this.onEnemyReachBase(enemy.atk);
-        enemy.destroy();
-        this.enemies.splice(i, 1);
+      // Start attacking base when arriving at the base cell
+      if (!enemy.attackingBase && enemy.row === this.baseRow && enemy.col === this.baseCol) {
+        enemy.attackingBase = true;
+        enemy.baseAtkCooldown = 0;
+      }
+
+      // Attack base at intervals instead of disappearing
+      if (enemy.attackingBase) {
+        enemy.baseAtkCooldown -= delta;
+        if (enemy.baseAtkCooldown <= 0) {
+          if (this.onEnemyReachBase) this.onEnemyReachBase(enemy.atk);
+          enemy.baseAtkCooldown = 1500;
+        }
         continue;
       }
 

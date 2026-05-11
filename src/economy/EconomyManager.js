@@ -1,16 +1,20 @@
-const BASE_INCOME_RATE = 1;
-const INCOME_PER_WAVE = 0.5;
-const DRAW_COST = 5;
+const STARTING_GOLD = 15;
+const BASE_INCOME_RATE = 0.5;
+const INCOME_PER_WAVE = 0.25;
+const DRAW_BASE_COST = 5;
+const DRAW_INCREMENT = 2;
 const REPLACE_BASE_COST = 10;
 const REPLACE_INCREMENT = 2;
 
 export default class EconomyManager {
   constructor() {
-    this.gold = 20;
+    this.gold = STARTING_GOLD;
     this.incomeRate = BASE_INCOME_RATE;
     this.replaceCount = 0;
+    this.summonCount = 0;
     this.accumulator = 0;
     this.onGoldChanged = null;
+    this.roguelite = null;
   }
 
   update(delta) {
@@ -35,11 +39,17 @@ export default class EconomyManager {
     return true;
   }
 
-  getDrawCost() { return DRAW_COST; }
+  getDrawCost() {
+    const bonus = this.roguelite ? this.roguelite.getDrawCostBonus() : 0;
+    return Math.max(1, DRAW_BASE_COST + this.summonCount * DRAW_INCREMENT + bonus);
+  }
 
   getReplaceCost() {
-    return REPLACE_BASE_COST + this.replaceCount * REPLACE_INCREMENT;
+    const bonus = this.roguelite ? this.roguelite.getReplaceCostBonus() : 0;
+    return Math.max(1, REPLACE_BASE_COST + bonus + this.replaceCount * REPLACE_INCREMENT);
   }
+
+  recordSummon() { this.summonCount++; }
 
   recordReplace() { this.replaceCount++; }
 

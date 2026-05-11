@@ -6,8 +6,8 @@ import UIScene from './scenes/UIScene.js';
 
 const config = {
   type: Phaser.AUTO,
-  width: 480,
-  height: 854,
+  width: 640,
+  height: 960,
   backgroundColor: '#0d1b2a',
   scene: [BootScene, MenuScene, GameScene, UIScene],
   scale: {

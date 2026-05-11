@@ -1,13 +1,16 @@
-import { GRID_COLS, GRID_ROWS } from '../grid/Grid.js';
+import { GRID_ROWS } from '../grid/Grid.js';
 
 export default class Pathfinder {
   constructor(grid) {
     this.grid = grid;
   }
 
-  findPath(startCol, startRow, endCol, endRow) {
+  // Find shortest path to a specific cell (endCol, endRow)
+  findPath(startCol, startRow, endRow, endCol = null) {
     const key = (c, r) => `${c},${r}`;
-    const heuristic = (c, r) => Math.abs(c - endCol) + Math.abs(r - endRow);
+    const heuristic = endCol !== null
+      ? (c, r) => Math.abs(r - endRow) + Math.abs(c - endCol)
+      : (c, r) => Math.abs(r - endRow);
 
     const open = new Map();
     const closed = new Set();
@@ -33,7 +36,11 @@ export default class Pathfinder {
       const current = open.get(currentKey);
       open.delete(currentKey);
 
-      if (current.col === endCol && current.row === endRow) {
+      // Goal: reach target cell
+      const atGoal = endCol !== null
+        ? current.row === endRow && current.col === endCol
+        : current.row === endRow;
+      if (atGoal) {
         return this._reconstructPath(cameFrom, currentKey);
       }
 
@@ -46,9 +53,13 @@ export default class Pathfinder {
 
         if (closed.has(nk)) continue;
         if (!this.grid.isInBounds(nc, nr)) continue;
-        if (!this.grid.isWalkable(nc, nr) && !(nc === endCol && nr === endRow)) continue;
+        // Allow the goal cell even if marked non-walkable
+        const isGoal = endCol !== null ? nr === endRow && nc === endCol : nr === endRow;
+        if (!this.grid.isWalkable(nc, nr) && !isGoal) continue;
 
-        const tentativeG = (gScore.get(currentKey) || 0) + 1;
+        // Penalise moving backwards (away from base)
+        const stepCost = dr === -1 ? 5 : 1;
+        const tentativeG = (gScore.get(currentKey) || 0) + stepCost;
         if (tentativeG < (gScore.get(nk) ?? Infinity)) {
           cameFrom.set(nk, currentKey);
           gScore.set(nk, tentativeG);
@@ -64,11 +75,9 @@ export default class Pathfinder {
     const path = [];
     let current = endKey;
 
-    // Add the end node
     const [endCol, endRow] = endKey.split(',').map(Number);
     path.push({ col: endCol, row: endRow });
 
-    // Trace back to start
     while (cameFrom.has(current)) {
       current = cameFrom.get(current);
       const [col, row] = current.split(',').map(Number);

@@ -34,6 +34,8 @@ export default class Enemy {
     this.atkCooldown = 0;
     this.regenAccum = 0;
     this.frozenUntil = 0;
+    this.attackingBase = false;
+    this.baseAtkCooldown = 0;
   }
 
   _drawHpBar() {
