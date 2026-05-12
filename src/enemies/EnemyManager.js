@@ -50,7 +50,10 @@ export default class EnemyManager {
       enemy.path = path;
       enemy.pathIndex = (skipCurrentCell && path.length > 1) ? 1 : 0;
     } else {
-      this._setNearestUnitTarget(enemy);
+      // 경로 없음: path를 비워 _handleNoPathEnemy로 진입하게 하고 막는 타워 공격
+      enemy.path = null;
+      enemy.pathIndex = 0;
+      this._setBlockingUnitTarget(enemy);
     }
   }
 
@@ -85,6 +88,33 @@ export default class EnemyManager {
       if (d < nearestDist) { nearestDist = d; nearest = unit; }
     }
     enemy.targetUnit = nearest;
+  }
+
+  // 경로를 막고 있는 타워 중 가장 가깝고 기지 방향인 유닛을 공격 대상으로 지정
+  _setBlockingUnitTarget(enemy) {
+    const units = this.scene.unitManager.units;
+    if (units.length === 0) { enemy.targetUnit = null; return; }
+    let best = null;
+    let bestScore = Infinity;
+    for (const unit of units) {
+      const pos = this.scene.grid.cellToWorld(unit.col, unit.row);
+      const dx = pos.x - enemy.x;
+      const dy = pos.y - enemy.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      // 기지 방향(row가 큰 쪽)에 있는 유닛 우선, 열 차이가 클수록 점수 불이익
+      const colPenalty = Math.abs(unit.col - enemy.col) * CELL_SIZE;
+      // 후방 유닛(enemy.row보다 작은 row) 무시
+      const score = unit.row < enemy.row ? Infinity : dist + colPenalty * 0.5;
+      if (score < bestScore) { bestScore = score; best = unit; }
+    }
+    // 전방에 유닛이 없으면 최근접 유닛으로 fallback
+    enemy.targetUnit = best ?? units.reduce((a, b) => {
+      const pa = this.scene.grid.cellToWorld(a.col, a.row);
+      const pb = this.scene.grid.cellToWorld(b.col, b.row);
+      const da = Math.hypot(pa.x - enemy.x, pa.y - enemy.y);
+      const db = Math.hypot(pb.x - enemy.x, pb.y - enemy.y);
+      return da < db ? a : b;
+    });
   }
 
   recalculateAllPaths() {
@@ -139,11 +169,12 @@ export default class EnemyManager {
 
       enemy.attackingBase = false;
 
-      // 경로가 있으면 이동 — 단, 다음 셀이 막혀 있으면 즉시 재계산
+      // 경로가 있으면 이동 — 단, 다음 셀이 막혀 있으면 즉시 재계산(경로 없으면 타워 공격)
       if (enemy.path && enemy.pathIndex < enemy.path.length) {
         const next = enemy.path[enemy.pathIndex];
         if (!this.scene.grid.isWalkable(next.col, next.row) && next.row !== this.baseRow) {
           this._assignPath(enemy, true);
+          // _assignPath가 path=null로 설정했으면 이번 프레임은 건너뜀
         } else {
           enemy.move(delta);
         }

@@ -90,9 +90,30 @@ export default class GameScene extends Phaser.Scene {
 
     this.scene.launch('UIScene');
 
-    this.stageManager.startStage(this.startStageIndex);
-
     this.unitManager.setupMergeInteraction();
+
+    this._startCountdown(() => {
+      this.stageManager.startStage(this.startStageIndex);
+    });
+  }
+
+  _startCountdown(onComplete) {
+    const cx = 320;
+    const cy = GRID_OFFSET_Y + Math.floor(GRID_ROWS * CELL_SIZE / 2);
+    const show = (text, delay, last) => {
+      this.time.delayedCall(delay, () => {
+        const t = this.add.text(cx, cy, text, {
+          fontSize: '72px', color: '#ffdd44', fontStyle: 'bold'
+        }).setOrigin(0.5).setDepth(25).setAlpha(1);
+        this.tweens.add({ targets: t, alpha: 0, scaleX: 1.4, scaleY: 1.4, duration: 900, ease: 'Power2',
+          onComplete: () => t.destroy() });
+        if (last) this.time.delayedCall(1000, onComplete);
+      });
+    };
+    show('3', 0, false);
+    show('2', 1000, false);
+    show('1', 2000, false);
+    show('시작!', 3000, true);
   }
 
   _applyObstacles(stageIndex) {

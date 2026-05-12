@@ -85,7 +85,6 @@ export default class UIScene extends Phaser.Scene {
 
     const { rank, dominantSuit } = evaluateHand(this.hand.cards);
     this.deck.discardMany(this.hand.consumeAll());
-    eco.resetReplaceCost();
 
     for (let i = 0; i < 5; i++) {
       const card = this.deck.draw();
@@ -114,6 +113,7 @@ export default class UIScene extends Phaser.Scene {
     // Cards are burned (permanently removed from deck this session)
     this.hand.consumeAll();
     this.sharedCards.consume(this.deck);
+    eco.resetReplaceCost();
 
     for (let i = 0; i < 5; i++) {
       const card = this.deck.draw();

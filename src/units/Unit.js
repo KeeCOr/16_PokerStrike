@@ -117,8 +117,10 @@ export default class Unit {
   }
 
   freeze(duration) {
+    const newUntil = Date.now() + duration;
+    if (newUntil <= this.frozenUntil) return; // 이미 더 길게 얼어있으면 무시
     this.frozen = true;
-    this.frozenUntil = Date.now() + duration;
+    this.frozenUntil = newUntil;
     this.sprite.setFillStyle(0xaaddff);
   }
 
