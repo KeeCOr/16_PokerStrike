@@ -6,7 +6,6 @@ export const ROLE = {
   ATTACK:        'attack',
   AREA:          'area',
   SUPPORT_SLOW:  'supportSlow',
-  TANK:          'tank',
   SNIPER:        'sniper',
   SUPPORT_SPEED: 'supportSpeed',
 };
@@ -59,7 +58,7 @@ const SUIT_MOD = {
     slowRadius:  [0.00, 1.00, 1.80], // 0 = 단일 대상
   },
   C: { // 땅 → 스턴 (등급 높을수록 확률·범위·지속↑)
-    role: ROLE.TANK,
+    role: ROLE.ATTACK,
     hpMult: 1.0, atkMult: 1.0, speedMult: 0.5, rangeMult: 0.8,
     stunChance:   [0.40, 0.60, 0.90],
     stunDuration: [600,  1200, 2200], // ms

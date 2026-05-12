@@ -3,8 +3,8 @@ const BASE_INCOME_RATE = 0.5;
 const INCOME_PER_WAVE = 0.25;
 const DRAW_BASE_COST = 5;
 const DRAW_INCREMENT = 2;
-const REPLACE_BASE_COST = 10;
-const REPLACE_INCREMENT = 2;
+const REPLACE_BASE_COST = 3;
+const REPLACE_INCREMENT = 3;
 
 export default class EconomyManager {
   constructor() {
@@ -57,5 +57,14 @@ export default class EconomyManager {
 
   onWaveCleared() {
     this.incomeRate += INCOME_PER_WAVE;
+  }
+
+  resetForNewStage(stageIndex = 0) {
+    this.gold = STARTING_GOLD + stageIndex * 5;
+    this.incomeRate = BASE_INCOME_RATE;
+    this.replaceCount = 0;
+    this.summonCount = 0;
+    this.accumulator = 0;
+    if (this.onGoldChanged) this.onGoldChanged(this.gold);
   }
 }

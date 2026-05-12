@@ -33,6 +33,12 @@ export default class RogueliteManager {
         case 'unitSlow':
           unit.stats.slowAmount = Math.min(0.9, (unit.stats.slowAmount || 0) + u.bonus);
           break;
+        case 'unitSplashChance':
+          unit.stats.splashChance = Math.min(1.0, (unit.stats.splashChance || 0) + u.bonus);
+          break;
+        case 'unitStunChance':
+          unit.stats.stunChance = Math.min(1.0, (unit.stats.stunChance || 0) + u.bonus);
+          break;
       }
     }
   }

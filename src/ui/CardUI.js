@@ -4,7 +4,7 @@ import { evaluateHand, HAND_NAMES } from '../cards/HandEvaluator.js';
 const CARD_W = 52;
 const CARD_H = 76;
 const CARD_Y = 820;
-const SHARED_SCALE = 0.65;
+const SHARED_SCALE = 0.85;
 
 export default class CardUI {
   constructor(scene) {
@@ -57,16 +57,21 @@ export default class CardUI {
     sep.lineBetween(sepX, CARD_Y - 40, sepX, CARD_Y + 40);
     this.sharedObjects.push([sep]);
 
-    // Shared cards label
-    const sharedLbl = this.scene.add.text(550, handLabelY, '공용패', {
-      fontSize: '10px', color: '#cc88ff'
+    // Shared cards — 오른쪽 영역(460~640) 중앙 배치
+    const sharedCardW = Math.floor(CARD_W * SHARED_SCALE);
+    const sharedGap = 8;
+    const sharedTotal = sharedCards.cards.length * (sharedCardW + sharedGap) - sharedGap;
+    const sharedStartX = Math.floor((460 + 640) / 2 - sharedTotal / 2 + sharedCardW / 2);
+
+    // Shared cards label — 카드 영역 위 중앙
+    const sharedCenterX = Math.floor((460 + 640) / 2);
+    const sharedLbl = this.scene.add.text(sharedCenterX, handLabelY, '공용패', {
+      fontSize: '11px', color: '#dd99ff'
     }).setOrigin(0.5).setDepth(12);
     this.sharedObjects.push([sharedLbl]);
 
-    // Shared cards
-    const sharedCardW = CARD_W * SHARED_SCALE;
     sharedCards.cards.forEach((card, i) => {
-      const x = 475 + i * (sharedCardW + 4);
+      const x = sharedStartX + i * (sharedCardW + sharedGap);
       this.sharedObjects.push(this._drawCard(x, CARD_Y, card, SHARED_SCALE));
     });
   }
@@ -88,11 +93,9 @@ export default class CardUI {
   }
 
   // Enter replace mode: highlight cards and call onSelect(index) when clicked
-  enterReplaceMode(hand, onSelect) {
+  // onCancel: called when clicking outside the cards
+  enterReplaceMode(hand, onSelect, onCancel) {
     this.exitReplaceMode(); // clean up any existing replace mode first
-
-    const totalW = hand.cards.length * (CARD_W + 6);
-    const startX = (460 - totalW) / 2 + CARD_W / 2;
 
     // Show hint label
     this._replaceModeHint = this.scene.add.text(230, CARD_Y - 46, '교체할 카드를 선택하세요', {
@@ -112,10 +115,32 @@ export default class CardUI {
       bg.on('pointerover', () => bg.setFillStyle(0x446633));
       bg.on('pointerout',  () => bg.setFillStyle(0x2a3f22));
     });
+
+    // 카드 영역 밖 클릭 시 취소
+    // _skipFirst: 교체 버튼 클릭한 pointerdown 이벤트 자체를 무시하기 위해 첫 번째 이벤트 건너뜀
+    let skipFirst = true;
+    this._cancelOnOutsideClick = (ptr) => {
+      if (skipFirst) { skipFirst = false; return; }
+      const onCard = this.cardObjects.slice(1).some(objs => {
+        const [bg] = objs;
+        if (!bg?.active) return false;
+        const b = bg.getBounds();
+        return ptr.x >= b.left && ptr.x <= b.right && ptr.y >= b.top && ptr.y <= b.bottom;
+      });
+      if (!onCard) {
+        this.exitReplaceMode();
+        if (onCancel) onCancel();
+      }
+    };
+    this.scene.input.on('pointerdown', this._cancelOnOutsideClick);
   }
 
   exitReplaceMode() {
     if (this._replaceModeHint) { this._replaceModeHint.destroy(); this._replaceModeHint = null; }
+    if (this._cancelOnOutsideClick) {
+      this.scene.input.off('pointerdown', this._cancelOnOutsideClick);
+      this._cancelOnOutsideClick = null;
+    }
     // Restore card bg colors and remove listeners
     this.cardObjects.slice(1).forEach((objs) => {
       const [bg] = objs;

@@ -1,5 +1,7 @@
 export const HAND_SIZE = 5;
 
+const VALUE_ORDER = ['7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
 export default class Hand {
   constructor() {
     this.cards = [];
@@ -8,6 +10,7 @@ export default class Hand {
   addCard(card) {
     if (this.cards.length < HAND_SIZE) {
       this.cards.push(card);
+      this.cards.sort((a, b) => VALUE_ORDER.indexOf(b.value) - VALUE_ORDER.indexOf(a.value));
       return true;
     }
     return false;

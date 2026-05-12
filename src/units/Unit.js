@@ -1,6 +1,71 @@
 import { ROLE } from './UnitData.js';
 import { SUIT_COLORS } from '../cards/Card.js';
 import { CELL_SIZE } from '../grid/Grid.js';
+import { HAND_RANK } from '../cards/HandEvaluator.js';
+
+// n각형 점 배열 ({x,y} 형식, 위쪽 꼭짓점 기준, 로컬 원점 중심)
+export function _ngon(n, r) {
+  return Array.from({ length: n }, (_, i) => {
+    const a = (i * 360 / n - 90) * Math.PI / 180;
+    return { x: r * Math.cos(a), y: r * Math.sin(a) };
+  });
+}
+
+// m각 별 점 배열
+function _star(m, r, innerRatio) {
+  return Array.from({ length: m * 2 }, (_, i) => {
+    const a = (i * 180 / m - 90) * Math.PI / 180;
+    const rad = i % 2 === 0 ? r : Math.round(r * innerRatio);
+    return { x: rad * Math.cos(a), y: rad * Math.sin(a) };
+  });
+}
+
+export const SHAPE_DEF = {
+  [HAND_RANK.HIGH_CARD]:       { pts: r => _ngon(3, r), sw: 1.5, sc: 0x000000, sa: 0.55 },
+  [HAND_RANK.ONE_PAIR]:        { pts: r => _ngon(4, r), sw: 1.5, sc: 0x000000, sa: 0.55 },
+  [HAND_RANK.TWO_PAIR]:        { pts: r => _ngon(5, r), sw: 1.5, sc: 0x000000, sa: 0.55 },
+  [HAND_RANK.THREE_OF_A_KIND]: { pts: r => _ngon(6, r), sw: 1.5, sc: 0x000000, sa: 0.55 },
+  [HAND_RANK.STRAIGHT]:        { pts: r => _ngon(7, r), sw: 1.5, sc: 0x000000, sa: 0.55 },
+  [HAND_RANK.FLUSH]:           { pts: r => _ngon(8, r), sw: 1.5, sc: 0x000000, sa: 0.55 },
+  [HAND_RANK.FULL_HOUSE]:      { pts: r => _star(5, r, 0.45), sw: 2.0, sc: 0xffffff, sa: 0.5  },
+  [HAND_RANK.FOUR_OF_A_KIND]:  { pts: r => _star(6, r, 0.45), sw: 2.0, sc: 0xffffff, sa: 0.6  },
+  [HAND_RANK.STRAIGHT_FLUSH]:  { pts: r => _star(8, r, 0.48), sw: 2.5, sc: 0xffffff, sa: 0.75 },
+};
+
+// Graphics를 사용해 로컬 (0,0) = 월드 (x,y)로 정확히 중앙 배치
+function _makeShape(scene, x, y, handRank, sz, color) {
+  const r = Math.floor(sz / 2);
+  const def = SHAPE_DEF[handRank] ?? SHAPE_DEF[HAND_RANK.ONE_PAIR];
+  const pts = def.pts(r);
+
+  const gfx = scene.add.graphics();
+  gfx.setPosition(x, y);
+
+  // 색상/스트로크 정보 보관
+  gfx._shapePts = pts;
+  gfx._fillColor = color;
+  gfx._sw = def.sw;
+  gfx._sc = def.sc;
+  gfx._sa = def.sa;
+
+  // Shape 오브젝트와 동일한 인터페이스 제공
+  gfx.setFillStyle = function (c) {
+    this._fillColor = c;
+    this._redraw();
+    return this;
+  };
+
+  gfx._redraw = function () {
+    this.clear();
+    this.fillStyle(this._fillColor, 1);
+    this.fillPoints(this._shapePts, true, true);
+    this.lineStyle(this._sw, this._sc, this._sa);
+    this.strokePoints(this._shapePts, true, true);
+  };
+
+  gfx._redraw();
+  return gfx;
+}
 
 export default class Unit {
   constructor(scene, col, row, handRank, suit, grade, stats) {
@@ -20,8 +85,9 @@ export default class Unit {
 
     const pos = scene.grid.cellToWorld(col, row);
     const color = SUIT_COLORS[suit] ?? 0xffffff;
+    this._baseColor = color;
     const sz = Math.floor(CELL_SIZE * 0.55);
-    this.sprite = scene.add.rectangle(pos.x, pos.y, sz, sz, color).setDepth(2);
+    this.sprite = _makeShape(scene, pos.x, pos.y, handRank, sz, color).setDepth(2);
     this.hpBar = scene.add.graphics().setDepth(3);
     this.gradeText = scene.add.text(pos.x, pos.y - Math.floor(CELL_SIZE * 0.22), `${grade}`, {
       fontSize: '11px', color: '#fff'
@@ -59,7 +125,7 @@ export default class Unit {
   update(time) {
     if (this.frozen && Date.now() > this.frozenUntil) {
       this.frozen = false;
-      this.sprite.setFillStyle(SUIT_COLORS[this.suit] ?? 0xffffff);
+      this.sprite.setFillStyle(this._baseColor);
     }
   }
 
@@ -90,11 +156,20 @@ export default class Unit {
   setGlow(active) {
     const pos = this.scene.grid.cellToWorld(this.col, this.row);
     if (active && !this.glowCircle) {
-      this.glowCircle = this.scene.add.circle(pos.x, pos.y, Math.floor(CELL_SIZE * 0.32), 0xffff00, 0.35).setDepth(1);
+      this.glowCircle = this.scene.add.circle(pos.x, pos.y, Math.floor(CELL_SIZE * 0.38), 0xffdd00, 0.55).setDepth(1)
+        .setStrokeStyle(2, 0xffff88, 0.9);
     } else if (!active && this.glowCircle) {
       this.glowCircle.destroy();
       this.glowCircle = null;
     }
+  }
+
+  setDim(active) {
+    const alpha = active ? 0.28 : 1.0;
+    this.sprite.setAlpha(alpha);
+    this.gradeText.setAlpha(alpha);
+    this.hpBar.setAlpha(alpha);
+    if (this.glowCircle) this.glowCircle.setAlpha(active ? 0 : 1);
   }
 
   destroy() {
@@ -105,5 +180,6 @@ export default class Unit {
     if (this.selectCircle) this.selectCircle.destroy();
     if (this.rangeCircle) this.rangeCircle.destroy();
     if (this.highlightCircle) this.highlightCircle.destroy();
+    if (this.dimOverlay) this.dimOverlay.destroy();
   }
 }

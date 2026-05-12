@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import Grid, { GRID_ROWS, GRID_COLS, CELL_BLOCKED, CELL_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y } from '../grid/Grid.js';
+import Grid, { GRID_ROWS, GRID_COLS, CELL_BLOCKED, CELL_EMPTY, CELL_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y } from '../grid/Grid.js';
 import GridRenderer from '../grid/GridRenderer.js';
 import UnitManager from '../units/UnitManager.js';
 import EnemyManager from '../enemies/EnemyManager.js';
@@ -9,22 +9,27 @@ import StageManager from '../stages/StageManager.js';
 import MagicManager from '../magic/MagicManager.js';
 import RogueliteManager from '../roguelite/RogueliteManager.js';
 import { UPGRADE_POOL } from '../data/roguelite.js';
-import { STAGES } from '../stages/StageData.js';
+import { STAGES, STAGE_OBSTACLES } from '../stages/StageData.js';
 
 const BASE_HP = 100;
 
 function _upgradeTypeLabel(upgrade) {
   const typeMap = {
     unitAtk: '공격력 강화', unitHp: 'HP 강화', unitRange: '사거리 강화',
-    unitAtkSpeed: '공격속도 강화', unitBuffRadius: '버프 범위 강화',
-    unitSlow: '감속 강화', drawCost: '경제 강화', replaceCost: '경제 강화',
-    goldOnSummon: '골드 강화',
+    unitAtkSpeed: '공격속도 강화', unitSlow: '감속 강화',
+    unitSplashChance: '스플래시 강화', unitStunChance: '스턴 강화',
+    drawCost: '경제 강화', replaceCost: '경제 강화', goldOnSummon: '골드 강화',
   };
   return typeMap[upgrade.type] ?? '강화';
 }
 
 export default class GameScene extends Phaser.Scene {
   constructor() { super('GameScene'); }
+
+  init(data) {
+    this.startStageIndex = data?.startStageIndex ?? 0;
+    this.savedUpgrades = data?.upgrades ?? [];
+  }
 
   create() {
     this.grid = new Grid();
@@ -36,6 +41,7 @@ export default class GameScene extends Phaser.Scene {
     this.stageManager = new StageManager(this);
     this.magicManager = new MagicManager(this);
     this.rogueliteManager = new RogueliteManager();
+    this.savedUpgrades.forEach(u => this.rogueliteManager.addUpgrade(u));
     this.economyManager.roguelite = this.rogueliteManager;
 
     this.baseHp = BASE_HP;
@@ -64,6 +70,10 @@ export default class GameScene extends Phaser.Scene {
       this.registry.set('gold', gold);
     };
 
+    if (this.startStageIndex > 0) {
+      this.economyManager.gold = 15 + this.startStageIndex * 5;
+    }
+
     this.registry.set('baseHp', this.baseHp);
     this.registry.set('gold', this.economyManager.gold);
     this.registry.set('wave', 1);
@@ -76,27 +86,31 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this._initMap();
+    if (this.startStageIndex > 0) this._applyObstacles(this.startStageIndex);
 
     this.scene.launch('UIScene');
 
-    this.stageManager.startStage(0);
+    this.stageManager.startStage(this.startStageIndex);
 
     this.unitManager.setupMergeInteraction();
   }
 
-  _initMap() {
-    // 지형 장애물 배치
-    const obstacles = [
-      [1, 2], [2, 2],
-      [5, 3], [6, 3],
-      [0, 5], [1, 5],
-      [4, 6], [5, 6],
-      [2, 7], [3, 7],
-    ];
+  _applyObstacles(stageIndex) {
+    // 기존 장애물 초기화
+    for (let r = 0; r < GRID_ROWS; r++) {
+      for (let c = 0; c < GRID_COLS; c++) {
+        if (this.grid.getCell(c, r) === CELL_BLOCKED) this.grid.setCell(c, r, CELL_EMPTY);
+      }
+    }
+    const obstacles = STAGE_OBSTACLES[stageIndex] ?? STAGE_OBSTACLES[0];
     for (const [col, row] of obstacles) {
       this.grid.setCell(col, row, CELL_BLOCKED);
     }
     this.gridRenderer.refresh();
+  }
+
+  _initMap() {
+    this._applyObstacles(0);
 
     // 스폰 구역 표시 (row 0, col 3)
     const spawnX = GRID_OFFSET_X + 3 * CELL_SIZE;
@@ -258,48 +272,109 @@ export default class GameScene extends Phaser.Scene {
   _gameOver() {
     this.gameOver = true;
     this.add.rectangle(320, 480, 640, 960, 0x000000, 0.7).setDepth(10);
-    this.add.text(320, 430, 'GAME OVER', {
+    this.add.text(320, 380, 'GAME OVER', {
       fontSize: '48px', color: '#ff4444', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
-    this.add.text(320, 520, '클릭하여 재시작', {
-      fontSize: '20px', color: '#ffffff'
-    }).setOrigin(0.5).setDepth(11);
-    this.input.once('pointerdown', () => {
-      this.scene.stop('UIScene');
-      this.scene.restart();
-    });
+
+    const currentStage = this.stageManager.stageIndex;
+
+    if (currentStage > 0) {
+      // 현재 스테이지부터 재시작
+      const continueBtn = this.add.text(320, 470, `▶  ${currentStage + 1}스테이지부터 재시작`, {
+        fontSize: '18px', color: '#ffffff',
+        backgroundColor: '#1a5e2a', padding: { x: 20, y: 10 }
+      }).setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
+      continueBtn.on('pointerover', () => continueBtn.setStyle({ color: '#ffdd44' }));
+      continueBtn.on('pointerout',  () => continueBtn.setStyle({ color: '#ffffff' }));
+      continueBtn.on('pointerdown', () => {
+        this.scene.stop('UIScene');
+        this.scene.restart({ startStageIndex: currentStage, upgrades: this.rogueliteManager.upgrades });
+      });
+
+      // 1스테이지부터 재시작
+      const restartBtn = this.add.text(320, 535, '↺  1스테이지부터 재시작', {
+        fontSize: '16px', color: '#cccccc',
+        backgroundColor: '#3a2a1a', padding: { x: 20, y: 8 }
+      }).setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
+      restartBtn.on('pointerover', () => restartBtn.setStyle({ color: '#ffdd44' }));
+      restartBtn.on('pointerout',  () => restartBtn.setStyle({ color: '#cccccc' }));
+      restartBtn.on('pointerdown', () => {
+        this.scene.stop('UIScene');
+        this.scene.restart();
+      });
+    } else {
+      const restartBtn = this.add.text(320, 490, '클릭하여 재시작', {
+        fontSize: '20px', color: '#ffffff'
+      }).setOrigin(0.5).setDepth(11);
+      this.input.once('pointerdown', () => {
+        this.scene.stop('UIScene');
+        this.scene.restart();
+      });
+    }
   }
 
   _stageCleared(stageIndex) {
     const isLast = stageIndex >= STAGES.length - 1;
     const overlay = this.add.rectangle(320, 480, 640, 960, 0x000000, 0.6).setDepth(10);
-    const clearText = this.add.text(320, 400, `STAGE ${stageIndex + 1} CLEAR!`, {
+    const clearText = this.add.text(320, 360, `STAGE ${stageIndex + 1} CLEAR!`, {
       fontSize: '36px', color: '#ffdd44', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
+    const objs = [overlay, clearText];
+
+    // 획득한 로그라이트 강화 목록 표시
+    const upgrades = this.rogueliteManager.upgrades;
+    if (upgrades.length > 0) {
+      const buffTitle = this.add.text(320, 415, '획득한 강화:', {
+        fontSize: '12px', color: '#aaddff'
+      }).setOrigin(0.5).setDepth(11);
+      objs.push(buffTitle);
+      const labels = upgrades.map(u => u.label).join('  /  ');
+      const buffList = this.add.text(320, 435, labels, {
+        fontSize: '11px', color: '#88ccff', wordWrap: { width: 500 }
+      }).setOrigin(0.5).setDepth(11);
+      objs.push(buffList);
+    }
 
     if (isLast) {
-      this.add.text(320, 490, '모든 스테이지 클리어!', {
+      const finalText = this.add.text(320, 490, '모든 스테이지 클리어!', {
         fontSize: '22px', color: '#ffffff'
       }).setOrigin(0.5).setDepth(11);
+      objs.push(finalText);
     } else {
-      const btn = this.add.text(320, 490, '▶  다음 스테이지', {
-        fontSize: '22px', color: '#ffffff',
+      const nextBtn = this.add.text(320, 490, '▶  다음 스테이지', {
+        fontSize: '20px', color: '#ffffff',
         backgroundColor: '#1a5e2a', padding: { x: 20, y: 10 }
       }).setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
-
-      btn.on('pointerover', () => btn.setStyle({ color: '#ffdd44' }));
-      btn.on('pointerout', () => btn.setStyle({ color: '#ffffff' }));
-      btn.on('pointerdown', () => {
-        overlay.destroy();
-        clearText.destroy();
-        btn.destroy();
+      nextBtn.on('pointerover', () => nextBtn.setStyle({ color: '#ffdd44' }));
+      nextBtn.on('pointerout', () => nextBtn.setStyle({ color: '#ffffff' }));
+      nextBtn.on('pointerdown', () => {
+        objs.forEach(o => o.destroy());
         this.unitManager.clearAll();
-        this.enemyManager.recalculateAllPaths();
         const next = stageIndex + 1;
+        this._applyObstacles(next);
+        this.enemyManager.recalculateAllPaths();
+        // 본진 HP 완전 회복 + 골드 초기화
+        this.baseHp = BASE_HP;
+        this.registry.set('baseHp', this.baseHp);
+        this._drawBaseHpBar();
+        this.economyManager.resetForNewStage(next);
         this.registry.set('wave', 1);
         this.stageManager.startStage(next);
       });
+      objs.push(nextBtn);
     }
+
+    const restartBtn = this.add.text(320, isLast ? 490 : 548, '↺  새로 시작', {
+      fontSize: '18px', color: '#cccccc',
+      backgroundColor: '#3a2a1a', padding: { x: 20, y: 8 }
+    }).setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
+    restartBtn.on('pointerover', () => restartBtn.setStyle({ color: '#ffdd44' }));
+    restartBtn.on('pointerout', () => restartBtn.setStyle({ color: '#cccccc' }));
+    restartBtn.on('pointerdown', () => {
+      this.scene.stop('UIScene');
+      this.scene.restart();
+    });
+    objs.push(restartBtn);
   }
 
   update(time, delta) {

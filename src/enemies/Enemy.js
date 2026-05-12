@@ -11,6 +11,7 @@ export default class Enemy {
     this.maxHp = stats.hp;
     this.atk = stats.atk;
     this.speed = stats.speed;
+    this.baseSpeed = stats.speed; // 슬로우 중첩 방지용 원본 속도
     this.reward = stats.reward;
     this.magicImmune = stats.magicImmune;
     this.isAerial = stats.isAerial;
@@ -28,9 +29,21 @@ export default class Enemy {
 
     const color = type === ENEMY_TYPE.BOSS ? 0xff0000 : 0xee8800;
     this.sprite = scene.add.rectangle(this.x, this.y, 32, 32, color).setDepth(2);
+
+    // 공중 유닛 표시: 다이아몬드 윤곽 + 'AIR' 텍스트
+    if (this.isAerial) {
+      this._aerialMarker = scene.add.graphics().setDepth(3);
+      this._aerialMarker.lineStyle(2, 0x88eeff, 1);
+      this._aerialMarker.strokeRect(this.x - 20, this.y - 20, 40, 40);
+      this._aerialLabel = scene.add.text(this.x, this.y - 24, '✈', {
+        fontSize: '11px', color: '#88eeff'
+      }).setOrigin(0.5).setDepth(4);
+    }
+
     this.hpBar = scene.add.graphics().setDepth(3);
     this._drawHpBar();
 
+    this.atkRange = stats.atkRange ?? 1.5; // 공격 사정거리 (셀 단위)
     this.atkCooldown = 0;
     this.regenAccum = 0;
     this.frozenUntil = 0;
@@ -93,7 +106,31 @@ export default class Enemy {
     }
 
     this.sprite.setPosition(this.x, this.y);
+    if (this._aerialMarker) {
+      this._aerialMarker.clear();
+      this._aerialMarker.lineStyle(2, 0x88eeff, 1);
+      this._aerialMarker.strokeRect(this.x - 20, this.y - 20, 40, 40);
+      this._aerialLabel.setPosition(this.x, this.y - 24);
+    }
     this._drawHpBar();
+  }
+
+  // 재생/버프 등 패시브 처리 (이동 없음)
+  updatePassive(delta) {
+    const dtSec = delta / 1000;
+    if (this.regenRate > 0) {
+      this.regenAccum += this.regenRate * dtSec;
+      if (this.regenAccum >= 1) {
+        this.hp = Math.min(this.maxHp, this.hp + Math.floor(this.regenAccum));
+        this.regenAccum = 0;
+        this._drawHpBar();
+      }
+    }
+  }
+
+  // 이동만 처리
+  move(delta) {
+    this._moveAlongPath(delta / 1000);
   }
 
   applyFreeze(duration) {
@@ -113,5 +150,6 @@ export default class Enemy {
   destroy() {
     this.sprite.destroy();
     this.hpBar.destroy();
+    if (this._aerialMarker) { this._aerialMarker.destroy(); this._aerialLabel.destroy(); }
   }
 }

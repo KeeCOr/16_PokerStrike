@@ -6,7 +6,7 @@ const PROJ_COLOR = {
   [ROLE.AREA]:          0xff6622,
   [ROLE.SNIPER]:        0xccff44,
   [ROLE.SUPPORT_SLOW]:  0x44ddff,
-  [ROLE.TANK]:          0xaaaaff,
+  earth:                0xaaaaff, // 땅 속성 (C suit)
   [ROLE.ATTACK]:        0xffffff,
   [ROLE.SUPPORT_SPEED]: 0x44ff88,
 };
@@ -117,16 +117,18 @@ export default class CombatManager {
             const dx = e.x - target.x;
             const dy = e.y - target.y;
             if (Math.sqrt(dx * dx + dy * dy) <= radiusPx) {
-              e.speed = Math.max(e.speed * (1 - s.slowAmount), 10);
+              const slowedSpeed = Math.max(e.baseSpeed * (1 - s.slowAmount), 10);
+              e.speed = Math.min(e.speed, slowedSpeed);
             }
           }
         } else {
-          target.speed = Math.max(target.speed * (1 - s.slowAmount), 10);
+          const slowedSpeed = Math.max(target.baseSpeed * (1 - s.slowAmount), 10);
+          target.speed = Math.min(target.speed, slowedSpeed);
         }
       }
 
-    } else if (role === ROLE.TANK) {
-      // 땅: 대미지 후 확률 스턴 (등급에 따라 범위·지속)
+    } else if (s.stunChance > 0) {
+      // 땅(C속성): 대미지 후 확률 스턴 (등급에 따라 범위·지속)
       const dead = target.takeDamage(s.atk);
       if (dead) { this._onEnemyDied(target); return; }
       if (s.stunChance > 0 && Math.random() < s.stunChance) {

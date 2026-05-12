@@ -46,18 +46,24 @@ export default class UIScene extends Phaser.Scene {
 
   _createTabButtons() {
     const y = PANEL_Y + 12;
-    this._tabCardBtn = this.add.text(70, y, '카드 패', {
+    this._tabCardBtn = this.add.text(55, y, '카드 패', {
       fontSize: '12px', color: '#ffffff',
       backgroundColor: '#2244aa', padding: { x: 10, y: 4 }
     }).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
 
-    this._tabUpgradeBtn = this.add.text(180, y, '업그레이드', {
+    this._tabUpgradeBtn = this.add.text(165, y, '업그레이드', {
       fontSize: '12px', color: '#ffffff',
       backgroundColor: '#1a3a1a', padding: { x: 10, y: 4 }
     }).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
 
+    this._tabRogueliteBtn = this.add.text(285, y, '강화 목록', {
+      fontSize: '12px', color: '#ffffff',
+      backgroundColor: '#4a3a00', padding: { x: 10, y: 4 }
+    }).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
+
     this._tabCardBtn.on('pointerdown', () => this._switchTab('card'));
     this._tabUpgradeBtn.on('pointerdown', () => this._switchTab('upgrade'));
+    this._tabRogueliteBtn.on('pointerdown', () => this._switchTab('roguelite'));
   }
 
   _switchTab(tab) {
@@ -66,6 +72,7 @@ export default class UIScene extends Phaser.Scene {
     this._activeTab = tab;
     this._tabCardBtn.setStyle({ backgroundColor: tab === 'card' ? '#2244aa' : '#1a3a6a' });
     this._tabUpgradeBtn.setStyle({ backgroundColor: tab === 'upgrade' ? '#226644' : '#1a3a1a' });
+    this._tabRogueliteBtn.setStyle({ backgroundColor: tab === 'roguelite' ? '#6a5a00' : '#4a3a00' });
     this._refreshUI();
   }
 
@@ -131,6 +138,9 @@ export default class UIScene extends Phaser.Scene {
       const newCard = this.deck.draw();
       if (newCard) this.hand.addCard(newCard);
       this._refreshUI();
+    }, () => {
+      // 패 밖 클릭 시 취소 → UI 갱신(힌트 제거)
+      this._refreshUI();
     });
   }
 
@@ -138,9 +148,12 @@ export default class UIScene extends Phaser.Scene {
     if (this._activeTab === 'card') {
       this._clearUpgradeObjs();
       this._renderCardTab();
-    } else {
+    } else if (this._activeTab === 'upgrade') {
       this.cardUI.clear();
       this._renderUpgradeTab();
+    } else {
+      this.cardUI.clear();
+      this._renderRogueliteTab();
     }
   }
 
@@ -190,6 +203,36 @@ export default class UIScene extends Phaser.Scene {
   _clearUpgradeObjs() {
     this._upgradeObjs.forEach(o => { if (o && o.active) o.destroy(); });
     this._upgradeObjs = [];
+  }
+
+  _renderRogueliteTab() {
+    this._clearUpgradeObjs();
+    const gameScene = this.scene.get('GameScene');
+    const upgrades = gameScene?.rogueliteManager?.upgrades ?? [];
+    let y = PANEL_Y + 24;
+
+    const title = this.add.text(320, y, '— 획득한 로그라이트 강화 —', {
+      fontSize: '11px', color: '#ffdd44'
+    }).setOrigin(0.5).setDepth(12);
+    this._upgradeObjs.push(title);
+    y += 22;
+
+    if (upgrades.length === 0) {
+      const empty = this.add.text(320, y, '아직 획득한 강화가 없습니다', {
+        fontSize: '11px', color: '#888888'
+      }).setOrigin(0.5).setDepth(12);
+      this._upgradeObjs.push(empty);
+      return;
+    }
+
+    for (const u of upgrades) {
+      const row = this.add.text(320, y, `· ${u.label}`, {
+        fontSize: '11px', color: '#aaddff'
+      }).setOrigin(0.5).setDepth(12);
+      this._upgradeObjs.push(row);
+      y += 18;
+      if (y > 930) break;
+    }
   }
 
   _renderUpgradeTab() {
