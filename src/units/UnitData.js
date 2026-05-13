@@ -13,31 +13,32 @@ export const ROLE = {
 // ── 등급 배율 ────────────────────────────────────────────────
 export const GRADE_MULTIPLIER = { 1: 1.0, 2: 1.8, 3: 3.2 };
 
-// ── 패 조합별 파워 배율 (조합이 높을수록 압도적으로 강해짐) ──
+// ── 패 조합별 파워 배율 ──
+// 트리플 이하: 좁은 간격의 범용 구간
+// 스트레이트 이상: 유사한 배율, 개성은 고유 메커닉으로 구분
 const RANK_POWER = {
-  [HAND_RANK.HIGH_CARD]:       0.45,
-  [HAND_RANK.ONE_PAIR]:        0.75,
-  [HAND_RANK.TWO_PAIR]:        1.0,
-  [HAND_RANK.THREE_OF_A_KIND]: 1.5,
+  [HAND_RANK.HIGH_CARD]:       0.60,
+  [HAND_RANK.ONE_PAIR]:        0.82,
+  [HAND_RANK.TWO_PAIR]:        1.05,
+  [HAND_RANK.THREE_OF_A_KIND]: 1.25,
   [HAND_RANK.STRAIGHT]:        2.0,
-  [HAND_RANK.FLUSH]:           2.6,
-  [HAND_RANK.FULL_HOUSE]:      3.4,
-  [HAND_RANK.FOUR_OF_A_KIND]:  4.5,
-  [HAND_RANK.STRAIGHT_FLUSH]:  6.0,
+  [HAND_RANK.FLUSH]:           2.2,  // 다중 공격 (3연타)
+  [HAND_RANK.FULL_HOUSE]:      2.5,  // 근접 초강타
+  [HAND_RANK.FOUR_OF_A_KIND]:  2.8,  // 직선 관통
+  [HAND_RANK.STRAIGHT_FLUSH]:  3.0,  // 주기 버프 오라 서포터
 };
 
-// ── 조합별 아키타입 기본 스탯 (각 조합의 "역할 느낌" 정의) ──
-// range는 셀 단위. atkSpeed는 초당 공격 횟수(높을수록 빠름)
+// ── 조합별 아키타입 기본 스탯 ──
 const ARCHETYPE = {
-  [HAND_RANK.HIGH_CARD]:       { hp: 80,  atk: 14, atkSpeed: 1.0, range: 2.0 }, // 잡병
-  [HAND_RANK.ONE_PAIR]:        { hp: 75,  atk: 10, atkSpeed: 0.55, range: 4.0 }, // 탑 (사거리 길고 느림)
-  [HAND_RANK.TWO_PAIR]:        { hp: 130, atk: 22, atkSpeed: 1.2, range: 1.5 }, // 전사 (근접 강타)
-  [HAND_RANK.THREE_OF_A_KIND]: { hp: 100, atk: 24, atkSpeed: 0.8, range: 3.0 }, // 마법사
-  [HAND_RANK.STRAIGHT]:        { hp: 140, atk: 20, atkSpeed: 1.1, range: 2.2 }, // 기사
-  [HAND_RANK.FLUSH]:           { hp: 90,  atk: 18, atkSpeed: 1.4, range: 2.5 }, // 민첩형
-  [HAND_RANK.FULL_HOUSE]:      { hp: 170, atk: 28, atkSpeed: 1.0, range: 2.5 }, // 정예
-  [HAND_RANK.FOUR_OF_A_KIND]:  { hp: 80,  atk: 42, atkSpeed: 0.45, range: 5.5 }, // 저격수
-  [HAND_RANK.STRAIGHT_FLUSH]:  { hp: 220, atk: 50, atkSpeed: 1.3, range: 4.0 }, // 신화
+  [HAND_RANK.HIGH_CARD]:       { hp: 80,  atk: 14, atkSpeed: 1.0,  range: 2.0 }, // 잡병
+  [HAND_RANK.ONE_PAIR]:        { hp: 75,  atk: 10, atkSpeed: 0.55, range: 4.0 }, // 탑
+  [HAND_RANK.TWO_PAIR]:        { hp: 130, atk: 22, atkSpeed: 1.2,  range: 1.5 }, // 전사
+  [HAND_RANK.THREE_OF_A_KIND]: { hp: 100, atk: 24, atkSpeed: 0.8,  range: 3.0 }, // 마법사
+  [HAND_RANK.STRAIGHT]:        { hp: 140, atk: 20, atkSpeed: 1.1,  range: 2.2 }, // 기사
+  [HAND_RANK.FLUSH]:           { hp: 85,  atk: 16, atkSpeed: 1.7,  range: 2.5 }, // 다중 연사 (3타깃)
+  [HAND_RANK.FULL_HOUSE]:      { hp: 210, atk: 55, atkSpeed: 0.65, range: 1.2 }, // 근접 초강타
+  [HAND_RANK.FOUR_OF_A_KIND]:  { hp: 80,  atk: 40, atkSpeed: 0.5,  range: 5.0 }, // 직선 관통
+  [HAND_RANK.STRAIGHT_FLUSH]:  { hp: 180, atk: 20, atkSpeed: 1.0,  range: 2.5 }, // 오라 서포터
 };
 
 // ── 속성별 변환 (role + 스탯 배율) ────────────────────────────
@@ -89,6 +90,17 @@ export function getUnitStats(handRank, suit, grade) {
 
   const gi = Math.max(0, Math.min(2, (grade ?? 1) - 1)); // 0,1,2
 
+  // ── 족보별 고유 메커닉 플래그 ──
+  // FLUSH: 최대 3타깃 동시 공격
+  const multiTarget = handRank === HAND_RANK.FLUSH ? 3 : 0;
+  // FOUR_OF_A_KIND: 직선 관통 공격
+  const piercing = handRank === HAND_RANK.FOUR_OF_A_KIND;
+  // STRAIGHT_FLUSH: 주기적 주변 타워 버프 오라
+  const auraInterval   = handRank === HAND_RANK.STRAIGHT_FLUSH ? 10000 : 0;
+  const auraRadius     = handRank === HAND_RANK.STRAIGHT_FLUSH ? 2.5   : 0;
+  const auraBuff       = handRank === HAND_RANK.STRAIGHT_FLUSH ? 0.35  : 0; // atkSpeed +35%
+  const auraDuration   = handRank === HAND_RANK.STRAIGHT_FLUSH ? 12000 : 0;
+
   return {
     role:         mod.role,
     hp,
@@ -107,5 +119,11 @@ export function getUnitStats(handRank, suit, grade) {
     hpPctDamage:  mod.hpPctDamage  ? mod.hpPctDamage[gi]  : 0,
     buffRadius:   mod.buffRadius   ?? 0,
     buffAtkSpeed: mod.buffAtkSpeed ?? 0,
+    multiTarget,
+    piercing,
+    auraInterval,
+    auraRadius,
+    auraBuff,
+    auraDuration,
   };
 }

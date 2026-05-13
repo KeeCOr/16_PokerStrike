@@ -85,6 +85,15 @@ export default class MagicManager {
       case 'refreshShared':
         scene.events.emit('refreshSharedCards');
         break;
+
+      case 'buffAllTowers':
+        scene.unitManager.units.forEach(u => {
+          u.stats.atkSpeed = +(u.stats.atkSpeed * skill.multiplier).toFixed(3);
+          scene.time.delayedCall(skill.duration, () => {
+            u.stats.atkSpeed = +(u.stats.atkSpeed / skill.multiplier).toFixed(3);
+          });
+        });
+        break;
     }
   }
 }

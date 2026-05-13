@@ -19,6 +19,11 @@ export default class Enemy {
     this.freezeRadius = stats.freezeRadius ?? 0;
     this.freezeDuration = stats.freezeDuration ?? 0;
 
+    this.armor      = stats.armor      ?? 0;
+    this.shield     = stats.shield     ?? 0;
+    this.maxShield  = stats.shield     ?? 0;
+    this.slowImmune = stats.slowImmune ?? false;
+
     this.path = null;
     this.pathIndex = 0;
     this.targetUnit = null;
@@ -27,7 +32,14 @@ export default class Enemy {
     this.x = pos.x;
     this.y = pos.y;
 
-    const color = type === ENEMY_TYPE.BOSS ? 0xff0000 : 0xee8800;
+    const COLOR_MAP = {
+      [ENEMY_TYPE.BOSS]:      0xff0000,
+      [ENEMY_TYPE.ARMORED]:   0x999999,
+      [ENEMY_TYPE.SWARM]:     0xdd44bb,
+      [ENEMY_TYPE.BERSERKER]: 0xff5500,
+      [ENEMY_TYPE.SHIELDED]:  0x4499ff,
+    };
+    const color = COLOR_MAP[type] ?? 0xee8800;
     this.sprite = scene.add.rectangle(this.x, this.y, 32, 32, color).setDepth(2);
 
     // 공중 유닛 표시: 다이아몬드 윤곽 + 'AIR' 텍스트
@@ -58,11 +70,30 @@ export default class Enemy {
     this.hpBar.fillRect(this.x - 16, this.y - 22, 32, 4);
     this.hpBar.fillStyle(0xff3333);
     this.hpBar.fillRect(this.x - 16, this.y - 22, Math.floor(32 * ratio), 4);
+    // 방어막 바 (하늘색, HP바 위)
+    if (this.maxShield > 0) {
+      const sr = this.shield / this.maxShield;
+      this.hpBar.fillStyle(0x224466);
+      this.hpBar.fillRect(this.x - 16, this.y - 28, 32, 4);
+      this.hpBar.fillStyle(0x44ccff);
+      this.hpBar.fillRect(this.x - 16, this.y - 28, Math.floor(32 * sr), 4);
+    }
   }
 
-  takeDamage(amount) {
+  takeDamage(amount, bypassArmor = false) {
     if (this.hp <= 0) return true;
-    this.hp = Math.max(0, this.hp - amount);
+    let dmg = amount;
+    // 방어력 (HP% 딜은 관통)
+    if (this.armor > 0 && !bypassArmor) {
+      dmg = Math.max(1, Math.floor(dmg * (1 - this.armor)));
+    }
+    // 방어막 흡수
+    if (this.shield > 0) {
+      const absorbed = Math.min(this.shield, dmg);
+      this.shield -= absorbed;
+      dmg -= absorbed;
+    }
+    this.hp = Math.max(0, this.hp - dmg);
     this._drawHpBar();
     return this.hp <= 0;
   }

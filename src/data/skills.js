@@ -2,9 +2,11 @@ import { HAND_RANK } from '../cards/HandEvaluator.js';
 
 export const SKILLS = {
   [HAND_RANK.STRAIGHT_FLUSH]: {
-    name: '절멸',
-    effect: 'killAll',
-    description: '화면 내 모든 적 즉사',
+    name: '전장 강화',
+    effect: 'buffAllTowers',
+    multiplier: 1.5,
+    duration: 20000,
+    description: '전체 타워 공격속도 50% 증가 (20초)',
   },
   [HAND_RANK.FOUR_OF_A_KIND]: {
     name: '대폭발',
