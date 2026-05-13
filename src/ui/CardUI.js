@@ -75,26 +75,10 @@ export default class CardUI {
       this.sharedObjects.push(this._drawCard(x, CARD_Y, card, SHARED_SCALE));
     });
 
-    // 현재 최고 족보를 중앙에 크게 표시
-    let bestRankName = null;
-    if (hand.cards.length >= 3 && sharedCards.cards.length > 0) {
-      let bestRank = -1;
-      const h = hand.cards;
-      for (let a = 0; a < h.length - 2; a++) {
-        for (let b = a + 1; b < h.length - 1; b++) {
-          for (let c = b + 1; c < h.length; c++) {
-            const { rank } = evaluateHand([h[a], h[b], h[c], ...sharedCards.cards]);
-            if (rank > bestRank) bestRank = rank;
-          }
-        }
-      }
-      bestRankName = HAND_NAMES[bestRank];
-    } else if (hand.cards.length === 5) {
-      bestRankName = HAND_NAMES[evaluateHand(hand.cards).rank];
-    }
-
-    if (bestRankName) {
-      const rankLabel = this.scene.add.text(230, 784, bestRankName, {
+    // 소환 족보(5장 패)만 중앙에 크게 표시
+    if (hand.cards.length === 5) {
+      const rankName = HAND_NAMES[evaluateHand(hand.cards).rank];
+      const rankLabel = this.scene.add.text(230, 784, rankName, {
         fontSize: '20px', color: '#ffee44', fontStyle: 'bold',
         stroke: '#000000', strokeThickness: 4,
       }).setOrigin(0.5).setDepth(13);

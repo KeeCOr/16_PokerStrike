@@ -96,9 +96,18 @@ export default class GameScene extends Phaser.Scene {
 
     this.unitManager.setupMergeInteraction();
 
-    this._startCountdown(() => {
-      this._showStageIntro(this.startStageIndex, () => this.stageManager.startStage(this.startStageIndex));
-    });
+    const startGame = () => {
+      this._startCountdown(() => {
+        this._showStageIntro(this.startStageIndex, () => this.stageManager.startStage(this.startStageIndex));
+      });
+    };
+
+    if (localStorage.getItem('ps_tutorial_done')) {
+      startGame();
+    } else {
+      // 튜토리얼 완료 이벤트 대기 (UIScene에서 emit)
+      this.scene.get('UIScene').events.once('tutorialDone', startGame);
+    }
   }
 
   _startCountdown(onComplete) {

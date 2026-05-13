@@ -32,7 +32,7 @@ export default class UIScene extends Phaser.Scene {
 
     // 처음 실행 시 튜토리얼 (localStorage로 체크)
     if (!localStorage.getItem('ps_tutorial_done')) {
-      this.time.delayedCall(1500, () => this._showTutorial());
+      this.time.delayedCall(800, () => this._showTutorial());
     }
 
     const gameScene = this.scene.get('GameScene');
@@ -448,6 +448,7 @@ export default class UIScene extends Phaser.Scene {
           objs.forEach(o => { if (o?.active) o.destroy(); });
           if (gs) gs.input.enabled = true;
           localStorage.setItem('ps_tutorial_done', '1');
+          this.events.emit('tutorialDone');
         } else {
           stepIdx++;
           show();
