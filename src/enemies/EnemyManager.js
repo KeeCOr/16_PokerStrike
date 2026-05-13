@@ -90,31 +90,26 @@ export default class EnemyManager {
     enemy.targetUnit = nearest;
   }
 
-  // 경로를 막고 있는 타워 중 가장 가깝고 기지 방향인 유닛을 공격 대상으로 지정
+  // 유닛이 없다고 가정했을 때 경로 상의 첫 번째 타워를 공격 대상으로 지정
   _setBlockingUnitTarget(enemy) {
     const units = this.scene.unitManager.units;
     if (units.length === 0) { enemy.targetUnit = null; return; }
-    let best = null;
-    let bestScore = Infinity;
-    for (const unit of units) {
-      const pos = this.scene.grid.cellToWorld(unit.col, unit.row);
-      const dx = pos.x - enemy.x;
-      const dy = pos.y - enemy.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      // 기지 방향(row가 큰 쪽)에 있는 유닛 우선, 열 차이가 클수록 점수 불이익
-      const colPenalty = Math.abs(unit.col - enemy.col) * CELL_SIZE;
-      // 후방 유닛(enemy.row보다 작은 row) 무시
-      const score = unit.row < enemy.row ? Infinity : dist + colPenalty * 0.5;
-      if (score < bestScore) { bestScore = score; best = unit; }
+
+    const grid = this.scene.grid;
+    // 유닛 셀을 임시로 walkable로 설정해 이상적 경로 계산
+    units.forEach(u => grid.setCell(u.col, u.row, 0));
+    const idealPath = this.pathfinder.findPath(enemy.col, enemy.row, this.baseRow, this.baseCol);
+    units.forEach(u => grid.setCell(u.col, u.row, 2));
+
+    if (idealPath) {
+      // 이상적 경로에서 타워가 있는 첫 번째 셀 타겟
+      for (const { col, row } of idealPath) {
+        const blocking = units.find(u => u.col === col && u.row === row);
+        if (blocking) { enemy.targetUnit = blocking; return; }
+      }
     }
-    // 전방에 유닛이 없으면 최근접 유닛으로 fallback
-    enemy.targetUnit = best ?? units.reduce((a, b) => {
-      const pa = this.scene.grid.cellToWorld(a.col, a.row);
-      const pb = this.scene.grid.cellToWorld(b.col, b.row);
-      const da = Math.hypot(pa.x - enemy.x, pa.y - enemy.y);
-      const db = Math.hypot(pb.x - enemy.x, pb.y - enemy.y);
-      return da < db ? a : b;
-    });
+    // fallback: 가장 가까운 유닛
+    this._setNearestUnitTarget(enemy);
   }
 
   recalculateAllPaths() {
@@ -196,7 +191,11 @@ export default class EnemyManager {
         continue;
       }
 
-      // 경로도 없고 유닛도 없음: no-path fallback
+      // 경로도 없고 가까운 유닛도 없음: 경로 막는 타워 공격
+      if (!enemy.targetUnit || enemy.targetUnit.hp <= 0 ||
+          !this.scene.unitManager.units.includes(enemy.targetUnit)) {
+        this._setBlockingUnitTarget(enemy);
+      }
       if (enemy.targetUnit) {
         this._handleNoPathEnemy(enemy, time, delta);
       }

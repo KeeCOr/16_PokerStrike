@@ -70,20 +70,7 @@ export default class CombatManager {
       unit.atkCooldown = Math.floor(1000 / unit.stats.atkSpeed);
     }
 
-    // Freezer enemies freeze nearby units
-    for (const enemy of enemies) {
-      if (enemy.freezeRadius > 0) {
-        const areaInPx = enemy.freezeRadius * CELL_SIZE;
-        for (const unit of units) {
-          const pos = this.scene.grid.cellToWorld(unit.col, unit.row);
-          const dx  = enemy.x - pos.x;
-          const dy  = enemy.y - pos.y;
-          if (Math.sqrt(dx * dx + dy * dy) <= areaInPx) {
-            unit.freeze(enemy.freezeDuration);
-          }
-        }
-      }
-    }
+    // Freezer enemies: no longer freeze towers (removed mechanic)
   }
 
   _applyAttack(unit, target, enemies) {
@@ -175,6 +162,11 @@ export default class CombatManager {
         this.scene.economyManager.addGold(toAdd);
         this._rewardAccum -= toAdd;
       }
+    }
+    // 낮은 확률로 특수 재화(젬) 드랍
+    if (Math.random() < 0.06) {
+      this.scene.gems = (this.scene.gems ?? 0) + 1;
+      this.scene.registry.set('gems', this.scene.gems);
     }
     this.scene.enemyManager.removeEnemy(enemy);
     if (enemy.type === 'splitter') {

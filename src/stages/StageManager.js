@@ -27,8 +27,10 @@ export default class StageManager {
 
     this.spawnQueue = [];
     for (const group of wave.enemies) {
-      for (let i = 0; i < group.count; i++) {
-        this.spawnQueue.push({ type: group.type, delay: group.interval * i });
+      const count = group.count * 2; // 수량 2배
+      const interval = Math.floor(group.interval * 0.5); // 간격 절반 → 동일 시간에 2배 수량
+      for (let i = 0; i < count; i++) {
+        this.spawnQueue.push({ type: group.type, delay: interval * i });
       }
     }
     this.spawnQueue.sort((a, b) => a.delay - b.delay);

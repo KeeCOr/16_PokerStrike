@@ -42,6 +42,16 @@ export default class UnitManager {
   placeUnit(col, row, handRank, suit, grade) {
     if (!this.scene.grid.isWalkable(col, row)) return null;
     const stats = getUnitStats(handRank, suit, grade);
+    // 영구 강화 보너스 적용
+    const gs = this.scene;
+    if (gs.permHpLevel > 0) {
+      const bonus = 1 + gs.permHpLevel * 0.03;
+      stats.hp = Math.floor(stats.hp * bonus);
+      stats.maxHp = Math.floor(stats.maxHp * bonus);
+    }
+    if (gs.permAtkLevel > 0) {
+      stats.atk = Math.floor(stats.atk * (1 + gs.permAtkLevel * 0.03));
+    }
     const unit = new Unit(this.scene, col, row, handRank, suit, grade, stats);
     if (this.scene.rogueliteManager) this.scene.rogueliteManager.applyToUnit(unit);
     unit.upgradeHp = false;
@@ -49,7 +59,25 @@ export default class UnitManager {
     this.units.push(unit);
     this.scene.grid.setCell(col, row, CELL_UNIT);
     this._checkMerge(unit);
+    this._playSpawnEffect(col, row, unit);
     return unit;
+  }
+
+  _playSpawnEffect(col, row, unit) {
+    const pos = this.scene.grid.cellToWorld(col, row);
+    // 출현 서클 플래시
+    const flash = this.scene.add.circle(pos.x, pos.y, CELL_SIZE * 0.38, 0xffffff, 0.75).setDepth(5);
+    this.scene.tweens.add({
+      targets: flash, alpha: 0, scaleX: 2.0, scaleY: 2.0,
+      duration: 350, ease: 'Quad.easeOut',
+      onComplete: () => flash.destroy(),
+    });
+    // 스프라이트 팝인
+    unit.sprite.setAlpha(0).setScale(0.15);
+    this.scene.tweens.add({
+      targets: unit.sprite, alpha: 1, scaleX: 1, scaleY: 1,
+      duration: 280, ease: 'Back.easeOut',
+    });
   }
 
   // ── Summon placement preview ──────────────────────────────────

@@ -29,6 +29,9 @@ export default class GameScene extends Phaser.Scene {
   init(data) {
     this.startStageIndex = data?.startStageIndex ?? 0;
     this.savedUpgrades = data?.upgrades ?? [];
+    this.gems = data?.gems ?? 0;
+    this.permHpLevel = data?.permHpLevel ?? 0;
+    this.permAtkLevel = data?.permAtkLevel ?? 0;
   }
 
   create() {
@@ -77,6 +80,7 @@ export default class GameScene extends Phaser.Scene {
     this.registry.set('baseHp', this.baseHp);
     this.registry.set('gold', this.economyManager.gold);
     this.registry.set('wave', 1);
+    this.registry.set('gems', this.gems);
 
     // Update base HP bar whenever baseHp registry changes
     const onBaseHpChange = () => this._drawBaseHpBar();
@@ -93,7 +97,7 @@ export default class GameScene extends Phaser.Scene {
     this.unitManager.setupMergeInteraction();
 
     this._startCountdown(() => {
-      this.stageManager.startStage(this.startStageIndex);
+      this._showStageIntro(this.startStageIndex, () => this.stageManager.startStage(this.startStageIndex));
     });
   }
 
@@ -114,6 +118,33 @@ export default class GameScene extends Phaser.Scene {
     show('2', 1000, false);
     show('1', 2000, false);
     show('시작!', 3000, true);
+  }
+
+  _showStageIntro(stageIndex, onComplete) {
+    const stageName = `STAGE ${stageIndex + 1}`;
+    const cx = 320, cy = 380;
+    const overlay = this.add.rectangle(cx, cy + 80, 640, 300, 0x000000, 0.7).setDepth(24).setAlpha(0);
+    const title = this.add.text(cx, cy, stageName, {
+      fontSize: '52px', color: '#ffdd44', fontStyle: 'bold',
+      stroke: '#000000', strokeThickness: 6,
+    }).setOrigin(0.5).setAlpha(0).setDepth(25);
+
+    this.tweens.add({ targets: overlay, alpha: 1, duration: 250 });
+    this.tweens.add({
+      targets: title, alpha: 1, scaleX: 1.0, scaleY: 1.0,
+      duration: 300, ease: 'Back.easeOut',
+      onComplete: () => {
+        this.time.delayedCall(900, () => {
+          this.tweens.add({
+            targets: [overlay, title], alpha: 0, duration: 400,
+            onComplete: () => {
+              overlay.destroy(); title.destroy();
+              if (onComplete) onComplete();
+            },
+          });
+        });
+      },
+    });
   }
 
   _applyObstacles(stageIndex) {
@@ -315,7 +346,8 @@ export default class GameScene extends Phaser.Scene {
       continueBtn.on('pointerout',  () => continueBtn.setStyle({ color: '#ffffff' }));
       continueBtn.on('pointerdown', () => {
         this.scene.stop('UIScene');
-        this.scene.restart({ startStageIndex: currentStage, upgrades: this.rogueliteManager.upgrades });
+        this.scene.restart({ startStageIndex: currentStage, upgrades: this.rogueliteManager.upgrades,
+          gems: this.gems, permHpLevel: this.permHpLevel, permAtkLevel: this.permAtkLevel });
       });
 
       // 1스테이지부터 재시작
@@ -386,7 +418,8 @@ export default class GameScene extends Phaser.Scene {
         this._drawBaseHpBar();
         this.economyManager.resetForNewStage(next);
         this.registry.set('wave', 1);
-        this.stageManager.startStage(next);
+        this.registry.set('gems', this.gems);
+        this._showStageIntro(next, () => this.stageManager.startStage(next));
       });
       objs.push(nextBtn);
     }

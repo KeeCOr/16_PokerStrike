@@ -3,8 +3,9 @@ const BASE_INCOME_RATE = 0.5;
 const INCOME_PER_WAVE = 0.25;
 const DRAW_BASE_COST = 5;
 const DRAW_INCREMENT = 2;
-const REPLACE_BASE_COST = 3;
-const REPLACE_INCREMENT = 3;
+const DRAW_DISCOUNT_PER_REPLACE = 1; // 교체 1회당 소환 비용 1G 할인
+const REPLACE_BASE_COST = 2;
+const REPLACE_INCREMENT = 2;
 
 export default class EconomyManager {
   constructor() {
@@ -41,7 +42,7 @@ export default class EconomyManager {
 
   getDrawCost() {
     const bonus = this.roguelite ? this.roguelite.getDrawCostBonus() : 0;
-    return Math.max(1, DRAW_BASE_COST + this.summonCount * DRAW_INCREMENT + bonus);
+    return Math.max(1, DRAW_BASE_COST + this.summonCount * DRAW_INCREMENT - this.replaceCount * DRAW_DISCOUNT_PER_REPLACE + bonus);
   }
 
   getReplaceCost() {
@@ -49,7 +50,7 @@ export default class EconomyManager {
     return Math.max(1, REPLACE_BASE_COST + bonus + this.replaceCount * REPLACE_INCREMENT);
   }
 
-  recordSummon() { this.summonCount++; }
+  recordSummon() { this.summonCount++; this.replaceCount = 0; }
 
   recordReplace() { this.replaceCount++; }
 

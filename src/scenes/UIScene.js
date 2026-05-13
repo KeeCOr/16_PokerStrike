@@ -30,6 +30,11 @@ export default class UIScene extends Phaser.Scene {
     this._createTabButtons();
     this._refreshUI();
 
+    // 처음 실행 시 튜토리얼 (localStorage로 체크)
+    if (!localStorage.getItem('ps_tutorial_done')) {
+      this.time.delayedCall(1500, () => this._showTutorial());
+    }
+
     const gameScene = this.scene.get('GameScene');
     gameScene.events.on('refreshSharedCards', () => {
       this.sharedCards.consume(this.deck);
@@ -104,12 +109,22 @@ export default class UIScene extends Phaser.Scene {
     const eco = gameScene.economyManager;
     if (this.hand.cards.length < 3) return;
 
-    const combined = [...this.hand.cards.slice(0, 3), ...this.sharedCards.getCards()];
-    const { rank, dominantSuit } = evaluateHand(combined);
+    // 최고 족보: 패에서 3장 선택 × 공용패 조합 모두 시도
+    let bestRank = -1, bestSuit = null;
+    const h = this.hand.cards;
+    const shared = this.sharedCards.getCards();
+    for (let a = 0; a < h.length - 2; a++) {
+      for (let b = a + 1; b < h.length - 1; b++) {
+        for (let c = b + 1; c < h.length; c++) {
+          const { rank, dominantSuit } = evaluateHand([h[a], h[b], h[c], ...shared]);
+          if (rank > bestRank) { bestRank = rank; bestSuit = dominantSuit; }
+        }
+      }
+    }
 
-    const skill = SKILLS[rank];
-    gameScene.magicManager.cast(rank, dominantSuit);
-    if (skill) gameScene.showMagicEffect(rank, skill.name, skill.description);
+    const skill = SKILLS[bestRank];
+    gameScene.magicManager.cast(bestRank, bestSuit);
+    if (skill) gameScene.showMagicEffect(bestRank, skill.name, skill.description);
 
     // Cards are burned (permanently removed from deck this session)
     this.hand.consumeAll();
@@ -185,16 +200,14 @@ export default class UIScene extends Phaser.Scene {
       magicPreview = skill ? `${HAND_NAMES[bestRank]} · ${skill.name}` : null;
     }
 
+    gameScene.unitManager.showSummonPreview(); // 카드 탭에서 항상 미리보기
     this.cardUI.render(this.hand, this.sharedCards);
     const buttons = this.cardUI.renderButtons(
       eco.getDrawCost(), eco.getReplaceCost(),
       summonPreview, magicPreview
     );
 
-    buttons.summonBtn.on('pointerover', () => gameScene.unitManager.showSummonPreview());
-    buttons.summonBtn.on('pointerout', () => gameScene.unitManager.hideSummonPreview());
     buttons.summonBtn.on('pointerdown', () => {
-      gameScene.unitManager.hideSummonPreview();
       this._summon();
     });
     buttons.magicBtn.on('pointerdown', () => this._castMagic());
@@ -240,18 +253,63 @@ export default class UIScene extends Phaser.Scene {
     this._clearUpgradeObjs();
     const gameScene = this.scene.get('GameScene');
     const eco = gameScene.economyManager;
-    let y = PANEL_Y + 34;
+    const gems = gameScene.gems ?? 0;
+    let y = PANEL_Y + 20;
+
+    // Permanent upgrade section (영구 강화, 젬 사용)
+    const permTitle = this.add.text(320, y, '— 영구 강화  (◆ 젬 사용) —', {
+      fontSize: '11px', color: '#88eeff'
+    }).setOrigin(0.5).setDepth(12);
+    this._upgradeObjs.push(permTitle);
+    y += 20;
+
+    const permHpLv = gameScene.permHpLevel ?? 0;
+    const permAtkLv = gameScene.permAtkLevel ?? 0;
+    const PERM_MAX = 10, PERM_COST = 1;
+
+    const permHpBtn = this.add.text(190, y,
+      permHpLv >= PERM_MAX ? `HP +${permHpLv * 3}% MAX` : `HP +3%  (◆${PERM_COST})  Lv${permHpLv}`,
+      { fontSize: '11px', color: '#ffffff', backgroundColor: '#1a4a2a', padding: { x: 6, y: 3 } }
+    ).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
+    permHpBtn.on('pointerover', () => permHpBtn.setStyle({ color: '#44ff88' }));
+    permHpBtn.on('pointerout', () => permHpBtn.setStyle({ color: '#ffffff' }));
+    permHpBtn.on('pointerdown', () => {
+      if (permHpLv < PERM_MAX && gameScene.gems >= PERM_COST) {
+        gameScene.gems -= PERM_COST;
+        gameScene.permHpLevel = (gameScene.permHpLevel ?? 0) + 1;
+        gameScene.registry.set('gems', gameScene.gems);
+        this._renderUpgradeTab();
+      }
+    });
+    this._upgradeObjs.push(permHpBtn);
+
+    const permAtkBtn = this.add.text(440, y,
+      permAtkLv >= PERM_MAX ? `ATK +${permAtkLv * 3}% MAX` : `ATK +3%  (◆${PERM_COST})  Lv${permAtkLv}`,
+      { fontSize: '11px', color: '#ffffff', backgroundColor: '#4a2a1a', padding: { x: 6, y: 3 } }
+    ).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
+    permAtkBtn.on('pointerover', () => permAtkBtn.setStyle({ color: '#ffaa44' }));
+    permAtkBtn.on('pointerout', () => permAtkBtn.setStyle({ color: '#ffffff' }));
+    permAtkBtn.on('pointerdown', () => {
+      if (permAtkLv < PERM_MAX && gameScene.gems >= PERM_COST) {
+        gameScene.gems -= PERM_COST;
+        gameScene.permAtkLevel = (gameScene.permAtkLevel ?? 0) + 1;
+        gameScene.registry.set('gems', gameScene.gems);
+        this._renderUpgradeTab();
+      }
+    });
+    this._upgradeObjs.push(permAtkBtn);
+    y += 30;
 
     // Base HP recovery section
     const baseTitle = this.add.text(320, y, '— 본진 강화 —', {
       fontSize: '11px', color: '#88ccff'
     }).setOrigin(0.5).setDepth(12);
     this._upgradeObjs.push(baseTitle);
-    y += 22;
+    y += 18;
 
     const recoverBtn = this.add.text(320, y, `본진 HP +20  (30G)`, {
-      fontSize: '13px', color: '#ffffff',
-      backgroundColor: '#2a4a2a', padding: { x: 10, y: 5 }
+      fontSize: '12px', color: '#ffffff',
+      backgroundColor: '#2a4a2a', padding: { x: 8, y: 4 }
     }).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
     recoverBtn.on('pointerover', () => recoverBtn.setStyle({ color: '#44ff88' }));
     recoverBtn.on('pointerout', () => recoverBtn.setStyle({ color: '#ffffff' }));
@@ -263,7 +321,7 @@ export default class UIScene extends Phaser.Scene {
       }
     });
     this._upgradeObjs.push(recoverBtn);
-    y += 44;
+    y += 36;
 
     // Unit upgrade section
     const unitTitle = this.add.text(320, y, '— 유닛 강화 —', {
@@ -331,5 +389,74 @@ export default class UIScene extends Phaser.Scene {
       });
       this._upgradeObjs.push(atkBtn);
     }
+  }
+
+  _showTutorial() {
+    const steps = [
+      {
+        title: '소환 (Summon)',
+        body: '패 5장의 족보를 판단해 타워를 소환합니다.\n높은 족보일수록 강한 타워가 나옵니다.\n교체를 하면 소환 비용이 할인됩니다.',
+        color: '#2244aa',
+      },
+      {
+        title: '교체 (Replace)',
+        body: '원하는 카드 1장을 덱에서 새 카드로 교체합니다.\n교체할수록 소환 비용이 저렴해집니다.\n소환하면 교체 비용이 초기화됩니다.',
+        color: '#226644',
+      },
+      {
+        title: '마법 (Magic)',
+        body: '패 3장 + 공용패 2장으로 족보를 만들어\n강력한 마법을 발동합니다.\n마법 사용 시 교체 비용이 초기화됩니다.',
+        color: '#883399',
+      },
+    ];
+
+    let stepIdx = 0;
+    const objs = [];
+
+    const uiScene = this.scene.get('UIScene') ?? this;
+    const gs = this.scene.get('GameScene');
+    if (gs) gs.input.enabled = false;
+
+    const show = () => {
+      objs.forEach(o => { if (o?.active) o.destroy(); });
+      objs.length = 0;
+
+      const s = steps[stepIdx];
+      const overlay = this.add.rectangle(320, 400, 580, 360, 0x000000, 0.88).setDepth(30);
+      const box = this.add.rectangle(320, 400, 560, 340, 0x0d1b2a, 1).setDepth(30).setStrokeStyle(2, 0x3a6080, 1);
+      const numTxt = this.add.text(320, 262, `${stepIdx + 1} / ${steps.length}`, {
+        fontSize: '11px', color: '#888888'
+      }).setOrigin(0.5).setDepth(31);
+      const titleTxt = this.add.text(320, 288, s.title, {
+        fontSize: '20px', color: s.color, fontStyle: 'bold'
+      }).setOrigin(0.5).setDepth(31);
+      const bodyTxt = this.add.text(320, 370, s.body, {
+        fontSize: '13px', color: '#dddddd', align: 'center',
+        wordWrap: { width: 500 },
+      }).setOrigin(0.5).setDepth(31);
+
+      const isLast = stepIdx >= steps.length - 1;
+      const btnLabel = isLast ? '시작하기' : '다음 ▶';
+      const btn = this.add.text(320, 498, btnLabel, {
+        fontSize: '15px', color: '#ffffff',
+        backgroundColor: isLast ? '#1a5e2a' : '#1a3a6a', padding: { x: 20, y: 8 }
+      }).setOrigin(0.5).setDepth(31).setInteractive({ useHandCursor: true });
+      btn.on('pointerover', () => btn.setStyle({ color: '#ffdd44' }));
+      btn.on('pointerout', () => btn.setStyle({ color: '#ffffff' }));
+      btn.once('pointerdown', () => {
+        if (isLast) {
+          objs.forEach(o => { if (o?.active) o.destroy(); });
+          if (gs) gs.input.enabled = true;
+          localStorage.setItem('ps_tutorial_done', '1');
+        } else {
+          stepIdx++;
+          show();
+        }
+      });
+
+      objs.push(overlay, box, numTxt, titleTxt, bodyTxt, btn);
+    };
+
+    show();
   }
 }
