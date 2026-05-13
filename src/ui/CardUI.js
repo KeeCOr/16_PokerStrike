@@ -75,15 +75,6 @@ export default class CardUI {
       this.sharedObjects.push(this._drawCard(x, CARD_Y, card, SHARED_SCALE));
     });
 
-    // 소환 족보(5장 패)만 중앙에 크게 표시
-    if (hand.cards.length === 5) {
-      const rankName = HAND_NAMES[evaluateHand(hand.cards).rank];
-      const rankLabel = this.scene.add.text(230, 784, rankName, {
-        fontSize: '20px', color: '#ffee44', fontStyle: 'bold',
-        stroke: '#000000', strokeThickness: 4,
-      }).setOrigin(0.5).setDepth(13);
-      this.sharedObjects.push([rankLabel]);
-    }
   }
 
   _drawCard(x, y, card, scale = 1) {
