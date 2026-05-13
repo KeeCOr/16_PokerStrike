@@ -10,6 +10,7 @@ import MagicManager from '../magic/MagicManager.js';
 import RogueliteManager from '../roguelite/RogueliteManager.js';
 import { UPGRADE_POOL } from '../data/roguelite.js';
 import { STAGES, STAGE_OBSTACLES } from '../stages/StageData.js';
+import { SUIT_ICONS, SUIT_NAMES } from '../cards/Card.js';
 
 const BASE_HP = 100;
 
@@ -232,7 +233,8 @@ export default class GameScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true });
       const border = this.add.rectangle(320, y, 416, 116, 0x0d1b2a).setDepth(21);
       const affectedCount = this.unitManager.units.filter(u => this.rogueliteManager.matches(upgrade, u)).length;
-      const label = this.add.text(320, y - 20, upgrade.label, {
+      const suitIcon = upgrade.suit ? `${SUIT_ICONS[upgrade.suit]} ` : '';
+      const label = this.add.text(320, y - 20, `${suitIcon}${upgrade.label}`, {
         fontSize: '16px', color: '#ffffff', fontStyle: 'bold'
       }).setOrigin(0.5).setDepth(22);
       const typeLabel = this.add.text(320, y + 18, `${_upgradeTypeLabel(upgrade)}  (${affectedCount}마리 적용)`, {

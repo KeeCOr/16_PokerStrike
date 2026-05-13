@@ -1,4 +1,4 @@
-import { SUIT_COLORS, SUIT_NAMES } from '../cards/Card.js';
+import { SUIT_COLORS, SUIT_NAMES, SUIT_ICONS } from '../cards/Card.js';
 import { evaluateHand, HAND_NAMES } from '../cards/HandEvaluator.js';
 
 const CARD_W = 52;
@@ -84,7 +84,8 @@ export default class CardUI {
     const colorHex = '#' + color.toString(16).padStart(6, '0');
     const bg = this.scene.add.rectangle(x, y, w, h, 0x1a2a3a).setDepth(12);
     const border = this.scene.add.rectangle(x, y, w - 4, h - 4, 0x0d1b2a).setDepth(12);
-    const suitText = this.scene.add.text(x, y - 8 * scale, SUIT_NAMES[card.suit], {
+    const icon = SUIT_ICONS[card.suit] ?? '';
+    const suitText = this.scene.add.text(x, y - 8 * scale, `${icon} ${SUIT_NAMES[card.suit]}`, {
       fontSize: `${10 * scale}px`, color: colorHex
     }).setOrigin(0.5).setDepth(13);
     const valText = this.scene.add.text(x, y + 8 * scale, card.value, {
