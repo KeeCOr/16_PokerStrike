@@ -102,11 +102,11 @@ export default class GameScene extends Phaser.Scene {
       });
     };
 
-    if (localStorage.getItem('ps_tutorial_done')) {
-      startGame();
-    } else {
-      // 튜토리얼 완료 이벤트 대기 (UIScene에서 emit)
+    if (this.startStageIndex === 0) {
+      // 1스테이지 시작: 튜토리얼 완료 후 게임 시작
       this.scene.get('UIScene').events.once('tutorialDone', startGame);
+    } else {
+      startGame();
     }
   }
 
