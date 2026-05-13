@@ -16,6 +16,7 @@ export default class CombatManager {
   constructor(scene) {
     this.scene = scene;
     this.projectiles = [];
+    this._rewardAccum = 0; // 소수점 보상 누산기
   }
 
   update(time, delta) {
@@ -168,7 +169,12 @@ export default class CombatManager {
 
   _onEnemyDied(enemy) {
     if (this.scene.economyManager) {
-      this.scene.economyManager.addGold(enemy.reward);
+      this._rewardAccum += enemy.reward;
+      const toAdd = Math.floor(this._rewardAccum);
+      if (toAdd > 0) {
+        this.scene.economyManager.addGold(toAdd);
+        this._rewardAccum -= toAdd;
+      }
     }
     this.scene.enemyManager.removeEnemy(enemy);
     if (enemy.type === 'splitter') {

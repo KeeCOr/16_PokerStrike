@@ -65,14 +65,18 @@ export default class StageManager {
 
     const stage = STAGES[this.stageIndex];
     this.waveIndex++;
-    if (this.waveIndex >= stage.waves.length) {
-      if (this.onStageCleared) this.onStageCleared(this.stageIndex);
-    } else if (this.onWaveChoiceNeeded) {
-      this.onWaveChoiceNeeded(() => {
-        this.scene.time.delayedCall(1000, () => this._startNextWave());
-      });
-    } else {
-      this.scene.time.delayedCall(3000, () => this._startNextWave());
-    }
+
+    // 웨이브 전멸 후 2초 대기
+    this.scene.time.delayedCall(2000, () => {
+      if (this.waveIndex >= stage.waves.length) {
+        if (this.onStageCleared) this.onStageCleared(this.stageIndex);
+      } else if (this.onWaveChoiceNeeded) {
+        this.onWaveChoiceNeeded(() => {
+          this.scene.time.delayedCall(1000, () => this._startNextWave());
+        });
+      } else {
+        this.scene.time.delayedCall(2000, () => this._startNextWave());
+      }
+    });
   }
 }

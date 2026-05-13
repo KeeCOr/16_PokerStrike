@@ -101,6 +101,7 @@ export default class UIScene extends Phaser.Scene {
 
   _castMagic() {
     const gameScene = this.scene.get('GameScene');
+    const eco = gameScene.economyManager;
     if (this.hand.cards.length < 3) return;
 
     const combined = [...this.hand.cards.slice(0, 3), ...this.sharedCards.getCards()];

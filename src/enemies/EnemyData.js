@@ -11,7 +11,7 @@ export const ENEMY_TYPE = {
 };
 
 export const ENEMY_STATS = {
-  [ENEMY_TYPE.BASIC]:        { hp: 100, atk: 10, speed: 60,  reward: 1, magicImmune: false, isAerial: false },
+  [ENEMY_TYPE.BASIC]:        { hp: 100, atk: 10, speed: 60,  reward: 0.5, magicImmune: false, isAerial: false },
   [ENEMY_TYPE.TANK]:         { hp: 400, atk: 15, speed: 30,  reward: 3, magicImmune: false, isAerial: false },
   [ENEMY_TYPE.RUNNER]:       { hp: 50,  atk: 8,  speed: 120, reward: 1, magicImmune: false, isAerial: false },
   [ENEMY_TYPE.AERIAL]:       { hp: 80,  atk: 12, speed: 80,  reward: 2, magicImmune: false, isAerial: true  },

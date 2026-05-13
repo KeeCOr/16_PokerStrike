@@ -175,22 +175,27 @@ export default class GameScene extends Phaser.Scene {
 
   _showWaveChoices(resumeFn) {
     const pool = [...UPGRADE_POOL].sort(() => Math.random() - 0.5).slice(0, 3);
-    const overlay = this.add.rectangle(320, 310, 640, 620, 0x000000, 0.75).setDepth(20);
-    const titleText = this.add.text(320, 60, '강화 선택', {
-      fontSize: '22px', color: '#ffdd44', fontStyle: 'bold'
+
+    // 전체 화면 가림 + UIScene 입력 차단
+    const overlay = this.add.rectangle(320, 480, 640, 960, 0x000000, 0.85).setDepth(20);
+    const uiScene = this.scene.get('UIScene');
+    if (uiScene) uiScene.input.enabled = false;
+
+    const titleText = this.add.text(320, 100, '강화 선택', {
+      fontSize: '24px', color: '#ffdd44', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(21);
 
     const objs = [overlay, titleText];
     pool.forEach((upgrade, i) => {
-      const y = 150 + i * 130;
-      const bg = this.add.rectangle(320, y, 400, 110, 0x1a2a3a).setDepth(21)
+      const y = 240 + i * 150;
+      const bg = this.add.rectangle(320, y, 420, 120, 0x1a2a3a).setDepth(21)
         .setInteractive({ useHandCursor: true });
-      const border = this.add.rectangle(320, y, 396, 106, 0x0d1b2a).setDepth(21);
+      const border = this.add.rectangle(320, y, 416, 116, 0x0d1b2a).setDepth(21);
       const affectedCount = this.unitManager.units.filter(u => this.rogueliteManager.matches(upgrade, u)).length;
-      const label = this.add.text(320, y - 16, upgrade.label, {
+      const label = this.add.text(320, y - 20, upgrade.label, {
         fontSize: '16px', color: '#ffffff', fontStyle: 'bold'
       }).setOrigin(0.5).setDepth(22);
-      const typeLabel = this.add.text(320, y + 22, `${_upgradeTypeLabel(upgrade)}  (${affectedCount}마리 적용)`, {
+      const typeLabel = this.add.text(320, y + 18, `${_upgradeTypeLabel(upgrade)}  (${affectedCount}마리 적용)`, {
         fontSize: '12px', color: '#88ccff'
       }).setOrigin(0.5).setDepth(22);
       objs.push(bg, border, label, typeLabel);
@@ -211,6 +216,7 @@ export default class GameScene extends Phaser.Scene {
         this.unitManager.units.forEach(u => u.setHighlight(false));
         this.rogueliteManager.addUpgrade(upgrade);
         objs.forEach(o => o.destroy());
+        if (uiScene) uiScene.input.enabled = true;
         resumeFn();
       });
     });
