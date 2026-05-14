@@ -49,7 +49,8 @@ export default class CombatManager {
 
       const unitPos   = this.scene.grid.cellToWorld(unit.col, unit.row);
       const rangeInPx = unit.stats.range * CELL_SIZE;
-      const role      = unit.stats.role;
+      const s         = unit.stats;
+      const role      = s.role;
 
       const canHitAerial = role === ROLE.SNIPER || role === ROLE.AREA;
       const inRange = enemies.filter(e => {

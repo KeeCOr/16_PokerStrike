@@ -6,7 +6,7 @@ describe('Pathfinder', () => {
   it('직선 경로 찾기', () => {
     const grid = new Grid();
     const pf = new Pathfinder(grid);
-    const path = pf.findPath(0, 0, 0, 3);
+    const path = pf.findPath(0, 0, 3, 0);
     expect(path).not.toBeNull();
     expect(path.length).toBeGreaterThan(0);
     expect(path[path.length - 1]).toEqual({ col: 0, row: 3 });
@@ -26,9 +26,9 @@ describe('Pathfinder', () => {
 
   it('경로 없으면 null', () => {
     const grid = new Grid();
-    for (let c = 0; c < 10; c++) grid.setCell(c, 5, CELL_UNIT);
+    for (let c = 0; c < 7; c++) grid.setCell(c, 5, CELL_UNIT);
     const pf = new Pathfinder(grid);
-    const path = pf.findPath(0, 0, 0, 6);
+    const path = pf.findPath(0, 0, 6, 0);
     expect(path).toBeNull();
   });
 });
