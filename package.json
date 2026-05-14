@@ -31,6 +31,7 @@
       "electron/main.cjs"
     ],
     "win": {
+      "icon": "icon.ico",
       "target": "portable"
     }
   }
