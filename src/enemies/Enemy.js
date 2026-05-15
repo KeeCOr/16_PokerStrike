@@ -19,7 +19,11 @@ export default class Enemy {
     this.freezeRadius = stats.freezeRadius ?? 0;
     this.freezeDuration = stats.freezeDuration ?? 0;
 
-    this.armor      = stats.armor      ?? 0;
+    this.baseArmor  = stats.armor      ?? 0;
+    this.armor      = this.baseArmor;
+    this.armorBreakAmount = 0;
+    this.armorBreakUntil = 0;
+    this.armorBreakLabel = null;
     this.shield     = stats.shield     ?? 0;
     this.maxShield  = stats.shield     ?? 0;
     this.slowImmune = stats.slowImmune ?? false;
@@ -98,7 +102,40 @@ export default class Enemy {
     return this.hp <= 0;
   }
 
+  applyArmorBreak(amount, duration) {
+    if (amount <= 0 || duration <= 0) return;
+    this.armorBreakAmount = Math.max(this.armorBreakAmount, amount);
+    this.armorBreakUntil = Math.max(this.armorBreakUntil, Date.now() + duration);
+    this.armor = Math.max(0, +(this.baseArmor - this.armorBreakAmount).toFixed(3));
+    this._showArmorBreakLabel();
+  }
+
+  _showArmorBreakLabel() {
+    if (!this.scene?.add?.text) return;
+    if (!this.armorBreakLabel) {
+      this.armorBreakLabel = this.scene.add.text(this.x, this.y - 34, '방깎', {
+        fontSize: '11px',
+        color: '#ffd166',
+        stroke: '#000000',
+        strokeThickness: 3,
+      }).setOrigin(0.5).setDepth(4);
+    }
+    this.armorBreakLabel.setPosition(this.x, this.y - 34);
+  }
+
+  _refreshArmorBreak() {
+    if (!this.armorBreakUntil || Date.now() <= this.armorBreakUntil) return;
+    this.armorBreakAmount = 0;
+    this.armorBreakUntil = 0;
+    this.armor = this.baseArmor;
+    if (this.armorBreakLabel) {
+      this.armorBreakLabel.destroy();
+      this.armorBreakLabel = null;
+    }
+  }
+
   update(time, delta) {
+    this._refreshArmorBreak();
     if (Date.now() < this.frozenUntil) return;
 
     const dtSec = delta / 1000;
@@ -143,11 +180,13 @@ export default class Enemy {
       this._aerialMarker.strokeRect(this.x - 20, this.y - 20, 40, 40);
       this._aerialLabel.setPosition(this.x, this.y - 24);
     }
+    if (this.armorBreakLabel) this.armorBreakLabel.setPosition(this.x, this.y - 34);
     this._drawHpBar();
   }
 
   // 재생/버프 등 패시브 처리 (이동 없음)
   updatePassive(delta) {
+    this._refreshArmorBreak();
     const dtSec = delta / 1000;
     if (this.regenRate > 0) {
       this.regenAccum += this.regenRate * dtSec;
@@ -181,6 +220,7 @@ export default class Enemy {
   destroy() {
     this.sprite.destroy();
     this.hpBar.destroy();
+    if (this.armorBreakLabel) this.armorBreakLabel.destroy();
     if (this._aerialMarker) { this._aerialMarker.destroy(); this._aerialLabel.destroy(); }
   }
 }

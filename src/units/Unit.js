@@ -96,6 +96,8 @@ export default class Unit {
     this.glowCircle = null;
     this.selectCircle = null;
     this.rangeCircle = null;
+    this.statusText = null;
+    this.statusTimer = null;
   }
 
   _drawHpBar() {
@@ -174,10 +176,37 @@ export default class Unit {
     if (this.glowCircle) this.glowCircle.setAlpha(active ? 0 : 1);
   }
 
+  updateStatusPosition() {
+    if (!this.statusText) return;
+    const pos = this.scene.grid.cellToWorld(this.col, this.row);
+    this.statusText.setPosition(pos.x, pos.y - Math.floor(CELL_SIZE * 0.5));
+  }
+
+  showStatusText(text, duration, color = 0xffee44) {
+    const pos = this.scene.grid.cellToWorld(this.col, this.row);
+    if (this.statusText) this.statusText.destroy();
+    if (this.statusTimer?.remove) this.statusTimer.remove(false);
+    this.statusText = this.scene.add.text(pos.x, pos.y - Math.floor(CELL_SIZE * 0.5), text, {
+      fontSize: '12px',
+      color: `#${color.toString(16).padStart(6, '0')}`,
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(6);
+    this.statusTimer = this.scene.time.delayedCall(duration, () => {
+      if (this.statusText) {
+        this.statusText.destroy();
+        this.statusText = null;
+      }
+      this.statusTimer = null;
+    });
+  }
+
   destroy() {
     this.sprite.destroy();
     this.hpBar.destroy();
     this.gradeText.destroy();
+    if (this.statusTimer?.remove) this.statusTimer.remove(false);
+    if (this.statusText) this.statusText.destroy();
     if (this.glowCircle) this.glowCircle.destroy();
     if (this.selectCircle) this.selectCircle.destroy();
     if (this.rangeCircle) this.rangeCircle.destroy();

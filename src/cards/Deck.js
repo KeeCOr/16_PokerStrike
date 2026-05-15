@@ -4,6 +4,7 @@ export default class Deck {
   constructor() {
     this.drawPile = [];
     this.discardPile = [];
+    this.burnPile = [];
     this._buildDeck();
     this._shuffle(this.drawPile);
   }
@@ -39,5 +40,17 @@ export default class Deck {
 
   discardMany(cards) {
     cards.forEach(c => this.discard(c));
+  }
+
+  burn(card) {
+    if (card) this.burnPile.push(card);
+  }
+
+  burnMany(cards) {
+    cards.forEach(c => this.burn(c));
+  }
+
+  get burnCount() {
+    return this.burnPile.length;
   }
 }

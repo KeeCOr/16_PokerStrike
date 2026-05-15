@@ -114,11 +114,15 @@ export default class CombatManager {
 
       for (const u of units) {
         if (u === unit) continue;
+        if (u.suit !== unit.suit) continue;
         const uPos = this.scene.grid.cellToWorld(u.col, u.row);
         const dx = uPos.x - pos.x;
         const dy = uPos.y - pos.y;
         if (Math.sqrt(dx * dx + dy * dy) > radiusPx) continue;
         u.stats.atkSpeed = +(u.stats.atkSpeed * buffMult).toFixed(3);
+        if (typeof u.showStatusText === 'function') {
+          u.showStatusText('강화', unit.stats.auraDuration, 0xffee44);
+        }
         this.scene.time.delayedCall(unit.stats.auraDuration, () => {
           u.stats.atkSpeed = +(u.stats.atkSpeed / buffMult).toFixed(3);
         });
@@ -180,6 +184,9 @@ export default class CombatManager {
 
     } else if (s.stunChance > 0) {
       // 땅(C속성): 대미지 후 확률 스턴 (등급에 따라 범위·지속)
+      if (s.armorBreakAmount > 0 && typeof target.applyArmorBreak === 'function') {
+        target.applyArmorBreak(s.armorBreakAmount, s.armorBreakDuration);
+      }
       const dead = target.takeDamage(s.atk);
       if (dead) { this._onEnemyDied(target); return; }
       if (s.stunChance > 0 && Math.random() < s.stunChance) {
@@ -200,7 +207,7 @@ export default class CombatManager {
     } else if (role === ROLE.SNIPER) {
       // 바람: 기본 대미지 + 적 최대HP% 추가 대미지 (방어력 관통, 단일)
       const bonusDmg = s.hpPctDamage > 0 ? Math.floor(target.maxHp * s.hpPctDamage) : 0;
-      const dead = target.takeDamage(s.atk + bonusDmg, true); // bypassArmor=true
+      const dead = target.takeDamage(s.atk + bonusDmg);
       if (dead) this._onEnemyDied(target);
 
     } else {

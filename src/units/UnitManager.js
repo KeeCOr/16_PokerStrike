@@ -365,6 +365,7 @@ export default class UnitManager {
     unit.sprite.setPosition(pos.x, pos.y);
     unit.gradeText.setPosition(pos.x, pos.y - 14);
     if (unit.glowCircle) unit.glowCircle.setPosition(pos.x, pos.y);
+    unit.updateStatusPosition?.();
     unit.setSelected(false);
     unit._drawHpBar();
   }

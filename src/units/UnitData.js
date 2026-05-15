@@ -64,6 +64,8 @@ const SUIT_MOD = {
     stunChance:   [0.40, 0.60, 0.90],
     stunDuration: [600,  1200, 2200], // ms
     stunRadius:   [0.00, 1.00, 1.80], // 0 = 단일 대상
+    armorBreakAmount: [0.12, 0.20, 0.30],
+    armorBreakDuration: 5000,
   },
   S: { // 바람 → HP% 대미지 단일 공격
     role: ROLE.SNIPER,
@@ -116,6 +118,8 @@ export function getUnitStats(handRank, suit, grade) {
     stunChance:   mod.stunChance   ? mod.stunChance[gi]   : 0,
     stunDuration: mod.stunDuration ? mod.stunDuration[gi] : 0,
     stunRadius:   mod.stunRadius   ? mod.stunRadius[gi]   : 0,
+    armorBreakAmount: mod.armorBreakAmount ? mod.armorBreakAmount[gi] : 0,
+    armorBreakDuration: mod.armorBreakDuration ?? 0,
     hpPctDamage:  mod.hpPctDamage  ? mod.hpPctDamage[gi]  : 0,
     buffRadius:   mod.buffRadius   ?? 0,
     buffAtkSpeed: mod.buffAtkSpeed ?? 0,

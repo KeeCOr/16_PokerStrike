@@ -34,4 +34,13 @@ describe('Deck', () => {
     deck.discard(card);
     expect(deck.discardPile.length).toBe(1);
   });
+
+  it('burnMany() keeps magic-used cards out of discard', () => {
+    const deck = new Deck();
+    const cards = [deck.draw(), deck.draw(), deck.draw()];
+    deck.burnMany(cards);
+    expect(deck.burnPile.length).toBe(3);
+    expect(deck.burnCount).toBe(3);
+    expect(deck.discardPile.length).toBe(0);
+  });
 });

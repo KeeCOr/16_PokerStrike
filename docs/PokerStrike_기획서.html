@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokerStrike 기획서</title>
+  <style>
+    body { margin: 0; background: #0d1117; color: #e6edf3; font-family: "Segoe UI", sans-serif; line-height: 1.65; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 24px 72px; }
+    h1 { color: #f0a500; font-size: 30px; margin-bottom: 8px; }
+    h2 { color: #58a6ff; font-size: 19px; margin-top: 32px; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
+    p, li { color: #c9d1d9; font-size: 14px; }
+    code { background: #21262d; color: #ffdd88; padding: 2px 6px; border-radius: 4px; }
+    .note { background: #161b22; border: 1px solid #30363d; border-left: 3px solid #58a6ff; padding: 14px 16px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>PokerStrike 기획서</h1>
+  <p class="note">포커 족보로 유닛 소환과 마법을 결정하는 세로형 카드 디펜스 게임.</p>
+
+  <h2>현재 UI 변경 사항</h2>
+  <ul>
+    <li>카드패 탭의 손패 위 보조 라벨을 제거했다.</li>
+    <li>공용패 라벨 옆에 <code>무덤 N</code> 카운트를 표시한다.</li>
+    <li>마법 사용 시 손패와 공용패에서 소모된 카드는 일반 버림패와 분리된 마법 무덤에 누적된다.</li>
+    <li><code>카드패</code>, <code>업그레이드</code>, <code>강화 목록</code> 탭을 넓은 탭 바 형태로 표시한다.</li>
+  </ul>
+
+  <h2>카드 흐름</h2>
+  <ul>
+    <li>소환: 손패 5장을 버림패로 보내고 새 손패를 뽑는다.</li>
+    <li>교체: 선택한 손패 1장을 버림패로 보내고 새 카드 1장을 뽑는다.</li>
+    <li>마법: 손패 5장과 공용패 2장을 마법 무덤으로 보내고, 새 손패와 새 공용패를 뽑는다.</li>
+  </ul>
+
+  <h2>무덤 카운트</h2>
+  <p>무덤 카운트는 마법으로 소모되어 이번 세션의 덱 순환에서 빠진 카드 수를 뜻한다. 일반 소환/교체로 버린 카드는 이 카운트에 포함하지 않는다.</p>
+
+  <h2>웨이브 강화 선택지</h2>
+  <ul>
+    <li>현재 대상 유닛이 1명 이상인 유닛 강화만 선택지에 등장한다.</li>
+    <li>예를 들어 물 속성 유닛이 없으면 물 속성 공격력/감속/사거리 강화는 후보에서 제외된다.</li>
+    <li>드로우 비용 감소처럼 현재 유닛을 직접 대상으로 삼지 않는 경제형 강화는 계속 등장할 수 있다.</li>
+  </ul>
+
+  <h2>전투 밸런스 변경</h2>
+  <ul>
+    <li>스트레이트 플러시 오라 유닛은 주변 아군 중 같은 속성 유닛만 공격 속도를 강화한다.</li>
+    <li>오라로 강화 중인 유닛 위에는 <code>강화</code> 상태 표시가 뜬다.</li>
+    <li>바람 속성 단일 공격은 더 이상 방어력을 관통하지 않고, 방어형 몬스터의 방어력에 따라 피해가 감소한다.</li>
+    <li>땅 속성 유닛은 공격 시 대상에게 방어력 감소 효과를 적용한다. 등급이 높을수록 방어력 감소량이 커진다.</li>
+  </ul>
+
+  <h2>스테이지 구성</h2>
+  <ul>
+    <li>모든 스테이지의 마지막 웨이브에는 보스 몬스터가 최소 1회 이상 등장한다.</li>
+  </ul>
+
+  <h2>검증 항목</h2>
+  <ul>
+    <li>마법 1회 사용 후 무덤 카운트가 7 증가한다.</li>
+    <li>소환/교체는 무덤 카운트를 증가시키지 않는다.</li>
+    <li>공용패 영역에서 무덤 카운트를 항상 확인할 수 있다.</li>
+    <li>탭 전환 시 카드패/업그레이드/강화 목록의 선택 상태가 시각적으로 구분된다.</li>
+    <li>웨이브 강화 선택지는 대상 유닛이 없는 유닛 강화를 표시하지 않는다.</li>
+    <li>오라 강화는 같은 속성 아군에게만 적용되고, 강화 상태 표시가 보인다.</li>
+    <li>단일 공격은 방어력에 영향을 받으며, 땅 속성 공격은 방어력 감소 상태를 적용한다.</li>
+    <li>각 스테이지 마지막 웨이브에는 보스 그룹이 포함된다.</li>
+  </ul>
+</main>
+</body>
+</html>

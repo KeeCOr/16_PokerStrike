@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import Grid, { GRID_ROWS, GRID_COLS, CELL_BLOCKED, CELL_EMPTY, CELL_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y } from '../grid/Grid.js';
 import GridRenderer from '../grid/GridRenderer.js';
 import UnitManager from '../units/UnitManager.js';
@@ -8,6 +8,7 @@ import EconomyManager from '../economy/EconomyManager.js';
 import StageManager from '../stages/StageManager.js';
 import MagicManager from '../magic/MagicManager.js';
 import RogueliteManager from '../roguelite/RogueliteManager.js';
+import { getAffectedUnitCount, pickWaveUpgrades } from '../roguelite/UpgradeChoices.js';
 import { UPGRADE_POOL } from '../data/roguelite.js';
 import { STAGES, STAGE_OBSTACLES } from '../stages/StageData.js';
 import { SUIT_ICONS, SUIT_NAMES } from '../cards/Card.js';
@@ -16,12 +17,12 @@ const BASE_HP = 100;
 
 function _upgradeTypeLabel(upgrade) {
   const typeMap = {
-    unitAtk: '공격력 강화', unitHp: 'HP 강화', unitRange: '사거리 강화',
-    unitAtkSpeed: '공격속도 강화', unitSlow: '감속 강화',
-    unitSplashChance: '스플래시 강화', unitStunChance: '스턴 강화',
-    drawCost: '경제 강화', replaceCost: '경제 강화', goldOnSummon: '골드 강화',
+    unitAtk: '怨듦꺽??媛뺥솕', unitHp: 'HP 媛뺥솕', unitRange: '?ш굅由?媛뺥솕',
+    unitAtkSpeed: '怨듦꺽?띾룄 媛뺥솕', unitSlow: '媛먯냽 媛뺥솕',
+    unitSplashChance: '?ㅽ뵆?섏떆 媛뺥솕', unitStunChance: '?ㅽ꽩 媛뺥솕',
+    drawCost: '寃쎌젣 媛뺥솕', replaceCost: '寃쎌젣 媛뺥솕', goldOnSummon: '怨⑤뱶 媛뺥솕',
   };
-  return typeMap[upgrade.type] ?? '강화';
+  return typeMap[upgrade.type] ?? '媛뺥솕';
 }
 
 export default class GameScene extends Phaser.Scene {
@@ -104,7 +105,7 @@ export default class GameScene extends Phaser.Scene {
     };
 
     if (this.startStageIndex === 0) {
-      // 1스테이지 시작: 튜토리얼 완료 후 게임 시작
+      // 1?ㅽ뀒?댁? ?쒖옉: ?쒗넗由ъ뼹 ?꾨즺 ??寃뚯엫 ?쒖옉
       this.scene.get('UIScene').events.once('tutorialDone', startGame);
     } else {
       startGame();
@@ -127,7 +128,7 @@ export default class GameScene extends Phaser.Scene {
     show('3', 0, false);
     show('2', 1000, false);
     show('1', 2000, false);
-    show('시작!', 3000, true);
+    show('?쒖옉!', 3000, true);
   }
 
   _showStageIntro(stageIndex, onComplete) {
@@ -158,7 +159,6 @@ export default class GameScene extends Phaser.Scene {
   }
 
   _applyObstacles(stageIndex) {
-    // 기존 장애물 초기화
     for (let r = 0; r < GRID_ROWS; r++) {
       for (let c = 0; c < GRID_COLS; c++) {
         if (this.grid.getCell(c, r) === CELL_BLOCKED) this.grid.setCell(c, r, CELL_EMPTY);
@@ -174,28 +174,28 @@ export default class GameScene extends Phaser.Scene {
   _initMap() {
     this._applyObstacles(0);
 
-    // 스폰 구역 표시 (row 0, col 3)
+    // ?ㅽ룿 援ъ뿭 ?쒖떆 (row 0, col 3)
     const spawnX = GRID_OFFSET_X + 3 * CELL_SIZE;
     const spawnY = GRID_OFFSET_Y;
     const sg = this.add.graphics().setDepth(0);
     sg.fillStyle(0xff2222, 0.25);
     sg.fillRect(spawnX + 1, spawnY + 1, CELL_SIZE - 2, CELL_SIZE - 2);
-    this.add.text(spawnX + CELL_SIZE / 2, spawnY + CELL_SIZE / 2, '스폰', {
+    this.add.text(spawnX + CELL_SIZE / 2, spawnY + CELL_SIZE / 2, '?ㅽ룿', {
       fontSize: '9px', color: '#ff6666'
     }).setOrigin(0.5).setDepth(1);
 
-    // 본진 표시 (row 8, 가운데 한 칸)
+    // 蹂몄쭊 ?쒖떆 (row 8, 媛?대뜲 ??移?
     const BASE_COL_IDX = Math.floor(GRID_COLS / 2);
     const baseY = GRID_OFFSET_Y + (GRID_ROWS - 1) * CELL_SIZE;
     const baseX = GRID_OFFSET_X + BASE_COL_IDX * CELL_SIZE;
     const bg = this.add.graphics().setDepth(0);
     bg.fillStyle(0x22aa44, 0.5);
     bg.fillRect(baseX + 1, baseY + 1, CELL_SIZE - 2, CELL_SIZE - 2);
-    this.add.text(baseX + CELL_SIZE / 2, baseY + CELL_SIZE / 2, '본진', {
+    this.add.text(baseX + CELL_SIZE / 2, baseY + CELL_SIZE / 2, '蹂몄쭊', {
       fontSize: '11px', color: '#44ff88', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(1);
 
-    // 본진 HP 바 (본진 셀 바로 위)
+    // 蹂몄쭊 HP 諛?(蹂몄쭊 ? 諛붾줈 ??
     this._baseHpBar = this.add.graphics().setDepth(2);
     this._drawBaseHpBar();
   }
@@ -215,14 +215,14 @@ export default class GameScene extends Phaser.Scene {
   }
 
   _showWaveChoices(resumeFn) {
-    const pool = [...UPGRADE_POOL].sort(() => Math.random() - 0.5).slice(0, 3);
+    const pool = pickWaveUpgrades(UPGRADE_POOL, this.unitManager.units, this.rogueliteManager, 3);
 
-    // 전체 화면 가림 + UIScene 입력 차단
+    // ?꾩껜 ?붾㈃ 媛由?+ UIScene ?낅젰 李⑤떒
     const overlay = this.add.rectangle(320, 480, 640, 960, 0x000000, 0.85).setDepth(20);
     const uiScene = this.scene.get('UIScene');
     if (uiScene) uiScene.input.enabled = false;
 
-    const titleText = this.add.text(320, 100, '강화 선택', {
+    const titleText = this.add.text(320, 100, '媛뺥솕 ?좏깮', {
       fontSize: '24px', color: '#ffdd44', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(21);
 
@@ -232,12 +232,13 @@ export default class GameScene extends Phaser.Scene {
       const bg = this.add.rectangle(320, y, 420, 120, 0x1a2a3a).setDepth(21)
         .setInteractive({ useHandCursor: true });
       const border = this.add.rectangle(320, y, 416, 116, 0x0d1b2a).setDepth(21);
-      const affectedCount = this.unitManager.units.filter(u => this.rogueliteManager.matches(upgrade, u)).length;
+      const affectedCount = getAffectedUnitCount(upgrade, this.unitManager.units, this.rogueliteManager);
       const suitIcon = upgrade.suit ? `${SUIT_ICONS[upgrade.suit]} ` : '';
       const label = this.add.text(320, y - 20, `${suitIcon}${upgrade.label}`, {
         fontSize: '16px', color: '#ffffff', fontStyle: 'bold'
       }).setOrigin(0.5).setDepth(22);
-      const typeLabel = this.add.text(320, y + 18, `${_upgradeTypeLabel(upgrade)}  (${affectedCount}마리 적용)`, {
+      const affectedText = affectedCount === null ? '즉시/향후 적용' : `${affectedCount}명 적용`;
+      const typeLabel = this.add.text(320, y + 18, `${_upgradeTypeLabel(upgrade)}  (${affectedText})`, {
         fontSize: '12px', color: '#88ccff'
       }).setOrigin(0.5).setDepth(22);
       objs.push(bg, border, label, typeLabel);
@@ -266,15 +267,12 @@ export default class GameScene extends Phaser.Scene {
 
   showMagicEffect(rank, skillName, description) {
     const COLORS = [
-      0xcccccc, // 0 HC  - 공용 패 교체
-      0xaaddff, // 1 1P  - 무료 드로우
-      0xffd700, // 2 2P  - 골드 획득
-      0x44ffff, // 3 3K  - 소환 지원
-      0x4488ff, // 4 STR - 대지진
-      0xffee44, // 5 FLU - 속성 강화
-      0x44ff88, // 6 FH  - 회복
-      0xff5522, // 7 4K  - 대폭발
-      0xcc44ff, // 8 SF  - 절멸
+      0xcccccc, // 0 HC  - 怨듭슜 ??援먯껜
+      0xaaddff, // 1 1P  - 臾대즺 ?쒕줈??      0xffd700, // 2 2P  - 怨⑤뱶 ?띾뱷
+      0x44ffff, // 3 3K  - ?뚰솚 吏??      0x4488ff, // 4 STR - ?吏吏?      0xffee44, // 5 FLU - ?띿꽦 媛뺥솕
+      0x44ff88, // 6 FH  - ?뚮났
+      0xff5522, // 7 4K  - ???컻
+      0xcc44ff, // 8 SF  - ?덈㈇
     ];
     const color = COLORS[rank] ?? 0xffffff;
 
@@ -287,7 +285,7 @@ export default class GameScene extends Phaser.Scene {
       onComplete: () => flash.destroy(),
     });
 
-    // Skill name — scale up then float away
+    // Skill name ??scale up then float away
     const nameText = this.add.text(320, 340, skillName, {
       fontSize: '38px', color: '#ffffff', fontStyle: 'bold',
       stroke: '#000000', strokeThickness: 6,
@@ -348,8 +346,7 @@ export default class GameScene extends Phaser.Scene {
     const currentStage = this.stageManager.stageIndex;
 
     if (currentStage > 0) {
-      // 현재 스테이지부터 재시작
-      const continueBtn = this.add.text(320, 470, `▶  ${currentStage + 1}스테이지부터 재시작`, {
+      const continueBtn = this.add.text(320, 470, `${currentStage + 1}스테이지부터 재시작`, {
         fontSize: '18px', color: '#ffffff',
         backgroundColor: '#1a5e2a', padding: { x: 20, y: 10 }
       }).setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
@@ -361,8 +358,7 @@ export default class GameScene extends Phaser.Scene {
           gems: this.gems, permHpLevel: this.permHpLevel, permAtkLevel: this.permAtkLevel });
       });
 
-      // 1스테이지부터 재시작
-      const restartBtn = this.add.text(320, 535, '↺  1스테이지부터 재시작', {
+      const restartBtn = this.add.text(320, 535, '1스테이지부터 재시작', {
         fontSize: '16px', color: '#cccccc',
         backgroundColor: '#3a2a1a', padding: { x: 20, y: 8 }
       }).setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
@@ -391,10 +387,10 @@ export default class GameScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(11);
     const objs = [overlay, clearText];
 
-    // 획득한 로그라이트 강화 목록 표시
+    // ?띾뱷??濡쒓렇?쇱씠??媛뺥솕 紐⑸줉 ?쒖떆
     const upgrades = this.rogueliteManager.upgrades;
     if (upgrades.length > 0) {
-      const buffTitle = this.add.text(320, 415, '획득한 강화:', {
+      const buffTitle = this.add.text(320, 415, '?띾뱷??媛뺥솕:', {
         fontSize: '12px', color: '#aaddff'
       }).setOrigin(0.5).setDepth(11);
       objs.push(buffTitle);
@@ -406,12 +402,12 @@ export default class GameScene extends Phaser.Scene {
     }
 
     if (isLast) {
-      const finalText = this.add.text(320, 490, '모든 스테이지 클리어!', {
+      const finalText = this.add.text(320, 490, '紐⑤뱺 ?ㅽ뀒?댁? ?대━??', {
         fontSize: '22px', color: '#ffffff'
       }).setOrigin(0.5).setDepth(11);
       objs.push(finalText);
     } else {
-      const nextBtn = this.add.text(320, 490, '▶  다음 스테이지', {
+      const nextBtn = this.add.text(320, 490, '?? ?ㅼ쓬 ?ㅽ뀒?댁?', {
         fontSize: '20px', color: '#ffffff',
         backgroundColor: '#1a5e2a', padding: { x: 20, y: 10 }
       }).setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
@@ -423,8 +419,7 @@ export default class GameScene extends Phaser.Scene {
         const next = stageIndex + 1;
         this._applyObstacles(next);
         this.enemyManager.recalculateAllPaths();
-        // 본진 HP 완전 회복 + 골드 초기화
-        this.baseHp = BASE_HP;
+        // 蹂몄쭊 HP ?꾩쟾 ?뚮났 + 怨⑤뱶 珥덇린??        this.baseHp = BASE_HP;
         this.registry.set('baseHp', this.baseHp);
         this._drawBaseHpBar();
         this.economyManager.resetForNewStage(next);
@@ -435,7 +430,7 @@ export default class GameScene extends Phaser.Scene {
       objs.push(nextBtn);
     }
 
-    const restartBtn = this.add.text(320, isLast ? 490 : 548, '↺  새로 시작', {
+    const restartBtn = this.add.text(320, isLast ? 490 : 548, '?? ?덈줈 ?쒖옉', {
       fontSize: '18px', color: '#cccccc',
       backgroundColor: '#3a2a1a', padding: { x: 20, y: 8 }
     }).setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
