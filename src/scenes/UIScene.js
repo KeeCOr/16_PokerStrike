@@ -52,55 +52,34 @@ export default class UIScene extends Phaser.Scene {
   }
 
   _createTabButtons() {
-    const y = PANEL_Y + 12;
-    this._tabCardBtn = this.add.text(55, y, '카드 패', {
-      fontSize: '12px', color: '#ffffff',
-      backgroundColor: '#2244aa', padding: { x: 10, y: 4 }
-    }).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
-
-    this._tabUpgradeBtn = this.add.text(165, y, '업그레이드', {
-      fontSize: '12px', color: '#ffffff',
-      backgroundColor: '#1a3a1a', padding: { x: 10, y: 4 }
-    }).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
-
-    this._tabRogueliteBtn = this.add.text(285, y, '강화 목록', {
-      fontSize: '12px', color: '#ffffff',
-      backgroundColor: '#4a3a00', padding: { x: 10, y: 4 }
-    }).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
-
-    this._tabCardBtn.on('pointerdown', () => this._switchTab('card'));
-    this._tabUpgradeBtn.on('pointerdown', () => this._switchTab('upgrade'));
-    this._tabRogueliteBtn.on('pointerdown', () => this._switchTab('roguelite'));
+    // Legacy text tabs are replaced by the full-width tab bar in _createReadableTabs.
   }
 
   _switchTab(tab) {
     const gs = this.scene.get('GameScene');
     if (gs?.unitManager) gs.unitManager.hideSummonPreview();
     this._activeTab = tab;
-    this._tabCardBtn.setStyle({ backgroundColor: tab === 'card' ? '#2244aa' : '#1a3a6a' });
-    this._tabUpgradeBtn.setStyle({ backgroundColor: tab === 'upgrade' ? '#226644' : '#1a3a1a' });
-    this._tabRogueliteBtn.setStyle({ backgroundColor: tab === 'roguelite' ? '#6a5a00' : '#4a3a00' });
     this._updateReadableTabs();
     this._refreshUI();
   }
 
   _createReadableTabs() {
-    const y = PANEL_Y + 12;
+    const y = PANEL_Y + 193;
     this._readableTabs = [
-      this._createReadableTab('card', 112, y, 184, '카드패'),
-      this._createReadableTab('upgrade', 320, y, 184, '업그레이드'),
-      this._createReadableTab('roguelite', 528, y, 184, '강화 목록'),
+      this._createReadableTab('card', 112, y, 184, '▱  카드패'),
+      this._createReadableTab('upgrade', 320, y, 184, '⇧  업그레이드'),
+      this._createReadableTab('roguelite', 528, y, 184, '✦  강화 목록'),
     ];
     this._updateReadableTabs();
   }
 
   _createReadableTab(key, x, y, width, label) {
-    const bg = this.add.rectangle(x, y, width, 28, 0x142033, 1)
+    const bg = this.add.rectangle(x, y, width, 38, 0x0a1522, 1)
       .setStrokeStyle(1, 0x314763, 1)
       .setDepth(13)
       .setInteractive({ useHandCursor: true });
     const text = this.add.text(x, y, label, {
-      fontSize: '12px', color: '#c9d6ea', fontStyle: 'bold'
+      fontSize: '15px', color: '#c9d6ea', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(14).setInteractive({ useHandCursor: true });
     bg.on('pointerdown', () => this._switchTab(key));
     text.on('pointerdown', () => this._switchTab(key));
@@ -110,9 +89,11 @@ export default class UIScene extends Phaser.Scene {
   _updateReadableTabs() {
     this._readableTabs?.forEach(tab => {
       const active = tab.key === this._activeTab;
-      tab.bg.setFillStyle(active ? 0x244a7a : 0x142033, 1);
-      tab.bg.setStrokeStyle(active ? 2 : 1, active ? 0x88ccff : 0x314763, 1);
-      tab.text.setStyle({ color: active ? '#ffffff' : '#c9d6ea' });
+      const activeFill = tab.key === 'card' ? 0x123b55 : tab.key === 'upgrade' ? 0x26321a : 0x2a2140;
+      const activeStroke = tab.key === 'card' ? 0x55d6ff : tab.key === 'upgrade' ? 0x9fd56c : 0xc88cff;
+      tab.bg.setFillStyle(active ? activeFill : 0x0a1522, 1);
+      tab.bg.setStrokeStyle(active ? 2 : 1, active ? activeStroke : 0x314763, active ? 1 : 0.75);
+      tab.text.setStyle({ color: active ? '#ffffff' : '#95a4b8' });
     });
   }
 
@@ -281,7 +262,7 @@ export default class UIScene extends Phaser.Scene {
       }).setOrigin(0.5).setDepth(12);
       this._upgradeObjs.push(row);
       y += 18;
-      if (y > 930) break;
+      if (y > PANEL_Y + 166) break;
     }
   }
 
@@ -334,7 +315,7 @@ export default class UIScene extends Phaser.Scene {
       }
     });
     this._upgradeObjs.push(permAtkBtn);
-    y += 30;
+    y += 28;
 
     // Base HP recovery section
     const baseTitle = this.add.text(320, y, '— 본진 강화 —', {
@@ -357,7 +338,7 @@ export default class UIScene extends Phaser.Scene {
       }
     });
     this._upgradeObjs.push(recoverBtn);
-    y += 36;
+    y += 32;
 
     // Unit upgrade section
     const unitTitle = this.add.text(320, y, '— 유닛 강화 —', {
@@ -379,7 +360,7 @@ export default class UIScene extends Phaser.Scene {
       fontSize: '13px', color: '#ffdd88', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(12);
     this._upgradeObjs.push(info);
-    y += 32;
+    y += 28;
 
     if (unit.upgradeHp && unit.upgradeAtk) {
       const done = this.add.text(320, y, '업그레이드 완료', {

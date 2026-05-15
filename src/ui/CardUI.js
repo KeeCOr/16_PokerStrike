@@ -1,8 +1,10 @@
 import { SUIT_COLORS, SUIT_NAMES, SUIT_ICONS } from '../cards/Card.js';
 
-const CARD_W = 52;
-const CARD_H = 76;
-const CARD_Y = 820;
+const CARD_W = 54;
+const CARD_H = 74;
+const CARD_Y = 805;
+const ACTION_Y = 882;
+const PREVIEW_Y = 852;
 const SHARED_SCALE = 0.85;
 
 export default class CardUI {
@@ -33,28 +35,28 @@ export default class CardUI {
     this.cardObjects = [];
     this.sharedObjects = [];
 
-    const labelY = CARD_Y - 46;
-    const totalW = hand.cards.length * (CARD_W + 6);
-    const startX = (460 - totalW) / 2 + CARD_W / 2;
+    const labelY = CARD_Y - 43;
+    const handGap = 7;
+    const startX = Math.floor(26 + CARD_W / 2);
 
     hand.cards.forEach((card, i) => {
-      const x = startX + i * (CARD_W + 6);
+      const x = startX + i * (CARD_W + handGap);
       this.cardObjects.push(this._drawCard(x, CARD_Y, card));
     });
 
-    const sepX = 460;
+    const sepX = 350;
     const sep = this.scene.add.graphics().setDepth(12);
-    sep.lineStyle(1, 0x3a5070, 1);
-    sep.lineBetween(sepX, CARD_Y - 40, sepX, CARD_Y + 40);
+    sep.lineStyle(1, 0x2d6688, 0.9);
+    sep.lineBetween(sepX, CARD_Y - 42, sepX, CARD_Y + 42);
     this.sharedObjects.push([sep]);
 
     const sharedCardW = Math.floor(CARD_W * SHARED_SCALE);
     const sharedGap = 8;
     const sharedTotal = sharedCards.cards.length * (sharedCardW + sharedGap) - sharedGap;
-    const sharedStartX = Math.floor((460 + 640) / 2 - sharedTotal / 2 + sharedCardW / 2);
-    const sharedCenterX = Math.floor((460 + 640) / 2);
+    const sharedCenterX = 496;
+    const sharedStartX = Math.floor(sharedCenterX - sharedTotal / 2 + sharedCardW / 2);
     const sharedLbl = this.scene.add.text(sharedCenterX, labelY, `공용패  |  무덤 ${burnCount}`, {
-      fontSize: '11px', color: '#dd99ff',
+      fontSize: '11px', color: '#cfa8ff', fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(12);
     this.sharedObjects.push([sharedLbl]);
 
@@ -69,22 +71,28 @@ export default class CardUI {
     const h = CARD_H * scale;
     const color = SUIT_COLORS[card.suit] ?? 0xffffff;
     const colorHex = '#' + color.toString(16).padStart(6, '0');
-    const bg = this.scene.add.rectangle(x, y, w, h, 0x1a2a3a).setDepth(12);
-    const border = this.scene.add.rectangle(x, y, w - 4, h - 4, 0x0d1b2a).setDepth(12);
+    const bg = this.scene.add.rectangle(x, y, w, h, 0x111b27).setDepth(12)
+      .setStrokeStyle(2, color, 0.95);
+    const inner = this.scene.add.rectangle(x, y, w - 7 * scale, h - 7 * scale, 0xefe8dc, 1).setDepth(12)
+      .setStrokeStyle(1, 0xffffff, 0.35);
+    const topBand = this.scene.add.rectangle(x, y - h * 0.29, w - 12 * scale, 15 * scale, 0x0d1b2a, 0.9).setDepth(13);
     const icon = SUIT_ICONS[card.suit] ?? '';
-    const suitText = this.scene.add.text(x, y - 8 * scale, `${icon} ${SUIT_NAMES[card.suit]}`, {
-      fontSize: `${10 * scale}px`, color: colorHex,
+    const suitText = this.scene.add.text(x, y - 22 * scale, `${icon} ${SUIT_NAMES[card.suit]}`, {
+      fontSize: `${9 * scale}px`, color: colorHex, fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(13);
     const valText = this.scene.add.text(x, y + 8 * scale, card.value, {
-      fontSize: `${14 * scale}px`, color: '#ffffff', fontStyle: 'bold',
+      fontSize: `${22 * scale}px`, color: '#151a22', fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(13);
-    return [bg, border, suitText, valText];
+    const suitMark = this.scene.add.text(x, y + 25 * scale, icon, {
+      fontSize: `${15 * scale}px`, color: colorHex,
+    }).setOrigin(0.5).setDepth(13);
+    return [bg, inner, topBand, suitText, valText, suitMark];
   }
 
   enterReplaceMode(hand, onSelect, onCancel) {
     this.exitReplaceMode();
 
-    this._replaceModeHint = this.scene.add.text(230, CARD_Y - 46, '교체할 카드를 선택하세요', {
+    this._replaceModeHint = this.scene.add.text(180, CARD_Y - 43, '교체할 카드를 선택하세요', {
       fontSize: '11px', color: '#ffdd44',
     }).setOrigin(0.5).setDepth(15);
 
@@ -127,7 +135,7 @@ export default class CardUI {
     this.cardObjects.forEach((objs) => {
       const [bg] = objs;
       if (!bg?.active) return;
-      bg.setFillStyle(0x1a2a3a);
+      bg.setFillStyle(0x111b27);
       bg.removeAllListeners();
     });
   }
@@ -139,34 +147,46 @@ export default class CardUI {
 
     let summonPreview = null;
     if (summonHandName) {
-      summonPreview = this.scene.add.text(320, 872, summonHandName, {
-        fontSize: '11px', color: '#ffdd88',
+      summonPreview = this.scene.add.text(320, PREVIEW_Y, summonHandName, {
+        fontSize: '11px', color: '#ffdd88', fontStyle: 'bold',
       }).setOrigin(0.5).setDepth(12);
     }
 
     let magicPreview = null;
     if (magicSkillName) {
-      magicPreview = this.scene.add.text(100, 872, magicSkillName, {
-        fontSize: '11px', color: '#cc88ff',
+      magicPreview = this.scene.add.text(112, PREVIEW_Y, magicSkillName, {
+        fontSize: '10px', color: '#cc88ff',
       }).setOrigin(0.5).setDepth(12);
     }
 
-    const magicBtn = this.scene.add.text(100, 904, '마법', {
-      fontSize: '13px', color: '#ffffff',
-      backgroundColor: '#883399', padding: { x: 8, y: 5 },
-    }).setOrigin(0.5).setDepth(12).setInteractive();
-
-    const summonBtn = this.scene.add.text(320, 904, `소환 (${drawCost}G)`, {
-      fontSize: '13px', color: '#ffffff',
-      backgroundColor: '#2244aa', padding: { x: 8, y: 5 },
-    }).setOrigin(0.5).setDepth(12).setInteractive();
-
-    const replaceBtn = this.scene.add.text(530, 904, `교체 (${replaceCost}G)`, {
-      fontSize: '13px', color: '#ffffff',
-      backgroundColor: '#226644', padding: { x: 8, y: 5 },
-    }).setOrigin(0.5).setDepth(12).setInteractive();
+    const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '✦  마법', 0x56308f, 0xb776ff);
+    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `♜  소환 ${drawCost}G`, 0x8a5a12, 0xffcc55);
+    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `↻  교체 ${replaceCost}G`, 0x0f5878, 0x55d6ff);
 
     this._buttons = { summonBtn, magicBtn, replaceBtn, summonPreview, magicPreview };
     return { summonBtn, magicBtn, replaceBtn };
+  }
+
+  _drawActionButton(x, y, w, label, fill, stroke) {
+    const bg = this.scene.add.rectangle(x, y, w, 42, fill, 0.95)
+      .setDepth(12)
+      .setStrokeStyle(2, stroke, 0.9)
+      .setInteractive({ useHandCursor: true });
+    const text = this.scene.add.text(x, y, label, {
+      fontSize: '15px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(13);
+    bg.on('pointerover', () => bg.setFillStyle(fill, 1));
+    bg.on('pointerout', () => bg.setFillStyle(fill, 0.95));
+    text.setInteractive({ useHandCursor: true });
+    text.on('pointerover', () => bg.emit('pointerover'));
+    text.on('pointerout', () => bg.emit('pointerout'));
+    text.on('pointerdown', () => bg.emit('pointerdown'));
+    bg.destroy = ((originalDestroy) => function (...args) {
+      if (text?.active) text.destroy();
+      return originalDestroy.apply(this, args);
+    })(bg.destroy);
+    return bg;
   }
 }
