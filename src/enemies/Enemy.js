@@ -44,7 +44,11 @@ export default class Enemy {
       [ENEMY_TYPE.SHIELDED]:  0x4499ff,
     };
     const color = COLOR_MAP[type] ?? 0xee8800;
-    this.sprite = scene.add.rectangle(this.x, this.y, 32, 32, color).setDepth(2);
+    this.sprite = scene.add.rectangle(this.x, this.y, 32, 32, color).setDepth(2)
+      .setInteractive({ useHandCursor: true });
+    this.sprite.on('pointerdown', () => {
+      if (typeof this.scene.showEnemyInfo === 'function') this.scene.showEnemyInfo(this);
+    });
 
     // 공중 유닛 표시: 다이아몬드 윤곽 + 'AIR' 텍스트
     if (this.isAerial) {
@@ -100,6 +104,15 @@ export default class Enemy {
     this.hp = Math.max(0, this.hp - dmg);
     this._drawHpBar();
     return this.hp <= 0;
+  }
+
+  getInfoLines() {
+    const lines = [
+      `HP ${Math.ceil(this.hp)} / ${this.maxHp}`,
+      `방어력 ${Math.round(this.armor * 100)}%`,
+    ];
+    if (this.armorBreakAmount > 0) lines.push('방어력 감소 중');
+    return lines;
   }
 
   applyArmorBreak(amount, duration) {
@@ -218,6 +231,9 @@ export default class Enemy {
   }
 
   destroy() {
+    if (this.scene?.selectedEnemy === this && typeof this.scene.clearEnemyInfo === 'function') {
+      this.scene.clearEnemyInfo();
+    }
     this.sprite.destroy();
     this.hpBar.destroy();
     if (this.armorBreakLabel) this.armorBreakLabel.destroy();

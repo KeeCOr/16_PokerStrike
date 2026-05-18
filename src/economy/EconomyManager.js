@@ -16,9 +16,11 @@ export default class EconomyManager {
     this.accumulator = 0;
     this.onGoldChanged = null;
     this.roguelite = null;
+    this.paused = false;
   }
 
   update(delta) {
+    if (this.paused) return;
     this.accumulator += this.incomeRate * (delta / 1000);
     if (this.accumulator >= 1) {
       const earned = Math.floor(this.accumulator);

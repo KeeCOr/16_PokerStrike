@@ -64,7 +64,7 @@ export default class UIScene extends Phaser.Scene {
   }
 
   _createReadableTabs() {
-    const y = PANEL_Y + 193;
+    const y = PANEL_Y + 22;
     this._readableTabs = [
       this._createReadableTab('card', 112, y, 184, '▱  카드패'),
       this._createReadableTab('upgrade', 320, y, 184, '⇧  업그레이드'),
@@ -240,7 +240,7 @@ export default class UIScene extends Phaser.Scene {
     this._clearUpgradeObjs();
     const gameScene = this.scene.get('GameScene');
     const upgrades = gameScene?.rogueliteManager?.upgrades ?? [];
-    let y = PANEL_Y + 24;
+    let y = PANEL_Y + 54;
 
     const title = this.add.text(320, y, '— 획득한 로그라이트 강화 —', {
       fontSize: '11px', color: '#ffdd44'
@@ -262,7 +262,7 @@ export default class UIScene extends Phaser.Scene {
       }).setOrigin(0.5).setDepth(12);
       this._upgradeObjs.push(row);
       y += 18;
-      if (y > PANEL_Y + 166) break;
+      if (y > PANEL_Y + 196) break;
     }
   }
 
@@ -271,7 +271,7 @@ export default class UIScene extends Phaser.Scene {
     const gameScene = this.scene.get('GameScene');
     const eco = gameScene.economyManager;
     const gems = gameScene.gems ?? 0;
-    let y = PANEL_Y + 20;
+    let y = PANEL_Y + 54;
 
     // Permanent upgrade section (영구 강화, 젬 사용)
     const permTitle = this.add.text(320, y, '— 영구 강화  (◆ 젬 사용) —', {

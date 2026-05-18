@@ -49,12 +49,21 @@ describe('EconomyManager', () => {
     expect(em.getReplaceCost()).toBe(2);
   });
 
-  it('recordReplace: 援먯껜留덈떎 ?뚰솚 鍮꾩슜 1怨⑤뱶 ?좎씤', () => {
+  it('recordReplace: 교체마다 소환 비용 1골드 할인', () => {
     const em = new EconomyManager();
     expect(em.getDrawCost()).toBe(5);
     em.recordReplace();
     expect(em.getDrawCost()).toBe(4);
     em.recordReplace();
     expect(em.getDrawCost()).toBe(3);
+  });
+
+  it('paused 상태에서는 시간 경과 골드가 증가하지 않는다', () => {
+    const em = new EconomyManager();
+    em.paused = true;
+
+    em.update(10000);
+
+    expect(em.gold).toBe(15);
   });
 });

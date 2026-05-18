@@ -2,9 +2,9 @@ import { SUIT_COLORS, SUIT_NAMES, SUIT_ICONS } from '../cards/Card.js';
 
 const CARD_W = 54;
 const CARD_H = 74;
-const CARD_Y = 805;
-const ACTION_Y = 882;
-const PREVIEW_Y = 852;
+const CARD_Y = 828;
+const ACTION_Y = 916;
+const PREVIEW_Y = 874;
 const SHARED_SCALE = 0.85;
 
 export default class CardUI {
@@ -35,7 +35,7 @@ export default class CardUI {
     this.cardObjects = [];
     this.sharedObjects = [];
 
-    const labelY = CARD_Y - 43;
+    const labelY = CARD_Y - 38;
     const handGap = 7;
     const startX = Math.floor(26 + CARD_W / 2);
 
@@ -47,7 +47,7 @@ export default class CardUI {
     const sepX = 350;
     const sep = this.scene.add.graphics().setDepth(12);
     sep.lineStyle(1, 0x2d6688, 0.9);
-    sep.lineBetween(sepX, CARD_Y - 42, sepX, CARD_Y + 42);
+    sep.lineBetween(sepX, CARD_Y - 38, sepX, CARD_Y + 38);
     this.sharedObjects.push([sep]);
 
     const sharedCardW = Math.floor(CARD_W * SHARED_SCALE);
@@ -92,7 +92,7 @@ export default class CardUI {
   enterReplaceMode(hand, onSelect, onCancel) {
     this.exitReplaceMode();
 
-    this._replaceModeHint = this.scene.add.text(180, CARD_Y - 43, '교체할 카드를 선택하세요', {
+    this._replaceModeHint = this.scene.add.text(180, CARD_Y - 38, '교체할 카드를 선택하세요', {
       fontSize: '11px', color: '#ffdd44',
     }).setOrigin(0.5).setDepth(15);
 
@@ -148,14 +148,16 @@ export default class CardUI {
     let summonPreview = null;
     if (summonHandName) {
       summonPreview = this.scene.add.text(320, PREVIEW_Y, summonHandName, {
-        fontSize: '11px', color: '#ffdd88', fontStyle: 'bold',
+        fontSize: '17px', color: '#ffdd88', fontStyle: 'bold',
+        stroke: '#000000', strokeThickness: 3,
       }).setOrigin(0.5).setDepth(12);
     }
 
     let magicPreview = null;
     if (magicSkillName) {
       magicPreview = this.scene.add.text(112, PREVIEW_Y, magicSkillName, {
-        fontSize: '10px', color: '#cc88ff',
+        fontSize: '12px', color: '#cc88ff',
+        stroke: '#000000', strokeThickness: 2,
       }).setOrigin(0.5).setDepth(12);
     }
 
