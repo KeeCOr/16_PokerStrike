@@ -23,10 +23,10 @@ export default class Enemy {
     this.armor      = this.baseArmor;
     this.armorBreakAmount = 0;
     this.armorBreakUntil = 0;
-    this.armorBreakLabel = null;
     this.shield     = stats.shield     ?? 0;
     this.maxShield  = stats.shield     ?? 0;
     this.slowImmune = stats.slowImmune ?? false;
+    this._slowEffects = [];
 
     this.path = null;
     this.pathIndex = 0;
@@ -115,25 +115,31 @@ export default class Enemy {
     return lines;
   }
 
+  applySlow(amount, duration) {
+    if (this.slowImmune || amount <= 0 || duration <= 0) return;
+    this._slowEffects.push({ amount, until: Date.now() + duration });
+    this._refreshSlow();
+  }
+
+  _refreshSlow() {
+    const now = Date.now();
+    this._slowEffects = this._slowEffects.filter(effect => effect.until > now);
+    if (this._slowEffects.length === 0) {
+      this.speed = this.baseSpeed;
+      return;
+    }
+    const strongest = Math.max(...this._slowEffects.map(effect => effect.amount));
+    this.speed = Math.max(this.baseSpeed * (1 - strongest), 10);
+  }
+
   applyArmorBreak(amount, duration) {
     if (amount <= 0 || duration <= 0) return;
     this.armorBreakAmount = Math.max(this.armorBreakAmount, amount);
     this.armorBreakUntil = Math.max(this.armorBreakUntil, Date.now() + duration);
     this.armor = Math.max(0, +(this.baseArmor - this.armorBreakAmount).toFixed(3));
-    this._showArmorBreakLabel();
-  }
-
-  _showArmorBreakLabel() {
-    if (!this.scene?.add?.text) return;
-    if (!this.armorBreakLabel) {
-      this.armorBreakLabel = this.scene.add.text(this.x, this.y - 34, '방깎', {
-        fontSize: '11px',
-        color: '#ffd166',
-        stroke: '#000000',
-        strokeThickness: 3,
-      }).setOrigin(0.5).setDepth(4);
+    if (typeof this.scene.showBattleMessage === 'function') {
+      this.scene.showBattleMessage('방어력 감소 중', '#ffd166', Math.min(duration, 1400));
     }
-    this.armorBreakLabel.setPosition(this.x, this.y - 34);
   }
 
   _refreshArmorBreak() {
@@ -141,14 +147,11 @@ export default class Enemy {
     this.armorBreakAmount = 0;
     this.armorBreakUntil = 0;
     this.armor = this.baseArmor;
-    if (this.armorBreakLabel) {
-      this.armorBreakLabel.destroy();
-      this.armorBreakLabel = null;
-    }
   }
 
   update(time, delta) {
     this._refreshArmorBreak();
+    this._refreshSlow();
     if (Date.now() < this.frozenUntil) return;
 
     const dtSec = delta / 1000;
@@ -193,13 +196,13 @@ export default class Enemy {
       this._aerialMarker.strokeRect(this.x - 20, this.y - 20, 40, 40);
       this._aerialLabel.setPosition(this.x, this.y - 24);
     }
-    if (this.armorBreakLabel) this.armorBreakLabel.setPosition(this.x, this.y - 34);
     this._drawHpBar();
   }
 
   // 재생/버프 등 패시브 처리 (이동 없음)
   updatePassive(delta) {
     this._refreshArmorBreak();
+    this._refreshSlow();
     const dtSec = delta / 1000;
     if (this.regenRate > 0) {
       this.regenAccum += this.regenRate * dtSec;
@@ -236,7 +239,6 @@ export default class Enemy {
     }
     this.sprite.destroy();
     this.hpBar.destroy();
-    if (this.armorBreakLabel) this.armorBreakLabel.destroy();
     if (this._aerialMarker) { this._aerialMarker.destroy(); this._aerialLabel.destroy(); }
   }
 }

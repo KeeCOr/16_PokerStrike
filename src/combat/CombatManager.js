@@ -172,13 +172,11 @@ export default class CombatManager {
             const dx = e.x - target.x;
             const dy = e.y - target.y;
             if (Math.sqrt(dx * dx + dy * dy) <= radiusPx) {
-              const slowedSpeed = Math.max(e.baseSpeed * (1 - s.slowAmount), 10);
-              e.speed = Math.min(e.speed, slowedSpeed);
+              if (typeof e.applySlow === 'function') e.applySlow(s.slowAmount, s.slowDuration);
             }
           }
         } else if (!target.slowImmune) {
-          const slowedSpeed = Math.max(target.baseSpeed * (1 - s.slowAmount), 10);
-          target.speed = Math.min(target.speed, slowedSpeed);
+          if (typeof target.applySlow === 'function') target.applySlow(s.slowAmount, s.slowDuration);
         }
       }
 

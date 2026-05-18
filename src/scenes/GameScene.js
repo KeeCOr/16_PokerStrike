@@ -54,6 +54,8 @@ export default class GameScene extends Phaser.Scene {
     this._baseHpBar = null;
     this.selectedEnemy = null;
     this._enemyInfoObjs = [];
+    this._battleMessageObjs = [];
+    this._battleMessageTimer = null;
 
     this.enemyManager.onEnemyReachBase = (dmg) => {
       this.baseHp = Math.max(0, this.baseHp - dmg);
@@ -234,11 +236,11 @@ export default class GameScene extends Phaser.Scene {
     if (!enemy || enemy.hp <= 0 || !this.enemyManager.getAll().includes(enemy)) return;
 
     const lines = enemy.getInfoLines();
-    const x = Phaser.Math.Clamp(enemy.x, 86, 554);
-    const y = Phaser.Math.Clamp(enemy.y - 58, 52, 704);
-    const height = 28 + lines.length * 18;
+    const x = 486;
+    const y = 64;
+    const height = 34 + lines.length * 18;
 
-    const bg = this.add.rectangle(x, y, 128, height, 0x07111d, 0.92)
+    const bg = this.add.rectangle(x, y, 196, height, 0x07111d, 0.94)
       .setDepth(18)
       .setStrokeStyle(1, 0x88ccff, 0.85);
     const title = this.add.text(x, y - height / 2 + 13, '적 정보', {
@@ -252,6 +254,31 @@ export default class GameScene extends Phaser.Scene {
         color: index === 2 ? '#ffd166' : '#ffffff',
       }).setOrigin(0.5).setDepth(19);
       this._enemyInfoObjs.push(text);
+    });
+  }
+
+  showBattleMessage(message, color = '#ffd166', duration = 1200) {
+    this._battleMessageObjs.forEach(o => { if (o?.active) o.destroy(); });
+    this._battleMessageObjs = [];
+    if (this._battleMessageTimer?.remove) this._battleMessageTimer.remove(false);
+
+    const x = 320;
+    const y = 716;
+    const bg = this.add.rectangle(x, y, 320, 30, 0x07111d, 0.86)
+      .setDepth(16)
+      .setStrokeStyle(1, 0x2b5d78, 0.85);
+    const text = this.add.text(x, y, message, {
+      fontSize: '13px',
+      color,
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(17);
+    this._battleMessageObjs.push(bg, text);
+    this._battleMessageTimer = this.time.delayedCall(duration, () => {
+      this._battleMessageObjs.forEach(o => { if (o?.active) o.destroy(); });
+      this._battleMessageObjs = [];
+      this._battleMessageTimer = null;
     });
   }
 

@@ -50,11 +50,7 @@ export default class MagicManager {
       case 'slowAll':
         [...enemies].forEach(e => {
           if (!e.magicImmune) {
-            const originalSpeed = e.speed;
-            e.speed = Math.max(e.speed * (1 - skill.slowAmount), 10);
-            scene.time.delayedCall(skill.duration, () => {
-              e.speed = originalSpeed;
-            });
+            if (typeof e.applySlow === 'function') e.applySlow(skill.slowAmount, skill.duration);
           }
         });
         break;

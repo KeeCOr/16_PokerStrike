@@ -183,6 +183,11 @@ export default class Unit {
   }
 
   showStatusText(text, duration, color = 0xffee44) {
+    if (typeof this.scene.showBattleMessage === 'function') {
+      const colorHex = `#${color.toString(16).padStart(6, '0')}`;
+      this.scene.showBattleMessage(text, colorHex, Math.min(duration, 1400));
+      return;
+    }
     const pos = this.scene.grid.cellToWorld(this.col, this.row);
     if (this.statusText) this.statusText.destroy();
     if (this.statusTimer?.remove) this.statusTimer.remove(false);

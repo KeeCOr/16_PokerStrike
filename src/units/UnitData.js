@@ -57,6 +57,7 @@ const SUIT_MOD = {
     slowChance:  [0.60, 0.80, 1.00],
     slowAmount:  [0.30, 0.45, 0.60],
     slowRadius:  [0.00, 1.00, 1.80], // 0 = 단일 대상
+    slowDuration: 3000,
   },
   C: { // 땅 → 스턴 (등급 높을수록 확률·범위·지속↑)
     role: ROLE.ATTACK,
@@ -115,6 +116,7 @@ export function getUnitStats(handRank, suit, grade) {
     slowChance:   mod.slowChance   ? mod.slowChance[gi]   : 0,
     slowAmount:   mod.slowAmount   ? mod.slowAmount[gi]   : 0,
     slowRadius:   mod.slowRadius   ? mod.slowRadius[gi]   : 0,
+    slowDuration: mod.slowDuration ?? 0,
     stunChance:   mod.stunChance   ? mod.stunChance[gi]   : 0,
     stunDuration: mod.stunDuration ? mod.stunDuration[gi] : 0,
     stunRadius:   mod.stunRadius   ? mod.stunRadius[gi]   : 0,

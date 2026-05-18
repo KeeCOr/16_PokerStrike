@@ -173,4 +173,32 @@ describe('CombatManager', () => {
     expect(target.lastArmorBreak).toEqual({ amount: 0.25, duration: 5000 });
     expect(target.lastDamage).toBe(12);
   });
+
+  it('applies slow through enemy timed slow effect', () => {
+    const scene = createScene();
+    const manager = new CombatManager(scene);
+    const waterUnit = {
+      ...scene.unit,
+      stats: {
+        ...scene.unit.stats,
+        role: ROLE.SUPPORT_SLOW,
+        atk: 8,
+        slowChance: 1,
+        slowAmount: 0.4,
+        slowRadius: 0,
+        slowDuration: 3000,
+      },
+    };
+    const target = {
+      ...scene.enemy,
+      slowImmune: false,
+      applySlow(amount, duration) {
+        this.lastSlow = { amount, duration };
+      },
+    };
+
+    manager._applyAttack(waterUnit, target, [target]);
+
+    expect(target.lastSlow).toEqual({ amount: 0.4, duration: 3000 });
+  });
 });

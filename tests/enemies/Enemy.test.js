@@ -47,4 +47,16 @@ describe('Enemy', () => {
       '방어력 감소 중',
     ]);
   });
+
+  it('restores movement speed after slow duration ends', () => {
+    const enemy = new Enemy(createScene(), 0, 0, ENEMY_TYPE.RUNNER);
+
+    enemy.applySlow(0.5, 5000);
+    expect(enemy.speed).toBe(48);
+
+    enemy._slowEffects[0].until = Date.now() - 1;
+    enemy.updatePassive(16);
+
+    expect(enemy.speed).toBe(enemy.baseSpeed);
+  });
 });
