@@ -36,29 +36,10 @@ export default class Enemy {
     this.x = pos.x;
     this.y = pos.y;
 
-    const COLOR_MAP = {
-      [ENEMY_TYPE.BOSS]:      0xff0000,
-      [ENEMY_TYPE.ARMORED]:   0x999999,
-      [ENEMY_TYPE.SWARM]:     0xdd44bb,
-      [ENEMY_TYPE.BERSERKER]: 0xff5500,
-      [ENEMY_TYPE.SHIELDED]:  0x4499ff,
-    };
-    const color = COLOR_MAP[type] ?? 0xee8800;
-    this.sprite = scene.add.rectangle(this.x, this.y, 32, 32, color).setDepth(2)
-      .setInteractive({ useHandCursor: true });
+    this.sprite = this._createMonsterSprite();
     this.sprite.on('pointerdown', () => {
       if (typeof this.scene.showEnemyInfo === 'function') this.scene.showEnemyInfo(this);
     });
-
-    // 공중 유닛 표시: 다이아몬드 윤곽 + 'AIR' 텍스트
-    if (this.isAerial) {
-      this._aerialMarker = scene.add.graphics().setDepth(3);
-      this._aerialMarker.lineStyle(2, 0x88eeff, 1);
-      this._aerialMarker.strokeRect(this.x - 20, this.y - 20, 40, 40);
-      this._aerialLabel = scene.add.text(this.x, this.y - 24, '✈', {
-        fontSize: '11px', color: '#88eeff'
-      }).setOrigin(0.5).setDepth(4);
-    }
 
     this.hpBar = scene.add.graphics().setDepth(3);
     this._drawHpBar();
@@ -69,6 +50,137 @@ export default class Enemy {
     this.frozenUntil = 0;
     this.attackingBase = false;
     this.baseAtkCooldown = 0;
+  }
+
+  _createMonsterSprite() {
+    const sprite = this.scene.add.container(this.x, this.y)
+      .setDepth(2)
+      .setSize(46, 46)
+      .setInteractive({ useHandCursor: true });
+    const gfx = this.scene.add.graphics();
+    const p = this._getMonsterPalette();
+
+    if (this.isAerial) this._drawWings(gfx, p);
+
+    gfx.fillStyle(0x07111d, 0.55);
+    gfx.fillCircle(0, 6, 20);
+
+    this._drawTypeSilhouette(gfx, p);
+
+    gfx.fillStyle(p.body, 1);
+    gfx.fillCircle(0, 0, p.size);
+    gfx.fillCircle(-10, -5, Math.floor(p.size * 0.47));
+    gfx.fillCircle(10, -5, Math.floor(p.size * 0.47));
+
+    gfx.fillStyle(p.accent, 1);
+    gfx.fillTriangle(-13, -12, -8, -23, -2, -11);
+    gfx.fillTriangle(13, -12, 8, -23, 2, -11);
+
+    gfx.fillStyle(0xf8fbff, 1);
+    gfx.fillCircle(-6, -3, 4);
+    gfx.fillCircle(6, -3, 4);
+    gfx.fillStyle(0x0b1018, 1);
+    gfx.fillCircle(-5, -3, 2);
+    gfx.fillCircle(7, -3, 2);
+
+    gfx.fillStyle(p.mouth, 1);
+    gfx.fillRect(-7, 8, 14, 3);
+
+    this._drawTypeBadge(gfx, p);
+    sprite.add(gfx);
+
+    if (this.isAerial) {
+      const label = this.scene.add.text(0, -28, '✦', {
+        fontSize: '12px',
+        color: '#9eeeff',
+      }).setOrigin(0.5);
+      sprite.add(label);
+    }
+
+    return sprite;
+  }
+
+  _getMonsterPalette() {
+    const palettes = {
+      [ENEMY_TYPE.TANK]:         { body: 0x65717f, accent: 0xb8c1cc, mouth: 0x26313c, size: 17 },
+      [ENEMY_TYPE.RUNNER]:       { body: 0xf4a340, accent: 0xffdf7a, mouth: 0x7d2e16, size: 14 },
+      [ENEMY_TYPE.AERIAL]:       { body: 0x3eb8e5, accent: 0x9eeeff, mouth: 0x0d506d, size: 15 },
+      [ENEMY_TYPE.MAGIC_IMMUNE]: { body: 0x8e5bff, accent: 0xffd66b, mouth: 0x30185c, size: 15 },
+      [ENEMY_TYPE.SPLITTER]:     { body: 0xd16fcb, accent: 0xffa3ee, mouth: 0x611858, size: 15 },
+      [ENEMY_TYPE.REGEN]:        { body: 0x55bd6a, accent: 0xa8f0a2, mouth: 0x174f24, size: 16 },
+      [ENEMY_TYPE.FREEZER]:      { body: 0x78d5f0, accent: 0xd6fbff, mouth: 0x145d78, size: 15 },
+      [ENEMY_TYPE.BOSS]:         { body: 0xb6292f, accent: 0xffcc55, mouth: 0x3a090c, size: 20 },
+      [ENEMY_TYPE.ARMORED]:      { body: 0x88919b, accent: 0xe1e6eb, mouth: 0x242c33, size: 17 },
+      [ENEMY_TYPE.SWARM]:        { body: 0xee62c0, accent: 0xffc5ef, mouth: 0x73194f, size: 12 },
+      [ENEMY_TYPE.BERSERKER]:    { body: 0xf05b28, accent: 0xffd24d, mouth: 0x7b1707, size: 15 },
+      [ENEMY_TYPE.SHIELDED]:     { body: 0x3d91f2, accent: 0x96f0ff, mouth: 0x123c73, size: 16 },
+    };
+    return palettes[this.type] ?? { body: 0xe99535, accent: 0xffd26a, mouth: 0x5c2a0d, size: 15 };
+  }
+
+  _drawWings(gfx, p) {
+    gfx.fillStyle(0x9eeeff, 0.8);
+    gfx.fillTriangle(-11, -2, -30, -14, -22, 9);
+    gfx.fillTriangle(11, -2, 30, -14, 22, 9);
+    gfx.fillStyle(p.body, 0.55);
+    gfx.fillTriangle(-12, 2, -26, 2, -18, 13);
+    gfx.fillTriangle(12, 2, 26, 2, 18, 13);
+  }
+
+  _drawTypeSilhouette(gfx, p) {
+    if (this.type === ENEMY_TYPE.BOSS) {
+      gfx.fillStyle(0xffcc55, 1);
+      gfx.fillTriangle(-15, -17, -10, -32, -5, -17);
+      gfx.fillTriangle(0, -18, 0, -35, 7, -18);
+      gfx.fillTriangle(15, -17, 10, -32, 5, -17);
+    }
+    if (this.type === ENEMY_TYPE.BERSERKER || this.type === ENEMY_TYPE.RUNNER) {
+      gfx.fillStyle(p.accent, 1);
+      gfx.fillTriangle(-19, 7, -31, 11, -18, 16);
+      gfx.fillTriangle(19, 7, 31, 11, 18, 16);
+    }
+    if (this.type === ENEMY_TYPE.SPLITTER || this.type === ENEMY_TYPE.SWARM) {
+      gfx.fillStyle(p.body, 0.75);
+      gfx.fillCircle(-22, 7, 8);
+      gfx.fillCircle(22, 7, 8);
+    }
+  }
+
+  _drawTypeBadge(gfx, p) {
+    if (this.type === ENEMY_TYPE.ARMORED || this.type === ENEMY_TYPE.TANK) {
+      gfx.lineStyle(3, p.accent, 0.9);
+      gfx.strokeCircle(0, 1, 19);
+      gfx.lineStyle(2, 0x2b333d, 0.8);
+      gfx.strokeCircle(0, 1, 13);
+    }
+    if (this.type === ENEMY_TYPE.SHIELDED) {
+      gfx.lineStyle(3, 0x96f0ff, 0.85);
+      gfx.strokeCircle(0, 0, 23);
+    }
+    if (this.type === ENEMY_TYPE.MAGIC_IMMUNE) {
+      gfx.fillStyle(0xffd66b, 1);
+      gfx.fillCircle(0, -18, 3);
+      gfx.fillCircle(-18, 1, 3);
+      gfx.fillCircle(18, 1, 3);
+      gfx.fillCircle(0, 18, 3);
+    }
+    if (this.type === ENEMY_TYPE.REGEN) {
+      gfx.fillStyle(0xd6ffd1, 1);
+      gfx.fillRect(-3, 12, 6, 14);
+      gfx.fillRect(-7, 16, 14, 6);
+    }
+    if (this.type === ENEMY_TYPE.FREEZER) {
+      gfx.lineStyle(2, 0xd6fbff, 1);
+      gfx.beginPath();
+      gfx.moveTo(0, -20);
+      gfx.lineTo(0, -10);
+      gfx.moveTo(-8, -18);
+      gfx.lineTo(8, -12);
+      gfx.moveTo(8, -18);
+      gfx.lineTo(-8, -12);
+      gfx.closePath();
+      gfx.strokePath();
+    }
   }
 
   _drawHpBar() {
@@ -149,10 +261,17 @@ export default class Enemy {
     this.armor = this.baseArmor;
   }
 
+  _clearFreezeTint() {
+    if (!this._freezeTint) return;
+    this._freezeTint.destroy();
+    this._freezeTint = null;
+  }
+
   update(time, delta) {
     this._refreshArmorBreak();
     this._refreshSlow();
     if (Date.now() < this.frozenUntil) return;
+    this._clearFreezeTint();
 
     const dtSec = delta / 1000;
 
@@ -190,12 +309,6 @@ export default class Enemy {
     }
 
     this.sprite.setPosition(this.x, this.y);
-    if (this._aerialMarker) {
-      this._aerialMarker.clear();
-      this._aerialMarker.lineStyle(2, 0x88eeff, 1);
-      this._aerialMarker.strokeRect(this.x - 20, this.y - 20, 40, 40);
-      this._aerialLabel.setPosition(this.x, this.y - 24);
-    }
     this._drawHpBar();
   }
 
@@ -203,6 +316,7 @@ export default class Enemy {
   updatePassive(delta) {
     this._refreshArmorBreak();
     this._refreshSlow();
+    if (Date.now() >= this.frozenUntil) this._clearFreezeTint();
     const dtSec = delta / 1000;
     if (this.regenRate > 0) {
       this.regenAccum += this.regenRate * dtSec;
@@ -221,7 +335,11 @@ export default class Enemy {
 
   applyFreeze(duration) {
     this.frozenUntil = Date.now() + duration;
-    this.sprite.setFillStyle(0xaaddff);
+    if (this._freezeTint) this._freezeTint.destroy();
+    this._freezeTint = this.scene.add.graphics();
+    this._freezeTint.fillStyle(0xaaddff, 0.42);
+    this._freezeTint.fillCircle(0, 0, 23);
+    this.sprite.add(this._freezeTint);
   }
 
   setPath(path) {
@@ -237,8 +355,8 @@ export default class Enemy {
     if (this.scene?.selectedEnemy === this && typeof this.scene.clearEnemyInfo === 'function') {
       this.scene.clearEnemyInfo();
     }
+    this._clearFreezeTint();
     this.sprite.destroy();
     this.hpBar.destroy();
-    if (this._aerialMarker) { this._aerialMarker.destroy(); this._aerialLabel.destroy(); }
   }
 }

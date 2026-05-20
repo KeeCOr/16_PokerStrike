@@ -1,0 +1,5 @@
+export const WAVE_CHOICE_LAYOUT = {
+  TITLE_FONT: 26,
+  LABEL_FONT: 19,
+  TYPE_FONT: 14,
+};

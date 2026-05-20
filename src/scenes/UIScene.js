@@ -7,6 +7,8 @@ import SharedCards from '../cards/SharedCards.js';
 import { evaluateHand, HAND_NAMES } from '../cards/HandEvaluator.js';
 import { SKILLS } from '../data/skills.js';
 import { PANEL_Y } from '../grid/Grid.js';
+import { SUIT_ICONS } from '../cards/Card.js';
+import { applyGoldSuitUpgradeToUnits, createGoldSuitUpgrade, GOLD_SUIT_UPGRADE_COST } from '../roguelite/GoldSuitUpgrade.js';
 
 export default class UIScene extends Phaser.Scene {
   constructor() { super('UIScene'); }
@@ -64,7 +66,7 @@ export default class UIScene extends Phaser.Scene {
   }
 
   _createReadableTabs() {
-    const y = PANEL_Y + 22;
+    const y = PANEL_Y + 18;
     this._readableTabs = [
       this._createReadableTab('card', 112, y, 184, '▱  카드패'),
       this._createReadableTab('upgrade', 320, y, 184, '⇧  업그레이드'),
@@ -74,12 +76,12 @@ export default class UIScene extends Phaser.Scene {
   }
 
   _createReadableTab(key, x, y, width, label) {
-    const bg = this.add.rectangle(x, y, width, 38, 0x0a1522, 1)
+    const bg = this.add.rectangle(x, y, width, 32, 0x0a1522, 1)
       .setStrokeStyle(1, 0x314763, 1)
       .setDepth(13)
       .setInteractive({ useHandCursor: true });
     const text = this.add.text(x, y, label, {
-      fontSize: '15px', color: '#c9d6ea', fontStyle: 'bold'
+      fontSize: '14px', color: '#c9d6ea', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(14).setInteractive({ useHandCursor: true });
     bg.on('pointerdown', () => this._switchTab(key));
     text.on('pointerdown', () => this._switchTab(key));
@@ -240,7 +242,7 @@ export default class UIScene extends Phaser.Scene {
     this._clearUpgradeObjs();
     const gameScene = this.scene.get('GameScene');
     const upgrades = gameScene?.rogueliteManager?.upgrades ?? [];
-    let y = PANEL_Y + 54;
+    let y = PANEL_Y + 48;
 
     const title = this.add.text(320, y, '— 획득한 로그라이트 강화 —', {
       fontSize: '11px', color: '#ffdd44'
@@ -270,27 +272,22 @@ export default class UIScene extends Phaser.Scene {
     this._clearUpgradeObjs();
     const gameScene = this.scene.get('GameScene');
     const eco = gameScene.economyManager;
-    const gems = gameScene.gems ?? 0;
-    let y = PANEL_Y + 54;
+    let y = PANEL_Y + 48;
 
     // Permanent upgrade section (영구 강화, 젬 사용)
-    const permTitle = this.add.text(320, y, '— 영구 강화  (◆ 젬 사용) —', {
+    const permTitle = this.add.text(320, y, '◆ 전체 타워 강화', {
       fontSize: '11px', color: '#88eeff'
     }).setOrigin(0.5).setDepth(12);
     this._upgradeObjs.push(permTitle);
-    y += 20;
+    y += 18;
 
     const permHpLv = gameScene.permHpLevel ?? 0;
     const permAtkLv = gameScene.permAtkLevel ?? 0;
     const PERM_MAX = 10, PERM_COST = 1;
 
-    const permHpBtn = this.add.text(190, y,
-      permHpLv >= PERM_MAX ? `HP +${permHpLv * 3}% MAX` : `HP +3%  (◆${PERM_COST})  Lv${permHpLv}`,
-      { fontSize: '11px', color: '#ffffff', backgroundColor: '#1a4a2a', padding: { x: 6, y: 3 } }
-    ).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
-    permHpBtn.on('pointerover', () => permHpBtn.setStyle({ color: '#44ff88' }));
-    permHpBtn.on('pointerout', () => permHpBtn.setStyle({ color: '#ffffff' }));
-    permHpBtn.on('pointerdown', () => {
+    this._drawUpgradeButton(190, y, 190,
+      permHpLv >= PERM_MAX ? `HP +${permHpLv * 3}% MAX` : `HP +3%  ◆${PERM_COST}  Lv${permHpLv}`,
+      0x17351f, 0x58d27c, () => {
       if (permHpLv < PERM_MAX && gameScene.gems >= PERM_COST) {
         gameScene.gems -= PERM_COST;
         gameScene.permHpLevel = (gameScene.permHpLevel ?? 0) + 1;
@@ -298,15 +295,10 @@ export default class UIScene extends Phaser.Scene {
         this._renderUpgradeTab();
       }
     });
-    this._upgradeObjs.push(permHpBtn);
 
-    const permAtkBtn = this.add.text(440, y,
-      permAtkLv >= PERM_MAX ? `ATK +${permAtkLv * 3}% MAX` : `ATK +3%  (◆${PERM_COST})  Lv${permAtkLv}`,
-      { fontSize: '11px', color: '#ffffff', backgroundColor: '#4a2a1a', padding: { x: 6, y: 3 } }
-    ).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
-    permAtkBtn.on('pointerover', () => permAtkBtn.setStyle({ color: '#ffaa44' }));
-    permAtkBtn.on('pointerout', () => permAtkBtn.setStyle({ color: '#ffffff' }));
-    permAtkBtn.on('pointerdown', () => {
+    this._drawUpgradeButton(440, y, 190,
+      permAtkLv >= PERM_MAX ? `ATK +${permAtkLv * 3}% MAX` : `ATK +3%  ◆${PERM_COST}  Lv${permAtkLv}`,
+      0x3d2412, 0xffb65c, () => {
       if (permAtkLv < PERM_MAX && gameScene.gems >= PERM_COST) {
         gameScene.gems -= PERM_COST;
         gameScene.permAtkLevel = (gameScene.permAtkLevel ?? 0) + 1;
@@ -314,38 +306,42 @@ export default class UIScene extends Phaser.Scene {
         this._renderUpgradeTab();
       }
     });
-    this._upgradeObjs.push(permAtkBtn);
-    y += 28;
+    y += 26;
+
+    const suitTitle = this.add.text(320, y, 'G 문양별 공격 강화', {
+      fontSize: '11px', color: '#ffd166'
+    }).setOrigin(0.5).setDepth(12);
+    this._upgradeObjs.push(suitTitle);
+    y += 18;
+
+    ['H', 'D', 'C', 'S'].forEach((suit, i) => {
+      const x = 112 + i * 138;
+      this._drawUpgradeButton(x, y, 126, `${SUIT_ICONS[suit]} ATK +10%  ${GOLD_SUIT_UPGRADE_COST}G`,
+        0x332914, 0xffd166, () => {
+          if (!eco.spend(GOLD_SUIT_UPGRADE_COST)) return;
+          const upgrade = createGoldSuitUpgrade(suit);
+          gameScene.rogueliteManager.addUpgrade(upgrade);
+          applyGoldSuitUpgradeToUnits(gameScene.unitManager.units, upgrade);
+          this._renderUpgradeTab();
+        }, { fontSize: '10px' });
+    });
+    y += 26;
 
     // Base HP recovery section
-    const baseTitle = this.add.text(320, y, '— 본진 강화 —', {
+    const baseTitle = this.add.text(320, y, '본진 / 선택 유닛 강화', {
       fontSize: '11px', color: '#88ccff'
     }).setOrigin(0.5).setDepth(12);
     this._upgradeObjs.push(baseTitle);
-    y += 18;
+    y += 17;
 
-    const recoverBtn = this.add.text(320, y, `본진 HP +20  (30G)`, {
-      fontSize: '12px', color: '#ffffff',
-      backgroundColor: '#2a4a2a', padding: { x: 8, y: 4 }
-    }).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
-    recoverBtn.on('pointerover', () => recoverBtn.setStyle({ color: '#44ff88' }));
-    recoverBtn.on('pointerout', () => recoverBtn.setStyle({ color: '#ffffff' }));
-    recoverBtn.on('pointerdown', () => {
+    this._drawUpgradeButton(320, y, 210, '본진 HP +20  30G', 0x17351f, 0x58d27c, () => {
       if (eco.spend(30)) {
         gameScene.baseHp = Math.min(100, gameScene.baseHp + 20);
         gameScene.registry.set('baseHp', gameScene.baseHp);
         gameScene._drawBaseHpBar();
       }
     });
-    this._upgradeObjs.push(recoverBtn);
-    y += 32;
-
-    // Unit upgrade section
-    const unitTitle = this.add.text(320, y, '— 유닛 강화 —', {
-      fontSize: '11px', color: '#88ccff'
-    }).setOrigin(0.5).setDepth(12);
-    this._upgradeObjs.push(unitTitle);
-    y += 22;
+    y += 26;
 
     const unit = gameScene.unitManager.selectedUnit;
     if (!unit) {
@@ -360,7 +356,7 @@ export default class UIScene extends Phaser.Scene {
       fontSize: '13px', color: '#ffdd88', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(12);
     this._upgradeObjs.push(info);
-    y += 28;
+    y += 24;
 
     if (unit.upgradeHp && unit.upgradeAtk) {
       const done = this.add.text(320, y, '업그레이드 완료', {
@@ -371,13 +367,7 @@ export default class UIScene extends Phaser.Scene {
     }
 
     if (!unit.upgradeHp) {
-      const hpBtn = this.add.text(220, y, 'HP +50%  (25G)', {
-        fontSize: '12px', color: '#ffffff',
-        backgroundColor: '#1a4a2a', padding: { x: 8, y: 4 }
-      }).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
-      hpBtn.on('pointerover', () => hpBtn.setStyle({ color: '#44ff88' }));
-      hpBtn.on('pointerout', () => hpBtn.setStyle({ color: '#ffffff' }));
-      hpBtn.on('pointerdown', () => {
+      this._drawUpgradeButton(220, y, 150, 'HP +50%  25G', 0x17351f, 0x58d27c, () => {
         if (eco.spend(25)) {
           unit.stats.maxHp = Math.floor(unit.stats.maxHp * 1.5);
           unit.hp = Math.min(unit.hp + Math.floor(unit.maxHp * 0.5), unit.stats.maxHp);
@@ -387,25 +377,48 @@ export default class UIScene extends Phaser.Scene {
           this._renderUpgradeTab();
         }
       });
-      this._upgradeObjs.push(hpBtn);
     }
 
     if (!unit.upgradeAtk) {
-      const atkBtn = this.add.text(430, y, 'ATK +30%  (20G)', {
-        fontSize: '12px', color: '#ffffff',
-        backgroundColor: '#4a2a1a', padding: { x: 8, y: 4 }
-      }).setOrigin(0.5).setDepth(12).setInteractive({ useHandCursor: true });
-      atkBtn.on('pointerover', () => atkBtn.setStyle({ color: '#ffaa44' }));
-      atkBtn.on('pointerout', () => atkBtn.setStyle({ color: '#ffffff' }));
-      atkBtn.on('pointerdown', () => {
+      this._drawUpgradeButton(430, y, 150, 'ATK +30%  20G', 0x3d2412, 0xffb65c, () => {
         if (eco.spend(20)) {
           unit.stats.atk = Math.floor(unit.stats.atk * 1.3);
           unit.upgradeAtk = true;
           this._renderUpgradeTab();
         }
       });
-      this._upgradeObjs.push(atkBtn);
     }
+  }
+
+  _drawUpgradeButton(x, y, width, label, fill, stroke, onClick, options = {}) {
+    const bg = this.add.rectangle(x, y, width, 24, fill, 0.94)
+      .setDepth(12)
+      .setStrokeStyle(1, stroke, 0.85)
+      .setInteractive({ useHandCursor: true });
+    const text = this.add.text(x, y, label, {
+      fontSize: options.fontSize ?? '11px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(13).setInteractive({ useHandCursor: true });
+
+    const over = () => {
+      bg.setFillStyle(fill, 1);
+      bg.setStrokeStyle(2, stroke, 1);
+      text.setStyle({ color: '#ffef9a' });
+    };
+    const out = () => {
+      bg.setFillStyle(fill, 0.94);
+      bg.setStrokeStyle(1, stroke, 0.85);
+      text.setStyle({ color: '#ffffff' });
+    };
+    bg.on('pointerover', over);
+    bg.on('pointerout', out);
+    text.on('pointerover', over);
+    text.on('pointerout', out);
+    bg.on('pointerdown', onClick);
+    text.on('pointerdown', onClick);
+    this._upgradeObjs.push(bg, text);
+    return bg;
   }
 
   _showTutorial() {

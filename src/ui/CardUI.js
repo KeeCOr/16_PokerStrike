@@ -1,11 +1,37 @@
-import { SUIT_COLORS, SUIT_NAMES, SUIT_ICONS } from '../cards/Card.js';
+import { SUIT_COLORS, SUIT_ICONS } from '../cards/Card.js';
 
-const CARD_W = 54;
-const CARD_H = 74;
-const CARD_Y = 828;
-const ACTION_Y = 916;
-const PREVIEW_Y = 874;
-const SHARED_SCALE = 0.85;
+export const CARD_LAYOUT = {
+  CARD_W: 50,
+  CARD_H: 64,
+  CARD_Y: 832,
+  META_Y: 790,
+  META_H: 16,
+  PREVIEW_Y: 879,
+  PREVIEW_H: 22,
+  ACTION_Y: 916,
+  ACTION_H: 42,
+  SHARED_SCALE: 0.86,
+  SUIT_LABEL_FONT: 9,
+  VALUE_FONT: 26,
+  SUIT_MARK_FONT: 19,
+  SUIT_LABEL_USES_ICON_ONLY: true,
+};
+
+const {
+  CARD_W,
+  CARD_H,
+  CARD_Y,
+  META_Y,
+  META_H,
+  PREVIEW_Y,
+  PREVIEW_H,
+  ACTION_Y,
+  ACTION_H,
+  SHARED_SCALE,
+  SUIT_LABEL_FONT,
+  VALUE_FONT,
+  SUIT_MARK_FONT,
+} = CARD_LAYOUT;
 
 export default class CardUI {
   constructor(scene) {
@@ -19,10 +45,9 @@ export default class CardUI {
   clear() {
     this.cardObjects.forEach(objs => objs.forEach(g => { if (g && g.active) g.destroy(); }));
     this.sharedObjects.forEach(objs => objs.forEach(g => { if (g && g.active) g.destroy(); }));
-    ['summonBtn', 'magicBtn', 'replaceBtn', 'summonPreview', 'magicPreview'].forEach(k => {
-      if (this._buttons[k]) { this._buttons[k].destroy(); delete this._buttons[k]; }
-    });
-    if (this._replaceModeHint) { this._replaceModeHint.destroy(); this._replaceModeHint = null; }
+    Object.values(this._buttons).forEach(obj => { if (obj?.active) obj.destroy(); });
+    this._destroyObjectGroup(this._replaceModeHint);
+    this._replaceModeHint = null;
     this.cardObjects = [];
     this.sharedObjects = [];
     this._buttons = {};
@@ -35,9 +60,8 @@ export default class CardUI {
     this.cardObjects = [];
     this.sharedObjects = [];
 
-    const labelY = CARD_Y - 38;
-    const handGap = 7;
-    const startX = Math.floor(26 + CARD_W / 2);
+    const handGap = 6;
+    const startX = Math.floor(28 + CARD_W / 2);
 
     hand.cards.forEach((card, i) => {
       const x = startX + i * (CARD_W + handGap);
@@ -47,7 +71,7 @@ export default class CardUI {
     const sepX = 350;
     const sep = this.scene.add.graphics().setDepth(12);
     sep.lineStyle(1, 0x2d6688, 0.9);
-    sep.lineBetween(sepX, CARD_Y - 38, sepX, CARD_Y + 38);
+    sep.lineBetween(sepX, META_Y - 8, sepX, CARD_Y + 34);
     this.sharedObjects.push([sep]);
 
     const sharedCardW = Math.floor(CARD_W * SHARED_SCALE);
@@ -55,10 +79,8 @@ export default class CardUI {
     const sharedTotal = sharedCards.cards.length * (sharedCardW + sharedGap) - sharedGap;
     const sharedCenterX = 496;
     const sharedStartX = Math.floor(sharedCenterX - sharedTotal / 2 + sharedCardW / 2);
-    const sharedLbl = this.scene.add.text(sharedCenterX, labelY, `공용패  |  무덤 ${burnCount}`, {
-      fontSize: '11px', color: '#cfa8ff', fontStyle: 'bold',
-    }).setOrigin(0.5).setDepth(12);
-    this.sharedObjects.push([sharedLbl]);
+    this.sharedObjects.push(this._drawLabelPill(455, META_Y, 72, '공용패', '#9ee6ff'));
+    this.sharedObjects.push(this._drawLabelPill(540, META_Y, 76, `무덤 ${burnCount}`, '#d8b6ff'));
 
     sharedCards.cards.forEach((card, i) => {
       const x = sharedStartX + i * (sharedCardW + sharedGap);
@@ -77,14 +99,14 @@ export default class CardUI {
       .setStrokeStyle(1, 0xffffff, 0.35);
     const topBand = this.scene.add.rectangle(x, y - h * 0.29, w - 12 * scale, 15 * scale, 0x0d1b2a, 0.9).setDepth(13);
     const icon = SUIT_ICONS[card.suit] ?? '';
-    const suitText = this.scene.add.text(x, y - 22 * scale, `${icon} ${SUIT_NAMES[card.suit]}`, {
-      fontSize: `${9 * scale}px`, color: colorHex, fontStyle: 'bold',
+    const suitText = this.scene.add.text(x, y - 22 * scale, icon, {
+      fontSize: `${SUIT_LABEL_FONT * scale}px`, color: colorHex, fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(13);
     const valText = this.scene.add.text(x, y + 8 * scale, card.value, {
-      fontSize: `${22 * scale}px`, color: '#151a22', fontStyle: 'bold',
+      fontSize: `${VALUE_FONT * scale}px`, color: '#151a22', fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(13);
     const suitMark = this.scene.add.text(x, y + 25 * scale, icon, {
-      fontSize: `${15 * scale}px`, color: colorHex,
+      fontSize: `${SUIT_MARK_FONT * scale}px`, color: colorHex,
     }).setOrigin(0.5).setDepth(13);
     return [bg, inner, topBand, suitText, valText, suitMark];
   }
@@ -92,9 +114,7 @@ export default class CardUI {
   enterReplaceMode(hand, onSelect, onCancel) {
     this.exitReplaceMode();
 
-    this._replaceModeHint = this.scene.add.text(180, CARD_Y - 38, '교체할 카드를 선택하세요', {
-      fontSize: '11px', color: '#ffdd44',
-    }).setOrigin(0.5).setDepth(15);
+    this._replaceModeHint = this._drawLabelPill(166, META_Y, 190, '교체할 카드를 선택하세요', '#ffdd44', 15);
 
     this.cardObjects.forEach((objs, i) => {
       const [bg] = objs;
@@ -127,7 +147,8 @@ export default class CardUI {
   }
 
   exitReplaceMode() {
-    if (this._replaceModeHint) { this._replaceModeHint.destroy(); this._replaceModeHint = null; }
+    this._destroyObjectGroup(this._replaceModeHint);
+    this._replaceModeHint = null;
     if (this._cancelOnOutsideClick) {
       this.scene.input.off('pointerdown', this._cancelOnOutsideClick);
       this._cancelOnOutsideClick = null;
@@ -141,36 +162,69 @@ export default class CardUI {
   }
 
   renderButtons(drawCost, replaceCost, summonHandName = null, magicSkillName = null) {
-    ['summonBtn', 'magicBtn', 'replaceBtn', 'summonPreview', 'magicPreview'].forEach(k => {
-      if (this._buttons[k]) { this._buttons[k].destroy(); delete this._buttons[k]; }
-    });
+    Object.values(this._buttons).forEach(obj => { if (obj?.active) obj.destroy(); });
+    this._buttons = {};
 
     let summonPreview = null;
+    let summonPreviewBg = null;
     if (summonHandName) {
-      summonPreview = this.scene.add.text(320, PREVIEW_Y, summonHandName, {
-        fontSize: '17px', color: '#ffdd88', fontStyle: 'bold',
-        stroke: '#000000', strokeThickness: 3,
-      }).setOrigin(0.5).setDepth(12);
+      [summonPreviewBg, summonPreview] = this._drawPreviewStrip(320, 208, `족보  ${summonHandName}`, '#ffdd88', 15);
     }
 
     let magicPreview = null;
+    let magicPreviewBg = null;
     if (magicSkillName) {
-      magicPreview = this.scene.add.text(112, PREVIEW_Y, magicSkillName, {
-        fontSize: '12px', color: '#cc88ff',
-        stroke: '#000000', strokeThickness: 2,
-      }).setOrigin(0.5).setDepth(12);
+      [magicPreviewBg, magicPreview] = this._drawPreviewStrip(112, 184, magicSkillName, '#dca7ff', 10);
     }
 
     const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '✦  마법', 0x56308f, 0xb776ff);
     const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `♜  소환 ${drawCost}G`, 0x8a5a12, 0xffcc55);
     const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `↻  교체 ${replaceCost}G`, 0x0f5878, 0x55d6ff);
 
-    this._buttons = { summonBtn, magicBtn, replaceBtn, summonPreview, magicPreview };
+    this._buttons = { summonBtn, magicBtn, replaceBtn, summonPreviewBg, summonPreview, magicPreviewBg, magicPreview };
     return { summonBtn, magicBtn, replaceBtn };
   }
 
+  _drawLabelPill(x, y, w, label, color, depth = 12) {
+    const bg = this.scene.add.rectangle(x, y, w, META_H, 0x08131f, 0.92)
+      .setDepth(depth)
+      .setStrokeStyle(1, 0x2d6688, 0.7);
+    const text = this.scene.add.text(x, y, label, {
+      fontSize: '10px',
+      color,
+      fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(depth + 1);
+    bg.destroy = ((originalDestroy) => function (...args) {
+      if (text?.active) text.destroy();
+      return originalDestroy.apply(this, args);
+    })(bg.destroy);
+    return [bg, text];
+  }
+
+  _destroyObjectGroup(group) {
+    if (!group) return;
+    const objects = Array.isArray(group) ? group : [group];
+    objects.forEach(obj => { if (obj?.active) obj.destroy(); });
+  }
+
+  _drawPreviewStrip(x, w, label, color, fontSize) {
+    const bg = this.scene.add.rectangle(x, PREVIEW_Y, w, PREVIEW_H, 0x091421, 0.94)
+      .setDepth(12)
+      .setStrokeStyle(1, 0x40546d, 0.85);
+    const text = this.scene.add.text(x, PREVIEW_Y, label, {
+      fontSize: `${fontSize}px`,
+      color,
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      align: 'center',
+      wordWrap: { width: w - 14 },
+    }).setOrigin(0.5).setDepth(13);
+    return [bg, text];
+  }
+
   _drawActionButton(x, y, w, label, fill, stroke) {
-    const bg = this.scene.add.rectangle(x, y, w, 42, fill, 0.95)
+    const bg = this.scene.add.rectangle(x, y, w, ACTION_H, fill, 0.95)
       .setDepth(12)
       .setStrokeStyle(2, stroke, 0.9)
       .setInteractive({ useHandCursor: true });

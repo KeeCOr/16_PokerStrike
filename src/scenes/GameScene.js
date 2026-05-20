@@ -1,5 +1,5 @@
 ﻿import Phaser from 'phaser';
-import Grid, { GRID_ROWS, GRID_COLS, CELL_BLOCKED, CELL_EMPTY, CELL_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y } from '../grid/Grid.js';
+import Grid, { GRID_ROWS, GRID_COLS, CELL_BLOCKED, CELL_EMPTY, CELL_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, BATTLE_MESSAGE_Y } from '../grid/Grid.js';
 import GridRenderer from '../grid/GridRenderer.js';
 import UnitManager from '../units/UnitManager.js';
 import EnemyManager from '../enemies/EnemyManager.js';
@@ -11,7 +11,8 @@ import RogueliteManager from '../roguelite/RogueliteManager.js';
 import { getAffectedUnitCount, pickWaveUpgrades } from '../roguelite/UpgradeChoices.js';
 import { UPGRADE_POOL } from '../data/roguelite.js';
 import { STAGES, STAGE_OBSTACLES } from '../stages/StageData.js';
-import { SUIT_ICONS, SUIT_NAMES } from '../cards/Card.js';
+import { shouldShowUpgradeTutorialOnStageClear } from './GameSceneTutorial.js';
+import { WAVE_CHOICE_LAYOUT } from './WaveChoiceLayout.js';
 
 const BASE_HP = 100;
 
@@ -34,6 +35,7 @@ export default class GameScene extends Phaser.Scene {
     this.gems = data?.gems ?? 0;
     this.permHpLevel = data?.permHpLevel ?? 0;
     this.permAtkLevel = data?.permAtkLevel ?? 0;
+    this.upgradeTutorialShown = data?.upgradeTutorialShown ?? false;
   }
 
   create() {
@@ -263,7 +265,7 @@ export default class GameScene extends Phaser.Scene {
     if (this._battleMessageTimer?.remove) this._battleMessageTimer.remove(false);
 
     const x = 320;
-    const y = 716;
+    const y = BATTLE_MESSAGE_Y;
     const bg = this.add.rectangle(x, y, 320, 30, 0x07111d, 0.86)
       .setDepth(16)
       .setStrokeStyle(1, 0x2b5d78, 0.85);
@@ -292,7 +294,7 @@ export default class GameScene extends Phaser.Scene {
     if (uiScene) uiScene.input.enabled = false;
 
     const titleText = this.add.text(320, 100, '강화 선택', {
-      fontSize: '24px', color: '#ffdd44', fontStyle: 'bold'
+      fontSize: `${WAVE_CHOICE_LAYOUT.TITLE_FONT}px`, color: '#ffdd44', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(21);
 
     const objs = [overlay, titleText];
@@ -302,13 +304,12 @@ export default class GameScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true });
       const border = this.add.rectangle(320, y, 416, 116, 0x0d1b2a).setDepth(21);
       const affectedCount = getAffectedUnitCount(upgrade, this.unitManager.units, this.rogueliteManager);
-      const suitIcon = upgrade.suit ? `${SUIT_ICONS[upgrade.suit]} ` : '';
-      const label = this.add.text(320, y - 20, `${suitIcon}${upgrade.label}`, {
-        fontSize: '16px', color: '#ffffff', fontStyle: 'bold'
+      const label = this.add.text(320, y - 20, upgrade.label, {
+        fontSize: `${WAVE_CHOICE_LAYOUT.LABEL_FONT}px`, color: '#ffffff', fontStyle: 'bold'
       }).setOrigin(0.5).setDepth(22);
       const affectedText = affectedCount === null ? '즉시/향후 적용' : `${affectedCount}명 적용`;
       const typeLabel = this.add.text(320, y + 18, `${_upgradeTypeLabel(upgrade)}  (${affectedText})`, {
-        fontSize: '12px', color: '#88ccff'
+        fontSize: `${WAVE_CHOICE_LAYOUT.TYPE_FONT}px`, color: '#88ccff'
       }).setOrigin(0.5).setDepth(22);
       objs.push(bg, border, label, typeLabel);
 
@@ -428,7 +429,8 @@ export default class GameScene extends Phaser.Scene {
       continueBtn.on('pointerdown', () => {
         this.scene.stop('UIScene');
         this.scene.restart({ startStageIndex: currentStage, upgrades: this.rogueliteManager.upgrades,
-          gems: this.gems, permHpLevel: this.permHpLevel, permAtkLevel: this.permAtkLevel });
+          gems: this.gems, permHpLevel: this.permHpLevel, permAtkLevel: this.permAtkLevel,
+          upgradeTutorialShown: this.upgradeTutorialShown });
       });
 
       const restartBtn = this.add.text(320, 535, '1스테이지부터 재시작', {
@@ -453,6 +455,46 @@ export default class GameScene extends Phaser.Scene {
   }
 
   _stageCleared(stageIndex) {
+    if (shouldShowUpgradeTutorialOnStageClear(stageIndex, this.upgradeTutorialShown)) {
+      this.upgradeTutorialShown = true;
+      this._showUpgradeTutorial(() => this._renderStageCleared(stageIndex));
+      return;
+    }
+    this._renderStageCleared(stageIndex);
+  }
+
+  _showUpgradeTutorial(onDone) {
+    const overlay = this.add.rectangle(320, 480, 640, 960, 0x000000, 0.78).setDepth(30);
+    const box = this.add.rectangle(320, 420, 520, 300, 0x0d1b2a, 1)
+      .setDepth(31)
+      .setStrokeStyle(2, 0x8cd3ff, 0.95);
+    const title = this.add.text(320, 315, '업그레이드 안내', {
+      fontSize: '24px', color: '#ffdd44', fontStyle: 'bold',
+      stroke: '#000000', strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(32);
+    const body = this.add.text(320, 405,
+      '스테이지를 클리어하면 업그레이드 탭을 확인하세요.\n◆ 보석 강화는 모든 타워를 조금씩 성장시킵니다.\n골드 강화는 선택한 문양(♥ ♦ ♣ ♠) 타워만 강화합니다.\n유닛을 클릭하면 개별 HP/ATK 강화도 사용할 수 있습니다.',
+      {
+        fontSize: '14px',
+        color: '#dcecff',
+        align: 'center',
+        wordWrap: { width: 460 },
+        lineSpacing: 6,
+      }).setOrigin(0.5).setDepth(32);
+    const btn = this.add.text(320, 540, '확인', {
+      fontSize: '16px', color: '#ffffff',
+      backgroundColor: '#1a5e2a', padding: { x: 26, y: 9 },
+    }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
+    const objs = [overlay, box, title, body, btn];
+    btn.on('pointerover', () => btn.setStyle({ color: '#ffdd44' }));
+    btn.on('pointerout', () => btn.setStyle({ color: '#ffffff' }));
+    btn.once('pointerdown', () => {
+      objs.forEach(o => { if (o?.active) o.destroy(); });
+      if (onDone) onDone();
+    });
+  }
+
+  _renderStageCleared(stageIndex) {
     const isLast = stageIndex >= STAGES.length - 1;
     const overlay = this.add.rectangle(320, 480, 640, 960, 0x000000, 0.6).setDepth(10);
     const clearText = this.add.text(320, 360, `STAGE ${stageIndex + 1} CLEAR!`, {

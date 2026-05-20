@@ -1,5 +1,13 @@
 import { STAGES } from './StageData.js';
 
+export const BASE_ENEMY_COUNT_MULTIPLIER = 2;
+export const ENEMY_STAGE_GROWTH_RATE = 1.35;
+export const MIN_SPAWN_INTERVAL = 80;
+
+export function getStageEnemyCountMultiplier(stageIndex) {
+  return Math.round(BASE_ENEMY_COUNT_MULTIPLIER * (ENEMY_STAGE_GROWTH_RATE ** stageIndex));
+}
+
 export default class StageManager {
   constructor(scene) {
     this.scene = scene;
@@ -26,9 +34,10 @@ export default class StageManager {
     if (!wave) return;
 
     this.spawnQueue = [];
+    const countMultiplier = getStageEnemyCountMultiplier(this.stageIndex);
     for (const group of wave.enemies) {
-      const count = group.count * 2; // 수량 2배
-      const interval = Math.floor(group.interval * 0.5); // 간격 절반 → 동일 시간에 2배 수량
+      const count = group.count * countMultiplier;
+      const interval = Math.max(MIN_SPAWN_INTERVAL, Math.floor(group.interval / countMultiplier));
       for (let i = 0; i < count; i++) {
         this.spawnQueue.push({ type: group.type, delay: interval * i });
       }

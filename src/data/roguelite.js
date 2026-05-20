@@ -6,24 +6,24 @@ import { ROLE } from '../units/UnitData.js';
 // C(땅): 스턴 유닛           /  S(바람): HP%딜 저격 유닛
 export const UPGRADE_POOL = [
   // 불(H) — 스플래시
-  { id: 'atk_fire',        label: '불 속성 공격력 +30%',        type: 'unitAtk',         suit: 'H',                           mult:  1.30 },
-  { id: 'splash_fire',     label: '불 속성 스플래시 확률 +20%', type: 'unitSplashChance', suit: 'H',                           bonus: 0.20 },
-  { id: 'range_fire',      label: '불 속성 사거리 +1칸',        type: 'unitRange',        suit: 'H',                           bonus: 1.0  },
+  { id: 'atk_fire',        label: '♥ 공격력 +30%',             type: 'unitAtk',         suit: 'H',                           mult:  1.30 },
+  { id: 'splash_fire',     label: '♥ 스플래시 확률 +20%',      type: 'unitSplashChance', suit: 'H',                           bonus: 0.20 },
+  { id: 'range_fire',      label: '♥ 사거리 +1칸',             type: 'unitRange',        suit: 'H',                           bonus: 1.0  },
 
   // 물(D) — 슬로우
-  { id: 'atk_water',       label: '물 속성 공격력 +25%',        type: 'unitAtk',         suit: 'D',                           mult:  1.25 },
-  { id: 'slow_water',      label: '물 속성 감속량 +15%',        type: 'unitSlow',        suit: 'D',                           bonus: 0.15 },
-  { id: 'range_water',     label: '물 속성 사거리 +0.5칸',      type: 'unitRange',       suit: 'D',                           bonus: 0.5  },
+  { id: 'atk_water',       label: '♦ 공격력 +25%',             type: 'unitAtk',         suit: 'D',                           mult:  1.25 },
+  { id: 'slow_water',      label: '♦ 감속량 +15%',             type: 'unitSlow',        suit: 'D',                           bonus: 0.15 },
+  { id: 'range_water',     label: '♦ 사거리 +0.5칸',           type: 'unitRange',       suit: 'D',                           bonus: 0.5  },
 
   // 땅(C) — 스턴
-  { id: 'atk_earth',       label: '땅 속성 공격력 +30%',        type: 'unitAtk',         suit: 'C',                           mult:  1.30 },
-  { id: 'hp_earth',        label: '땅 속성 HP +40%',            type: 'unitHp',          suit: 'C',                           mult:  1.40 },
-  { id: 'stun_earth',      label: '땅 속성 스턴 확률 +15%',     type: 'unitStunChance',  suit: 'C',                           bonus: 0.15 },
+  { id: 'atk_earth',       label: '♣ 공격력 +30%',             type: 'unitAtk',         suit: 'C',                           mult:  1.30 },
+  { id: 'hp_earth',        label: '♣ HP +40%',                 type: 'unitHp',          suit: 'C',                           mult:  1.40 },
+  { id: 'stun_earth',      label: '♣ 스턴 확률 +15%',          type: 'unitStunChance',  suit: 'C',                           bonus: 0.15 },
 
   // 바람(S) — HP% 저격
-  { id: 'atk_wind',        label: '바람 속성 공격력 +35%',      type: 'unitAtk',         suit: 'S',                           mult:  1.35 },
-  { id: 'hp_wind',         label: '바람 속성 HP +50%',          type: 'unitHp',          suit: 'S',                           mult:  1.50 },
-  { id: 'range_wind',      label: '바람 속성 사거리 +1칸',      type: 'unitRange',       suit: 'S',                           bonus: 1.0  },
+  { id: 'atk_wind',        label: '♠ 공격력 +35%',             type: 'unitAtk',         suit: 'S',                           mult:  1.35 },
+  { id: 'hp_wind',         label: '♠ HP +50%',                 type: 'unitHp',          suit: 'S',                           mult:  1.50 },
+  { id: 'range_wind',      label: '♠ 사거리 +1칸',             type: 'unitRange',       suit: 'S',                           bonus: 1.0  },
 
   // ── 조합별 강화 ─────────────────────────────────────────────────────────
   { id: 'spd_pair',        label: '원페어 공격속도 +25%',       type: 'unitAtkSpeed',    handRank: HAND_RANK.ONE_PAIR,        mult:  1.25 },

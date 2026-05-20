@@ -1,7 +1,19 @@
+import { PANEL_Y } from '../grid/Grid.js';
+
+export const HUD_LAYOUT = {
+  RESOURCE_PANEL: { x: 154, y: 14, w: 280, h: 30 },
+  GOLD_TEXT: { x: 88, y: 14 },
+  GEM_TEXT: { x: 220, y: 14 },
+  WAVE_PANEL: { x: 464, y: 14, w: 248, h: 32 },
+  WAVE_TEXT: { x: 420, y: 14 },
+  ENEMY_COUNT_TEXT: { x: 524, y: 14 },
+  RESOURCE_WAVE_GAP: 26,
+};
+
 export default class HUD {
   constructor(scene) {
     this.scene = scene;
-    const panelY = 744;
+    const panelY = PANEL_Y;
 
     // Bottom panel background
     scene.add.rectangle(320, panelY + 108, 640, 216, 0x07111d, 0.98).setDepth(10)
@@ -13,22 +25,20 @@ export default class HUD {
     scene.add.rectangle(320, panelY + 170, 612, 62, 0x081522, 0.92).setDepth(10)
       .setStrokeStyle(1, 0x2b5d78, 0.75);
 
-    // Resources and wave are intentionally separated for readability.
-    this._drawHudShell(118, 12, 196, 24, 0x342a12, 0xffcc55);
-    this._drawHudShell(320, 12, 174, 24, 0x102d46, 0x55cfff);
-    this._drawHudShell(526, 12, 156, 24, 0x331852, 0xc88cff);
+    this._drawResourceCluster();
+    this._drawWaveBadge();
 
-    this.goldText = scene.add.text(118, 12, '● 골드 20', {
+    this.goldText = scene.add.text(HUD_LAYOUT.GOLD_TEXT.x, HUD_LAYOUT.GOLD_TEXT.y, '● 골드 20', {
       fontSize: '15px', color: '#ffd766', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
-    this.waveText = scene.add.text(286, 12, '웨이브 1', {
-      fontSize: '13px', color: '#a9e8ff', fontStyle: 'bold'
-    }).setOrigin(0.5).setDepth(11);
-    this.enemyCountText = scene.add.text(364, 12, '', {
-      fontSize: '11px', color: '#ffb36b'
-    }).setOrigin(0.5).setDepth(11);
-    this.gemText = scene.add.text(526, 12, '◆ 보석 0', {
+    this.gemText = scene.add.text(HUD_LAYOUT.GEM_TEXT.x, HUD_LAYOUT.GEM_TEXT.y, '◆ 보석 0', {
       fontSize: '14px', color: '#dca6ff', fontStyle: 'bold'
+    }).setOrigin(0.5).setDepth(11);
+    this.waveText = scene.add.text(HUD_LAYOUT.WAVE_TEXT.x, HUD_LAYOUT.WAVE_TEXT.y, '웨이브 1', {
+      fontSize: '14px', color: '#bceeff', fontStyle: 'bold'
+    }).setOrigin(0.5).setDepth(11);
+    this.enemyCountText = scene.add.text(HUD_LAYOUT.ENEMY_COUNT_TEXT.x, HUD_LAYOUT.ENEMY_COUNT_TEXT.y, '', {
+      fontSize: '12px', color: '#ffbd7a', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
 
     const onGold  = (_, val) => { if (this.goldText?.active)       this.goldText.setText(`● 골드 ${val}`); };
@@ -47,6 +57,20 @@ export default class HUD {
       scene.registry.events.off('changedata-wave',      onWave);
       scene.registry.events.off('changedata-enemyCount', onCount);
     });
+  }
+
+  _drawResourceCluster() {
+    const { x, y, w, h } = HUD_LAYOUT.RESOURCE_PANEL;
+    this._drawHudShell(x, y, w, h, 0x1d1b21, 0xffcc55);
+    this.scene.add.rectangle(x - 8, y, 2, h - 10, 0x6f5c35, 0.8).setDepth(11);
+  }
+
+  _drawWaveBadge() {
+    const { x, y, w, h } = HUD_LAYOUT.WAVE_PANEL;
+    this.scene.add.rectangle(x, y, w, h, 0x02070d, 0.78).setDepth(9);
+    this.scene.add.rectangle(x, y, w - 4, h - 4, 0x0b2840, 0.92).setDepth(10)
+      .setStrokeStyle(2, 0x65d9ff, 0.9);
+    this.scene.add.rectangle(x - 70, y, 2, h - 10, 0x65d9ff, 0.45).setDepth(11);
   }
 
   _drawHudShell(x, y, w, h, fill, stroke) {

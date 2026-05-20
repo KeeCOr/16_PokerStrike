@@ -3,6 +3,7 @@ import Enemy from '../../src/enemies/Enemy.js';
 import { ENEMY_TYPE } from '../../src/enemies/EnemyData.js';
 
 function createScene() {
+  const calls = [];
   const chain = {
     active: true,
     setDepth() { return this; },
@@ -11,27 +12,49 @@ function createScene() {
     setOrigin() { return this; },
     setPosition() { return this; },
     setFillStyle() { return this; },
+    setSize() { return this; },
     destroy() { this.active = false; },
   };
-  return {
+  const scene = {
+    calls,
     grid: {
       cellToWorld(col, row) { return { x: col * 80 + 40, y: row * 80 + 40 }; },
     },
     add: {
-      rectangle() { return { ...chain }; },
+      rectangle() { calls.push('rectangle'); return { ...chain }; },
+      container(x, y) {
+        calls.push('container');
+        return {
+          ...chain,
+          x,
+          y,
+          list: [],
+          add(child) { this.list.push(child); return this; },
+        };
+      },
       graphics() {
         return {
           ...chain,
           clear() { return this; },
           fillStyle() { return this; },
           fillRect() { return this; },
+          fillCircle() { return this; },
+          fillTriangle() { return this; },
+          beginPath() { return this; },
+          moveTo() { return this; },
+          lineTo() { return this; },
+          closePath() { return this; },
+          fillPath() { return this; },
           lineStyle() { return this; },
           strokeRect() { return this; },
+          strokeCircle() { return this; },
+          strokePath() { return this; },
         };
       },
       text() { return { ...chain }; },
     },
   };
+  return scene;
 }
 
 describe('Enemy', () => {
@@ -58,5 +81,22 @@ describe('Enemy', () => {
     enemy.updatePassive(16);
 
     expect(enemy.speed).toBe(enemy.baseSpeed);
+  });
+
+  it('uses a graphic monster container instead of a rectangle primitive', () => {
+    const scene = createScene();
+
+    const enemy = new Enemy(scene, 0, 0, ENEMY_TYPE.BERSERKER);
+
+    expect(scene.calls).toContain('container');
+    expect(scene.calls).not.toContain('rectangle');
+    expect(enemy.sprite.list.length).toBeGreaterThan(0);
+  });
+
+  it('creates graphic sprites for every enemy type', () => {
+    for (const type of Object.values(ENEMY_TYPE)) {
+      const enemy = new Enemy(createScene(), 0, 0, type);
+      expect(enemy.sprite.list.length).toBeGreaterThan(0);
+    }
   });
 });

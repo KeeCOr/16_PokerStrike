@@ -212,10 +212,12 @@ export default class EnemyManager {
     const dy = pos.y - enemy.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    if (dist > 40) {
+    const stopDistance = (CELL_SIZE * Math.SQRT2) / 2 + 2;
+    if (dist > stopDistance) {
       const dtSec = delta / 1000;
-      enemy.x += (dx / dist) * enemy.speed * dtSec;
-      enemy.y += (dy / dist) * enemy.speed * dtSec;
+      const moveAmount = Math.min(enemy.speed * dtSec, Math.max(0, dist - stopDistance));
+      enemy.x += (dx / dist) * moveAmount;
+      enemy.y += (dy / dist) * moveAmount;
       enemy.sprite.setPosition(enemy.x, enemy.y);
     } else {
       enemy.atkCooldown -= delta;
