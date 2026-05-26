@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import StageManager, {
   BASE_ENEMY_COUNT_MULTIPLIER,
+  MIN_SPAWN_INTERVAL,
   getStageEnemyCountMultiplier,
+  getWaveEnemyCountMultiplier,
 } from '../../src/stages/StageManager.js';
 import { STAGES } from '../../src/stages/StageData.js';
 
@@ -24,27 +26,48 @@ function createScene() {
 }
 
 describe('StageManager', () => {
-  it('keeps stage 1 spawn queue at the baseline double count', () => {
+  it('makes the first wave easier than the stage baseline', () => {
     const manager = new StageManager(createScene());
     manager.startStage(0);
 
     const baseCount = STAGES[0].waves[0].enemies.reduce((sum, group) => sum + group.count, 0);
 
     expect(BASE_ENEMY_COUNT_MULTIPLIER).toBe(2);
-    expect(manager.waveTotal).toBe(baseCount * BASE_ENEMY_COUNT_MULTIPLIER);
-    expect(manager.spawnQueue).toHaveLength(baseCount * BASE_ENEMY_COUNT_MULTIPLIER);
+    expect(getWaveEnemyCountMultiplier(0, 0, STAGES[0].waves.length)).toBeCloseTo(1.1);
+    expect(manager.waveTotal).toBeLessThan(baseCount * BASE_ENEMY_COUNT_MULTIPLIER);
+    expect(manager.spawnQueue).toHaveLength(manager.waveTotal);
   });
 
   it('scales enemy count exponentially by stage', () => {
     expect(getStageEnemyCountMultiplier(0)).toBe(2);
     expect(getStageEnemyCountMultiplier(4)).toBe(7);
     expect(getStageEnemyCountMultiplier(9)).toBe(30);
+  });
 
+  it('makes later waves harder than the stage baseline', () => {
     const manager = new StageManager(createScene());
-    manager.startStage(4);
+    const stageIndex = 0;
+    const waveIndex = STAGES[stageIndex].waves.length - 1;
+    manager.stageIndex = stageIndex;
+    manager.waveIndex = waveIndex;
+    manager._startNextWave();
 
-    const baseCount = STAGES[4].waves[0].enemies.reduce((sum, group) => sum + group.count, 0);
+    const baseCount = STAGES[stageIndex].waves[waveIndex].enemies.reduce((sum, group) => sum + group.count, 0);
+    const stageBaseline = baseCount * getStageEnemyCountMultiplier(stageIndex);
 
-    expect(manager.waveTotal).toBe(baseCount * getStageEnemyCountMultiplier(4));
+    expect(getWaveEnemyCountMultiplier(stageIndex, waveIndex, STAGES[stageIndex].waves.length)).toBeCloseTo(3.2);
+    expect(manager.waveTotal).toBeGreaterThan(stageBaseline);
+  });
+
+  it('keeps dense waves from spawning too many enemies at once', () => {
+    const manager = new StageManager(createScene());
+    const stageIndex = 9;
+    const waveIndex = STAGES[stageIndex].waves.length - 1;
+    manager.stageIndex = stageIndex;
+    manager.waveIndex = waveIndex;
+    manager._startNextWave();
+
+    expect(MIN_SPAWN_INTERVAL).toBe(120);
+    expect(manager.spawnQueue[1].delay - manager.spawnQueue[0].delay).toBeGreaterThanOrEqual(MIN_SPAWN_INTERVAL);
   });
 });

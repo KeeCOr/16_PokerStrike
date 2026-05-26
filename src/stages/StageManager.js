@@ -2,10 +2,21 @@ import { STAGES } from './StageData.js';
 
 export const BASE_ENEMY_COUNT_MULTIPLIER = 2;
 export const ENEMY_STAGE_GROWTH_RATE = 1.35;
-export const MIN_SPAWN_INTERVAL = 80;
+export const FIRST_WAVE_DIFFICULTY_FACTOR = 0.55;
+export const LAST_WAVE_DIFFICULTY_FACTOR = 1.6;
+export const MIN_SPAWN_INTERVAL = 120;
 
 export function getStageEnemyCountMultiplier(stageIndex) {
   return Math.round(BASE_ENEMY_COUNT_MULTIPLIER * (ENEMY_STAGE_GROWTH_RATE ** stageIndex));
+}
+
+export function getWaveEnemyCountMultiplier(stageIndex, waveIndex, totalWaves) {
+  const stageMultiplier = getStageEnemyCountMultiplier(stageIndex);
+  if (totalWaves <= 1) return stageMultiplier;
+  const progress = waveIndex / (totalWaves - 1);
+  const waveFactor = FIRST_WAVE_DIFFICULTY_FACTOR +
+    (LAST_WAVE_DIFFICULTY_FACTOR - FIRST_WAVE_DIFFICULTY_FACTOR) * progress;
+  return +(stageMultiplier * waveFactor).toFixed(2);
 }
 
 export default class StageManager {
@@ -34,14 +45,14 @@ export default class StageManager {
     if (!wave) return;
 
     this.spawnQueue = [];
-    const countMultiplier = getStageEnemyCountMultiplier(this.stageIndex);
-    for (const group of wave.enemies) {
-      const count = group.count * countMultiplier;
+    const countMultiplier = getWaveEnemyCountMultiplier(this.stageIndex, this.waveIndex, stage.waves.length);
+    wave.enemies.forEach((group, groupIndex) => {
+      const count = Math.max(1, Math.round(group.count * countMultiplier));
       const interval = Math.max(MIN_SPAWN_INTERVAL, Math.floor(group.interval / countMultiplier));
       for (let i = 0; i < count; i++) {
-        this.spawnQueue.push({ type: group.type, delay: interval * i });
+        this.spawnQueue.push({ type: group.type, delay: groupIndex * MIN_SPAWN_INTERVAL + interval * i });
       }
-    }
+    });
     this.spawnQueue.sort((a, b) => a.delay - b.delay);
     this.waveTotal = this.spawnQueue.length;
     this.spawnTimer = 0;
