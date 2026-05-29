@@ -74,8 +74,8 @@ export default class MagicManager {
         eco.addGold(skill.amount);
         break;
 
-      case 'resetDrawCost':
-        eco.summonCount = 0;
+      case 'resetReplaceCost':
+        eco.resetReplaceCost();
         break;
 
       case 'refreshShared':

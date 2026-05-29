@@ -27,9 +27,9 @@ describe('EconomyManager', () => {
     expect(em.gold).toBe(15);
   });
 
-  it('getDrawCost: 5골드', () => {
+  it('getDrawCost: 초기 소환 비용은 2골드', () => {
     const em = new EconomyManager();
-    expect(em.getDrawCost()).toBe(5);
+    expect(em.getDrawCost()).toBe(2);
   });
 
   it('getReplaceCost: 초기 10골드, 교체마다 +2 누적', () => {
@@ -51,11 +51,11 @@ describe('EconomyManager', () => {
 
   it('recordReplace: 교체마다 소환 비용 1골드 할인', () => {
     const em = new EconomyManager();
-    expect(em.getDrawCost()).toBe(5);
+    expect(em.getDrawCost()).toBe(2);
     em.recordReplace();
-    expect(em.getDrawCost()).toBe(4);
+    expect(em.getDrawCost()).toBe(1);
     em.recordReplace();
-    expect(em.getDrawCost()).toBe(3);
+    expect(em.getDrawCost()).toBe(1);
   });
 
   it('paused 상태에서는 시간 경과 골드가 증가하지 않는다', () => {

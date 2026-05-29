@@ -1,7 +1,7 @@
 const STARTING_GOLD = 15;
 const BASE_INCOME_RATE = 0.5;
 const INCOME_PER_WAVE = 0.25;
-const DRAW_BASE_COST = 5;
+const DRAW_BASE_COST = 2;
 const DRAW_INCREMENT = 2;
 const DRAW_DISCOUNT_PER_REPLACE = 1; // 교체 1회당 소환 비용 1G 할인
 const REPLACE_BASE_COST = 2;

@@ -46,9 +46,9 @@ export const SKILLS = {
     description: '골드 30 즉시 획득',
   },
   [HAND_RANK.ONE_PAIR]: {
-    name: '소환 비용 초기화',
-    effect: 'resetDrawCost',
-    description: '소환 비용을 초기값으로 되돌림',
+    name: '교체 비용 초기화',
+    effect: 'resetReplaceCost',
+    description: '교체 비용을 초기값으로 되돌림',
   },
   [HAND_RANK.HIGH_CARD]: {
     name: '공용 패 교체',

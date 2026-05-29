@@ -1,6 +1,6 @@
 import { STAGES } from './StageData.js';
 
-export const BASE_ENEMY_COUNT_MULTIPLIER = 2;
+export const BASE_ENEMY_COUNT_MULTIPLIER = 3;
 export const ENEMY_STAGE_GROWTH_RATE = 1.35;
 export const FIRST_WAVE_DIFFICULTY_FACTOR = 0.55;
 export const LAST_WAVE_DIFFICULTY_FACTOR = 1.6;
