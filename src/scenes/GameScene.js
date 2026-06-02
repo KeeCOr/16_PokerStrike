@@ -328,10 +328,43 @@ export default class GameScene extends Phaser.Scene {
       bg.on('pointerdown', () => {
         this.unitManager.units.forEach(u => u.setHighlight(false));
         this.rogueliteManager.addUpgrade(upgrade);
-        objs.forEach(o => o.destroy());
-        if (uiScene) uiScene.input.enabled = true;
-        this.economyManager.paused = false;
-        resumeFn();
+
+        // Doherty Threshold: 선택 피드백 — 버튼 강조 후 "강화 적용!" 표시
+        bg.setFillStyle(0x4a8a2a);
+        border.setFillStyle(0x2a6010);
+        this.tweens.add({
+          targets: bg,
+          alpha: { from: 1, to: 0.6 },
+          yoyo: true,
+          duration: 150,
+        });
+
+        const feedbackText = this.add.text(320, 480, '강화 적용!', {
+          fontSize: '28px', color: '#ffdd44', fontStyle: 'bold',
+          stroke: '#000000', strokeThickness: 5,
+        }).setOrigin(0.5).setDepth(25).setAlpha(0);
+        this.tweens.add({
+          targets: feedbackText,
+          alpha: 1,
+          duration: 150,
+          onComplete: () => {
+            this.time.delayedCall(300, () => {
+              this.tweens.add({
+                targets: feedbackText,
+                alpha: 0,
+                duration: 150,
+                onComplete: () => feedbackText.destroy(),
+              });
+            });
+          },
+        });
+
+        this.time.delayedCall(300, () => {
+          objs.forEach(o => o.destroy());
+          if (uiScene) uiScene.input.enabled = true;
+          this.economyManager.paused = false;
+          resumeFn();
+        });
       });
     });
   }
@@ -497,32 +530,62 @@ export default class GameScene extends Phaser.Scene {
   _renderStageCleared(stageIndex) {
     const isLast = stageIndex >= STAGES.length - 1;
     const overlay = this.add.rectangle(320, 480, 640, 960, 0x000000, 0.6).setDepth(10);
-    const clearText = this.add.text(320, 360, `STAGE ${stageIndex + 1} CLEAR!`, {
-      fontSize: '36px', color: '#ffdd44', fontStyle: 'bold'
-    }).setOrigin(0.5).setDepth(11);
+
+    // Peak-End Rule: STAGE CLEAR 텍스트에 scale 애니메이션
+    const clearText = this.add.text(320, 340, `STAGE ${stageIndex + 1} CLEAR!`, {
+      fontSize: '36px', color: '#ffdd44', fontStyle: 'bold',
+      stroke: '#000000', strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(11).setScale(0.5);
+    this.tweens.add({
+      targets: clearText,
+      scaleX: { from: 0.5, to: 1.1 },
+      scaleY: { from: 0.5, to: 1.1 },
+      duration: 300,
+      ease: 'Back.easeOut',
+      onComplete: () => {
+        this.tweens.add({
+          targets: clearText,
+          scaleX: 1.0,
+          scaleY: 1.0,
+          duration: 150,
+          ease: 'Linear',
+        });
+      },
+    });
+
     const objs = [overlay, clearText];
 
-    // 획득한 로그라이트 강화 목록 표시
+    // Peak-End Rule: 획득한 강화를 개별 박스로, 순서대로 페이드인
     const upgrades = this.rogueliteManager.upgrades;
     if (upgrades.length > 0) {
-      const buffTitle = this.add.text(320, 415, '획득한 강화:', {
+      const buffTitle = this.add.text(320, 390, '획득한 강화:', {
         fontSize: '12px', color: '#aaddff'
-      }).setOrigin(0.5).setDepth(11);
+      }).setOrigin(0.5).setDepth(11).setAlpha(0);
+      this.tweens.add({ targets: buffTitle, alpha: 1, duration: 200, delay: 350 });
       objs.push(buffTitle);
-      const labels = upgrades.map(u => u.label).join('  /  ');
-      const buffList = this.add.text(320, 435, labels, {
-        fontSize: '11px', color: '#88ccff', wordWrap: { width: 500 }
-      }).setOrigin(0.5).setDepth(11);
-      objs.push(buffList);
+
+      const boxW = 200, boxH = 32, startX = 320 - ((Math.min(upgrades.length, 3) - 1) * (boxW + 8)) / 2;
+      upgrades.slice(0, 5).forEach((u, idx) => {
+        const bx = startX + (idx % 3) * (boxW + 8);
+        const by = 415 + Math.floor(idx / 3) * (boxH + 6);
+        const delay = 350 + idx * 200;
+        const boxBg = this.add.rectangle(bx, by, boxW, boxH, 0x1a3a5a).setDepth(11).setAlpha(0)
+          .setStrokeStyle(1, 0x4488cc, 0.8);
+        const boxText = this.add.text(bx, by, u.label, {
+          fontSize: '11px', color: '#88ccff', fontStyle: 'bold',
+        }).setOrigin(0.5).setDepth(12).setAlpha(0);
+        this.tweens.add({ targets: [boxBg, boxText], alpha: 1, duration: 200, delay });
+        objs.push(boxBg, boxText);
+      });
     }
 
     if (isLast) {
-      const finalText = this.add.text(320, 490, '모든 스테이지 클리어!', {
+      const finalText = this.add.text(320, 510, '모든 스테이지 클리어!', {
         fontSize: '22px', color: '#ffffff'
       }).setOrigin(0.5).setDepth(11);
       objs.push(finalText);
     } else {
-      const nextBtn = this.add.text(320, 490, '다음 스테이지', {
+      const nextBtn = this.add.text(320, 510, '다음 스테이지', {
         fontSize: '20px', color: '#ffffff',
         backgroundColor: '#1a5e2a', padding: { x: 20, y: 10 }
       }).setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
@@ -546,7 +609,7 @@ export default class GameScene extends Phaser.Scene {
       objs.push(nextBtn);
     }
 
-    const restartBtn = this.add.text(320, isLast ? 490 : 548, '새로 시작', {
+    const restartBtn = this.add.text(320, isLast ? 510 : 568, '새로 시작', {
       fontSize: '18px', color: '#cccccc',
       backgroundColor: '#3a2a1a', padding: { x: 20, y: 8 }
     }).setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });

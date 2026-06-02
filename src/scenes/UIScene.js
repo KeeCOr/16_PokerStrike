@@ -251,10 +251,16 @@ export default class UIScene extends Phaser.Scene {
     y += 22;
 
     if (upgrades.length === 0) {
-      const empty = this.add.text(320, y, '아직 획득한 강화가 없습니다', {
-        fontSize: '11px', color: '#888888'
+      const icon = this.add.text(320, y + 8, '✦', {
+        fontSize: '20px', color: '#aaaaaa'
       }).setOrigin(0.5).setDepth(12);
-      this._upgradeObjs.push(empty);
+      const emptyMain = this.add.text(320, y + 34, '아직 획득한 강화가 없습니다', {
+        fontSize: '11px', color: '#aaaaaa', align: 'center'
+      }).setOrigin(0.5).setDepth(12);
+      const emptySub = this.add.text(320, y + 50, '스테이지를 클리어하면 강화를 선택할 수 있습니다', {
+        fontSize: '10px', color: '#888888', align: 'center', wordWrap: { width: 240 }
+      }).setOrigin(0.5).setDepth(12);
+      this._upgradeObjs.push(icon, emptyMain, emptySub);
       return;
     }
 
