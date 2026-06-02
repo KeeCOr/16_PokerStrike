@@ -2,6 +2,7 @@ import { ROLE } from './UnitData.js';
 import { SUIT_COLORS } from '../cards/Card.js';
 import { CELL_SIZE } from '../grid/Grid.js';
 import { HAND_RANK } from '../cards/HandEvaluator.js';
+import { getTowerTextureKey } from '../assets/art/AssetKeys.js';
 
 // n각형 점 배열 ({x,y} 형식, 위쪽 꼭짓점 기준, 로컬 원점 중심)
 export function _ngon(n, r) {
@@ -67,6 +68,25 @@ function _makeShape(scene, x, y, handRank, sz, color) {
   return gfx;
 }
 
+function _makeTowerSprite(scene, x, y, handRank, suit, sz, color) {
+  const textureKey = getTowerTextureKey(suit);
+  if (scene.textures?.exists?.(textureKey) && scene.add.image) {
+    const image = scene.add.image(x, y, textureKey)
+      .setDisplaySize(sz + 10, sz + 10);
+    image._baseColor = color;
+    image.setFillStyle = function (c) {
+      if (c === this._baseColor && this.clearTint) {
+        this.clearTint();
+      } else if (this.setTint) {
+        this.setTint(c);
+      }
+      return this;
+    };
+    return image;
+  }
+  return _makeShape(scene, x, y, handRank, sz, color);
+}
+
 export default class Unit {
   constructor(scene, col, row, handRank, suit, grade, stats) {
     this.scene = scene;
@@ -87,7 +107,7 @@ export default class Unit {
     const color = SUIT_COLORS[suit] ?? 0xffffff;
     this._baseColor = color;
     const sz = Math.floor(CELL_SIZE * 0.55);
-    this.sprite = _makeShape(scene, pos.x, pos.y, handRank, sz, color).setDepth(2);
+    this.sprite = _makeTowerSprite(scene, pos.x, pos.y, handRank, suit, sz, color).setDepth(2);
     this.hpBar = scene.add.graphics().setDepth(3);
     this.gradeText = scene.add.text(pos.x, pos.y - Math.floor(CELL_SIZE * 0.22), `${grade}`, {
       fontSize: '11px', color: '#fff'

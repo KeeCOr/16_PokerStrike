@@ -1,4 +1,5 @@
 import { ENEMY_STATS, ENEMY_TYPE } from './EnemyData.js';
+import { getEnemyTextureKey } from '../assets/art/AssetKeys.js';
 
 export default class Enemy {
   constructor(scene, col, row, type) {
@@ -57,6 +58,25 @@ export default class Enemy {
       .setDepth(2)
       .setSize(46, 46)
       .setInteractive({ useHandCursor: true });
+
+    const textureKey = getEnemyTextureKey(this.type);
+    if (this.scene.textures?.exists?.(textureKey) && this.scene.add.image) {
+      const size = this.type === ENEMY_TYPE.BOSS ? 56 : 44;
+      const image = this.scene.add.image(0, 0, textureKey)
+        .setDisplaySize(size, size);
+      sprite.add(image);
+
+      if (this.isAerial) {
+        const label = this.scene.add.text(0, -28, '✦', {
+          fontSize: '12px',
+          color: '#9eeeff',
+        }).setOrigin(0.5);
+        sprite.add(label);
+      }
+
+      return sprite;
+    }
+
     const gfx = this.scene.add.graphics();
     const p = this._getMonsterPalette();
 

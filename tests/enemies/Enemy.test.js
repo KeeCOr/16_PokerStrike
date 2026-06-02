@@ -22,6 +22,20 @@ function createScene() {
     },
     add: {
       rectangle() { calls.push('rectangle'); return { ...chain }; },
+      image(x, y, key) {
+        calls.push(`image:${key}`);
+        return {
+          ...chain,
+          x,
+          y,
+          key,
+          setDisplaySize(width, height) {
+            this.displayWidth = width;
+            this.displayHeight = height;
+            return this;
+          },
+        };
+      },
       container(x, y) {
         calls.push('container');
         return {
@@ -98,5 +112,16 @@ describe('Enemy', () => {
       const enemy = new Enemy(createScene(), 0, 0, type);
       expect(enemy.sprite.list.length).toBeGreaterThan(0);
     }
+  });
+
+  it('uses loaded monster image texture when available', () => {
+    const scene = createScene();
+    scene.textures = { exists: key => key === 'enemy-boss' };
+
+    const enemy = new Enemy(scene, 0, 0, ENEMY_TYPE.BOSS);
+
+    expect(scene.calls).toContain('image:enemy-boss');
+    expect(enemy.sprite.list[0].key).toBe('enemy-boss');
+    expect(enemy.sprite.list[0].displayWidth).toBe(56);
   });
 });

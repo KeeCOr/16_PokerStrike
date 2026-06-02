@@ -13,6 +13,7 @@ import { UPGRADE_POOL } from '../data/roguelite.js';
 import { STAGES, STAGE_OBSTACLES } from '../stages/StageData.js';
 import { shouldShowUpgradeTutorialOnStageClear } from './GameSceneTutorial.js';
 import { WAVE_CHOICE_LAYOUT } from './WaveChoiceLayout.js';
+import { preloadArtAssets } from '../assets/art/AssetKeys.js';
 
 const BASE_HP = 100;
 
@@ -28,6 +29,10 @@ function _upgradeTypeLabel(upgrade) {
 
 export default class GameScene extends Phaser.Scene {
   constructor() { super('GameScene'); }
+
+  preload() {
+    preloadArtAssets(this);
+  }
 
   init(data) {
     this.startStageIndex = data?.startStageIndex ?? 0;
