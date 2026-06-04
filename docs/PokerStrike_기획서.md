@@ -124,3 +124,28 @@ PokerStrike는 포커 족보로 유닛 소환과 마법을 결정하는 세로�
 - 타워는 카드 문양별 SVG 리소스를 사용한다. 하트, 다이아, 클로버, 스페이드 타워는 색상과 문양으로 구분된다.
 - 아트 리소스가 로드되지 않는 환경에서는 기존 절차형 도형 렌더링으로 fallback한다.
 - 리소스 생성 스크립트는 `scripts/generate-pokerstrike-art-assets.mjs`이며, 출력 위치는 `src/assets/art/monsters`, `src/assets/art/towers`이다.
+
+<!-- RESOURCE_PREVIEWS_START -->
+## 공유용 이미지 미리보기
+
+> 자동 갱신: 2026-06-04. 공유 시 문서와 함께 아래 이미지 경로가 포함되어야 합니다.
+
+![16_PS pokerstrike-ui-kit-v1](../src/assets/ui/pokerstrike-ui-kit-v1.png)
+- `src/assets/ui/pokerstrike-ui-kit-v1.png`
+
+![16_PS aerial](../src/assets/art/monsters/aerial.svg)
+- `src/assets/art/monsters/aerial.svg`
+
+![16_PS armored](../src/assets/art/monsters/armored.svg)
+- `src/assets/art/monsters/armored.svg`
+
+![16_PS basic](../src/assets/art/monsters/basic.svg)
+- `src/assets/art/monsters/basic.svg`
+
+![16_PS berserker](../src/assets/art/monsters/berserker.svg)
+- `src/assets/art/monsters/berserker.svg`
+
+![16_PS boss](../src/assets/art/monsters/boss.svg)
+- `src/assets/art/monsters/boss.svg`
+
+<!-- RESOURCE_PREVIEWS_END -->
