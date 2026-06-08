@@ -4,6 +4,7 @@ import {
   TOWER_TEXTURES,
   getEnemyTextureKey,
   getTowerTextureKey,
+  preloadArtAssets,
 } from '../../src/assets/art/AssetKeys.js';
 import { ENEMY_TYPE } from '../../src/enemies/EnemyData.js';
 
@@ -24,5 +25,20 @@ describe('AssetKeys', () => {
     expect(getTowerTextureKey('D')).toBe('tower-D');
     expect(getTowerTextureKey('C')).toBe('tower-C');
     expect(getTowerTextureKey('S')).toBe('tower-S');
+  });
+
+  it('preloads art as image assets', () => {
+    const loaded = [];
+    preloadArtAssets({
+      load: {
+        image(key, url) {
+          loaded.push({ key, url });
+        },
+      },
+    });
+
+    expect(loaded.map(item => item.key)).toContain('enemy-basic');
+    expect(loaded.map(item => item.key)).toContain('tower-H');
+    expect(loaded.every(item => item.url.endsWith('.png'))).toBe(true);
   });
 });

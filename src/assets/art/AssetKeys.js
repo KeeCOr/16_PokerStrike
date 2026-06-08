@@ -24,35 +24,35 @@ export const TOWER_TEXTURES = {
 };
 
 const ENEMY_ASSETS = {
-  [ENEMY_TEXTURES[ENEMY_TYPE.BASIC]]: new URL('./monsters/basic.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.TANK]]: new URL('./monsters/tank.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.RUNNER]]: new URL('./monsters/runner.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.AERIAL]]: new URL('./monsters/aerial.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.MAGIC_IMMUNE]]: new URL('./monsters/magicImmune.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.SPLITTER]]: new URL('./monsters/splitter.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.REGEN]]: new URL('./monsters/regen.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.FREEZER]]: new URL('./monsters/freezer.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.BOSS]]: new URL('./monsters/boss.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.ARMORED]]: new URL('./monsters/armored.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.SWARM]]: new URL('./monsters/swarm.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.BERSERKER]]: new URL('./monsters/berserker.svg', import.meta.url).href,
-  [ENEMY_TEXTURES[ENEMY_TYPE.SHIELDED]]: new URL('./monsters/shielded.svg', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.BASIC]]: new URL('./monsters/basic.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.TANK]]: new URL('./monsters/tank.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.RUNNER]]: new URL('./monsters/runner.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.AERIAL]]: new URL('./monsters/aerial.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.MAGIC_IMMUNE]]: new URL('./monsters/magicImmune.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.SPLITTER]]: new URL('./monsters/splitter.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.REGEN]]: new URL('./monsters/regen.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.FREEZER]]: new URL('./monsters/freezer.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.BOSS]]: new URL('./monsters/boss.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.ARMORED]]: new URL('./monsters/armored.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.SWARM]]: new URL('./monsters/swarm.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.BERSERKER]]: new URL('./monsters/berserker.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.SHIELDED]]: new URL('./monsters/shielded.png', import.meta.url).href,
 };
 
 const TOWER_ASSETS = {
-  [TOWER_TEXTURES.H]: new URL('./towers/H.svg', import.meta.url).href,
-  [TOWER_TEXTURES.D]: new URL('./towers/D.svg', import.meta.url).href,
-  [TOWER_TEXTURES.C]: new URL('./towers/C.svg', import.meta.url).href,
-  [TOWER_TEXTURES.S]: new URL('./towers/S.svg', import.meta.url).href,
+  [TOWER_TEXTURES.H]: new URL('./towers/H.png', import.meta.url).href,
+  [TOWER_TEXTURES.D]: new URL('./towers/D.png', import.meta.url).href,
+  [TOWER_TEXTURES.C]: new URL('./towers/C.png', import.meta.url).href,
+  [TOWER_TEXTURES.S]: new URL('./towers/S.png', import.meta.url).href,
 };
 
 export function preloadArtAssets(scene) {
-  if (!scene?.load?.svg) return;
+  if (!scene?.load?.image) return;
   for (const [key, url] of Object.entries(ENEMY_ASSETS)) {
-    scene.load.svg(key, url, { width: 64, height: 64 });
+    scene.load.image(key, url);
   }
   for (const [key, url] of Object.entries(TOWER_ASSETS)) {
-    scene.load.svg(key, url, { width: 80, height: 80 });
+    scene.load.image(key, url);
   }
 }
 
