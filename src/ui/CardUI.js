@@ -1,4 +1,5 @@
 import { SUIT_COLORS, SUIT_ICONS } from '../cards/Card.js';
+import { THEME } from '../theme.js';
 
 export const CARD_LAYOUT = {
   CARD_W: 50,
@@ -93,11 +94,11 @@ export default class CardUI {
     const h = CARD_H * scale;
     const color = SUIT_COLORS[card.suit] ?? 0xffffff;
     const colorHex = '#' + color.toString(16).padStart(6, '0');
-    const bg = this.scene.add.rectangle(x, y, w, h, 0x111b27).setDepth(12)
+    const bg = this.scene.add.rectangle(x, y, w, h, THEME.bg.mid).setDepth(12)
       .setStrokeStyle(2, color, 0.95);
     const inner = this.scene.add.rectangle(x, y, w - 7 * scale, h - 7 * scale, 0xefe8dc, 1).setDepth(12)
       .setStrokeStyle(1, 0xffffff, 0.35);
-    const topBand = this.scene.add.rectangle(x, y - h * 0.29, w - 12 * scale, 15 * scale, 0x0d1b2a, 0.9).setDepth(13);
+    const topBand = this.scene.add.rectangle(x, y - h * 0.29, w - 12 * scale, 15 * scale, THEME.bg.panel, 0.9).setDepth(13);
     const icon = SUIT_ICONS[card.suit] ?? '';
     const suitText = this.scene.add.text(x, y - 22 * scale, icon, {
       fontSize: `${SUIT_LABEL_FONT * scale}px`, color: colorHex, fontStyle: 'bold',
@@ -156,7 +157,7 @@ export default class CardUI {
     this.cardObjects.forEach((objs) => {
       const [bg] = objs;
       if (!bg?.active) return;
-      bg.setFillStyle(0x111b27);
+      bg.setFillStyle(THEME.bg.mid);
       bg.removeAllListeners();
     });
   }
@@ -178,8 +179,8 @@ export default class CardUI {
     }
 
     const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '✦  마법', 0x56308f, 0xb776ff);
-    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `♜  소환 ${drawCost}G`, 0x8a5a12, 0xffcc55);
-    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `↻  교체 ${replaceCost}G`, 0x0f5878, 0x55d6ff);
+    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `♜  소환 ${drawCost}G`, THEME.ui.btnGold, THEME.text.gold);
+    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `↻  교체 ${replaceCost}G`, 0x0f5878, THEME.economy.gem);
 
     this._buttons = { summonBtn, magicBtn, replaceBtn, summonPreviewBg, summonPreview, magicPreviewBg, magicPreview };
     return { summonBtn, magicBtn, replaceBtn };

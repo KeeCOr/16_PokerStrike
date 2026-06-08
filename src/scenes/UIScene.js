@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import HUD from '../ui/HUD.js';
 import CardUI from '../ui/CardUI.js';
+import { THEME } from '../theme.js';
 import Deck from '../cards/Deck.js';
 import Hand from '../cards/Hand.js';
 import SharedCards from '../cards/SharedCards.js';
@@ -92,7 +93,7 @@ export default class UIScene extends Phaser.Scene {
     this._readableTabs?.forEach(tab => {
       const active = tab.key === this._activeTab;
       const activeFill = tab.key === 'card' ? 0x123b55 : tab.key === 'upgrade' ? 0x26321a : 0x2a2140;
-      const activeStroke = tab.key === 'card' ? 0x55d6ff : tab.key === 'upgrade' ? 0x9fd56c : 0xc88cff;
+      const activeStroke = tab.key === 'card' ? THEME.economy.gem : tab.key === 'upgrade' ? 0x9fd56c : 0xc88cff;
       tab.bg.setFillStyle(active ? activeFill : 0x0a1522, 1);
       tab.bg.setStrokeStyle(active ? 2 : 1, active ? activeStroke : 0x314763, active ? 1 : 0.75);
       tab.text.setStyle({ color: active ? '#ffffff' : '#95a4b8' });
@@ -459,7 +460,7 @@ export default class UIScene extends Phaser.Scene {
 
       const s = steps[stepIdx];
       const overlay = this.add.rectangle(320, 400, 580, 360, 0x000000, 0.88).setDepth(30);
-      const box = this.add.rectangle(320, 400, 560, 340, 0x0d1b2a, 1).setDepth(30).setStrokeStyle(2, 0x3a6080, 1);
+      const box = this.add.rectangle(320, 400, 560, 340, THEME.bg.panel, 1).setDepth(30).setStrokeStyle(2, 0x3a6080, 1);
       const numTxt = this.add.text(320, 262, `${stepIdx + 1} / ${steps.length}`, {
         fontSize: '11px', color: '#888888'
       }).setOrigin(0.5).setDepth(31);

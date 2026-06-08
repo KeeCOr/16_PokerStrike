@@ -1,4 +1,5 @@
 import { PANEL_Y } from '../grid/Grid.js';
+import { THEME } from '../theme.js';
 
 export const HUD_LAYOUT = {
   RESOURCE_PANEL: { x: 154, y: 14, w: 280, h: 30 },
@@ -16,14 +17,14 @@ export default class HUD {
     const panelY = PANEL_Y;
 
     // Bottom panel background
-    scene.add.rectangle(320, panelY + 108, 640, 216, 0x07111d, 0.98).setDepth(10)
+    scene.add.rectangle(320, panelY + 108, 640, 216, THEME.bg.base, 0.98).setDepth(10)
       .setStrokeStyle(2, 0x17496a, 0.9);
     scene.add.rectangle(320, panelY + 22, 612, 42, 0x050b14, 0.96).setDepth(10)
-      .setStrokeStyle(1, 0x2b5d78, 0.75);
+      .setStrokeStyle(1, THEME.ui.border, 0.75);
     scene.add.rectangle(320, panelY + 86, 612, 82, 0x0b1725, 0.92).setDepth(10)
-      .setStrokeStyle(1, 0x2b5d78, 0.65);
+      .setStrokeStyle(1, THEME.ui.border, 0.65);
     scene.add.rectangle(320, panelY + 170, 612, 62, 0x081522, 0.92).setDepth(10)
-      .setStrokeStyle(1, 0x2b5d78, 0.75);
+      .setStrokeStyle(1, THEME.ui.border, 0.75);
 
     this._drawResourceCluster();
     this._drawWaveBadge();
@@ -61,7 +62,7 @@ export default class HUD {
 
   _drawResourceCluster() {
     const { x, y, w, h } = HUD_LAYOUT.RESOURCE_PANEL;
-    this._drawHudShell(x, y, w, h, 0x1d1b21, 0xffcc55);
+    this._drawHudShell(x, y, w, h, 0x1d1b21, THEME.text.gold);
     this.scene.add.rectangle(x - 8, y, 2, h - 10, 0x6f5c35, 0.8).setDepth(11);
   }
 

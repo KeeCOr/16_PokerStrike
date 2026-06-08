@@ -1,4 +1,5 @@
 ﻿import Phaser from 'phaser';
+import { THEME } from '../theme.js';
 import Grid, { GRID_ROWS, GRID_COLS, CELL_BLOCKED, CELL_EMPTY, CELL_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, BATTLE_MESSAGE_Y } from '../grid/Grid.js';
 import GridRenderer from '../grid/GridRenderer.js';
 import UnitManager from '../units/UnitManager.js';
@@ -221,7 +222,7 @@ export default class GameScene extends Phaser.Scene {
     this._baseHpBar.clear();
     this._baseHpBar.fillStyle(0x333333);
     this._baseHpBar.fillRect(baseX, baseY - 7, barW, 6);
-    this._baseHpBar.fillStyle(ratio > 0.5 ? 0x44ff44 : ratio > 0.25 ? 0xffaa00 : 0xff4444);
+    this._baseHpBar.fillStyle(ratio > 0.5 ? THEME.status.hpHigh : ratio > 0.25 ? THEME.status.hpMid : THEME.status.hpLow);
     this._baseHpBar.fillRect(baseX, baseY - 7, Math.floor(barW * ratio), 6);
   }
 
@@ -247,9 +248,9 @@ export default class GameScene extends Phaser.Scene {
     const y = 64;
     const height = 34 + lines.length * 18;
 
-    const bg = this.add.rectangle(x, y, 196, height, 0x07111d, 0.94)
+    const bg = this.add.rectangle(x, y, 196, height, THEME.bg.base, 0.94)
       .setDepth(18)
-      .setStrokeStyle(1, 0x88ccff, 0.85);
+      .setStrokeStyle(1, THEME.status.shield, 0.85);
     const title = this.add.text(x, y - height / 2 + 13, '적 정보', {
       fontSize: '11px', color: '#88ccff', fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(19);
@@ -271,9 +272,9 @@ export default class GameScene extends Phaser.Scene {
 
     const x = 320;
     const y = BATTLE_MESSAGE_Y;
-    const bg = this.add.rectangle(x, y, 320, 30, 0x07111d, 0.86)
+    const bg = this.add.rectangle(x, y, 320, 30, THEME.bg.base, 0.86)
       .setDepth(16)
-      .setStrokeStyle(1, 0x2b5d78, 0.85);
+      .setStrokeStyle(1, THEME.ui.border, 0.85);
     const text = this.add.text(x, y, message, {
       fontSize: '13px',
       color,
@@ -307,7 +308,7 @@ export default class GameScene extends Phaser.Scene {
       const y = 240 + i * 150;
       const bg = this.add.rectangle(320, y, 420, 120, 0x1a2a3a).setDepth(21)
         .setInteractive({ useHandCursor: true });
-      const border = this.add.rectangle(320, y, 416, 116, 0x0d1b2a).setDepth(21);
+      const border = this.add.rectangle(320, y, 416, 116, THEME.bg.panel).setDepth(21);
       const affectedCount = getAffectedUnitCount(upgrade, this.unitManager.units, this.rogueliteManager);
       const label = this.add.text(320, y - 20, upgrade.label, {
         fontSize: `${WAVE_CHOICE_LAYOUT.LABEL_FONT}px`, color: '#ffffff', fontStyle: 'bold'
@@ -319,15 +320,15 @@ export default class GameScene extends Phaser.Scene {
       objs.push(bg, border, label, typeLabel);
 
       bg.on('pointerover', () => {
-        bg.setFillStyle(0x2a4a6a);
-        border.setFillStyle(0x1a3050);
+        bg.setFillStyle(THEME.ui.btnHover);
+        border.setFillStyle(THEME.ui.btnBase);
         this.unitManager.units.forEach(u => {
           if (this.rogueliteManager.matches(upgrade, u)) u.setHighlight(true);
         });
       });
       bg.on('pointerout', () => {
         bg.setFillStyle(0x1a2a3a);
-        border.setFillStyle(0x0d1b2a);
+        border.setFillStyle(THEME.bg.panel);
         this.unitManager.units.forEach(u => u.setHighlight(false));
       });
       bg.on('pointerdown', () => {
@@ -376,13 +377,13 @@ export default class GameScene extends Phaser.Scene {
 
   showMagicEffect(rank, skillName, description) {
     const COLORS = [
-      0xcccccc, // 0 HC  - 기본 효과
-      0xaaddff, // 1 1P  - 무료 교체
+      THEME.enemy.common, // 0 HC  - 기본 효과
+      THEME.text.secondary, // 1 1P  - 무료 교체
       0xffd700, // 2 2P  - 골드 획득
       0x44ffff, // 3 3K  - 소환 지원
-      0x4488ff, // 4 STR - 대지진
+      THEME.ui.glow, // 4 STR - 대지진
       0xffee44, // 5 FLU - 속성 강화
-      0x44ff88, // 6 FH  - 회복
+      THEME.status.hpHigh, // 6 FH  - 회복
       0xff5522, // 7 4K  - 광역 공격
       0xcc44ff, // 8 SF  - 전멸
     ];
@@ -503,7 +504,7 @@ export default class GameScene extends Phaser.Scene {
 
   _showUpgradeTutorial(onDone) {
     const overlay = this.add.rectangle(320, 480, 640, 960, 0x000000, 0.78).setDepth(30);
-    const box = this.add.rectangle(320, 420, 520, 300, 0x0d1b2a, 1)
+    const box = this.add.rectangle(320, 420, 520, 300, THEME.bg.panel, 1)
       .setDepth(31)
       .setStrokeStyle(2, 0x8cd3ff, 0.95);
     const title = this.add.text(320, 315, '업그레이드 안내', {
