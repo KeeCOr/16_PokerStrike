@@ -1,6 +1,12 @@
 import { CELL_SIZE, GRID_COLS, GRID_ROWS, GRID_OFFSET_X, GRID_OFFSET_Y, CELL_BLOCKED } from './Grid.js';
 import { ENV_TEXTURES } from '../assets/art/AssetKeys.js';
 
+export const GRID_RENDERER_STYLE = {
+  WALKABLE_TILE_ALPHA: 0.72,
+  WALKABLE_OVERLAY_COLOR: 0x020610,
+  WALKABLE_OVERLAY_ALPHA: 0.52,
+};
+
 export default class GridRenderer {
   constructor(scene, grid) {
     this.scene = scene;
@@ -40,9 +46,9 @@ export default class GridRenderer {
             this.tileImages.push(this.scene.add.image(cx, cy, key)
               .setDepth(-1)
               .setDisplaySize(CELL_SIZE + 3, CELL_SIZE + 3)
-              .setAlpha(0.84));
+              .setAlpha(GRID_RENDERER_STYLE.WALKABLE_TILE_ALPHA));
           }
-          g.fillStyle(0x030914, 0.24);
+          g.fillStyle(GRID_RENDERER_STYLE.WALKABLE_OVERLAY_COLOR, GRID_RENDERER_STYLE.WALKABLE_OVERLAY_ALPHA);
           g.fillRect(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
         }
         g.lineStyle(1, 0x2a3a4a, 0.42);

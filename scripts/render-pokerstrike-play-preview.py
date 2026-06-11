@@ -123,7 +123,7 @@ def main():
         y0 = GY + r * CELL
         tile = "environment/board-tile.png" if (r + c) % 2 == 0 else "environment/board-tile-alt.png"
         paste_asset(img, tile, cell_center(c, r), CELL + 3)
-        draw.rectangle((x0 + 2, y0 + 2, x0 + CELL - 2, y0 + CELL - 2), fill=(3, 9, 20, 68))
+        draw.rectangle((x0 + 2, y0 + 2, x0 + CELL - 2, y0 + CELL - 2), fill=(2, 6, 16, 132))
         draw.rectangle((x0, y0, x0 + CELL, y0 + CELL), outline="#24475f")
 
     obstacles = [(1, 2), (2, 2), (5, 3), (6, 3), (0, 5), (1, 5), (4, 6), (5, 6), (2, 7), (3, 7)]
