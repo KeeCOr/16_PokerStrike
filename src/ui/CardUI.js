@@ -1,15 +1,16 @@
 import { SUIT_COLORS, SUIT_ICONS } from '../cards/Card.js';
+import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
 import { THEME } from '../theme.js';
 
 export const CARD_LAYOUT = {
   CARD_W: 50,
   CARD_H: 64,
-  CARD_Y: 832,
-  META_Y: 790,
+  CARD_Y: 840,
+  META_Y: 798,
   META_H: 16,
-  PREVIEW_Y: 879,
+  PREVIEW_Y: 887,
   PREVIEW_H: 22,
-  ACTION_Y: 916,
+  ACTION_Y: 924,
   ACTION_H: 42,
   SHARED_SCALE: 0.86,
   SUIT_LABEL_FONT: 9,
@@ -178,9 +179,9 @@ export default class CardUI {
       [magicPreviewBg, magicPreview] = this._drawPreviewStrip(112, 184, magicSkillName, '#dca7ff', 10);
     }
 
-    const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '✦  마법', 0x56308f, 0xb776ff);
-    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `♜  소환 ${drawCost}G`, THEME.ui.btnGold, THEME.text.gold);
-    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `↻  교체 ${replaceCost}G`, 0x0f5878, THEME.economy.gem);
+    const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '✦ 마법', 0x56308f, 0xb776ff, UI_TEXTURES.BUTTON_ACTION_PURPLE);
+    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `♜ 소환 ${drawCost}G`, THEME.ui.btnGold, THEME.text.gold, UI_TEXTURES.BUTTON_ACTION_GOLD);
+    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `↻ 교체 ${replaceCost}G`, 0x0f5878, THEME.economy.gem, UI_TEXTURES.BUTTON_ACTION_CYAN);
 
     this._buttons = { summonBtn, magicBtn, replaceBtn, summonPreviewBg, summonPreview, magicPreviewBg, magicPreview };
     return { summonBtn, magicBtn, replaceBtn };
@@ -224,18 +225,31 @@ export default class CardUI {
     return [bg, text];
   }
 
-  _drawActionButton(x, y, w, label, fill, stroke) {
-    const bg = this.scene.add.rectangle(x, y, w, ACTION_H, fill, 0.95)
-      .setDepth(12)
-      .setStrokeStyle(2, stroke, 0.9)
-      .setInteractive({ useHandCursor: true });
+  _drawActionButton(x, y, w, label, fill, stroke, textureKey = null) {
+    const hasTexture = textureKey && this.scene.textures?.exists?.(textureKey) && this.scene.add.image;
+    const bg = hasTexture
+      ? this.scene.add.image(x, y, textureKey)
+        .setDepth(12)
+        .setDisplaySize(w + 34, ACTION_H + 18)
+        .setInteractive({ useHandCursor: true })
+        .setAlpha(0.98)
+      : this.scene.add.rectangle(x, y, w, ACTION_H, fill, 0.95)
+        .setDepth(12)
+        .setStrokeStyle(2, stroke, 0.9)
+        .setInteractive({ useHandCursor: true });
     const text = this.scene.add.text(x, y, label, {
       fontSize: '15px',
       color: '#ffffff',
       fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(13);
-    bg.on('pointerover', () => bg.setFillStyle(fill, 1));
-    bg.on('pointerout', () => bg.setFillStyle(fill, 0.95));
+    bg.on('pointerover', () => {
+      if (hasTexture) bg.setAlpha(1);
+      else bg.setFillStyle(fill, 1);
+    });
+    bg.on('pointerout', () => {
+      if (hasTexture) bg.setAlpha(0.98);
+      else bg.setFillStyle(fill, 0.95);
+    });
     text.setInteractive({ useHandCursor: true });
     text.on('pointerover', () => bg.emit('pointerover'));
     text.on('pointerout', () => bg.emit('pointerout'));

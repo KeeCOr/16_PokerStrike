@@ -1,8 +1,11 @@
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
 
 ROOT = Path(__file__).resolve().parents[1]
 ART = ROOT / "src" / "assets" / "art"
+UI = ROOT / "src" / "assets" / "ui" / "generated"
 OUT_MAIN = ROOT / "docs" / "PokerStrike_01_플레이예시.png"
 OUT_ALT = ROOT / "docs" / "PokerStrike_플레이예시_현재구현.png"
 
@@ -10,8 +13,8 @@ W, H = 640, 960
 CELL = 76
 COLS, ROWS = 7, 9
 GX = int((W - COLS * CELL) / 2)
-GY = 28
-PANEL_Y = 744
+GY = 52
+PANEL_Y = 752
 
 
 def font(size, bold=False):
@@ -32,7 +35,6 @@ F = {
     "body_b": font(14, True),
     "mid": font(16, True),
     "big": font(22, True),
-    "hero": font(30, True),
 }
 
 
@@ -40,15 +42,40 @@ def rounded(draw, xy, r, fill, outline=None, width=1):
     draw.rounded_rectangle(xy, radius=r, fill=fill, outline=outline, width=width)
 
 
-def text_center(draw, xy, s, fill, f):
+def text_center(draw, xy, text, fill, f):
     x, y = xy
-    b = draw.textbbox((0, 0), s, font=f)
-    draw.text((x - (b[2] - b[0]) / 2, y - (b[3] - b[1]) / 2), s, fill=fill, font=f)
+    b = draw.textbbox((0, 0), text, font=f)
+    draw.text((x - (b[2] - b[0]) / 2, y - (b[3] - b[1]) / 2), text, fill=fill, font=f)
+
+
+def paste_png(canvas, path, center, size, glow=None):
+    im = Image.open(path).convert("RGBA")
+    if isinstance(size, tuple):
+        im = im.resize(size, Image.Resampling.LANCZOS)
+    else:
+        im.thumbnail((size, size), Image.Resampling.LANCZOS)
+    x = int(center[0] - im.width / 2)
+    y = int(center[1] - im.height / 2)
+    if glow:
+        alpha = im.getchannel("A").filter(ImageFilter.GaussianBlur(6))
+        aura = Image.new("RGBA", im.size, glow)
+        aura.putalpha(alpha)
+        canvas.alpha_composite(aura, (x, y))
+    canvas.alpha_composite(im, (x, y))
 
 
 def paste_asset(canvas, rel, center, size, glow=None):
+    paste_png(canvas, ART / rel, center, size, glow)
+
+
+def paste_ui(canvas, name, center, size):
+    paste_png(canvas, UI / name, center, size)
+
+
+def paste_asset_rotated(canvas, rel, center, size, angle, glow=None):
     im = Image.open(ART / rel).convert("RGBA")
     im.thumbnail((size, size), Image.Resampling.LANCZOS)
+    im = im.rotate(angle, resample=Image.Resampling.BICUBIC, expand=True)
     x = int(center[0] - im.width / 2)
     y = int(center[1] - im.height / 2)
     if glow:
@@ -78,104 +105,102 @@ def main():
     img = Image.new("RGBA", (W, H), "#07111d")
     draw = ImageDraw.Draw(img)
 
-    # Background bands
     for y in range(H):
         shade = int(12 + 16 * (y / H))
         draw.line((0, y, W, y), fill=(5, shade, 27 + shade // 3, 255))
-    draw.rectangle((0, 0, W, 744), fill=(8, 17, 29, 245))
+    draw.rectangle((0, 0, W, PANEL_Y), fill=(8, 17, 29, 245))
 
-    # Top HUD
-    rounded(draw, (14, 0, 294, 30), 5, "#1d1b21", "#ffd766", 1)
-    text_center(draw, (88, 15), "골드 38", "#ffd766", F["mid"])
-    text_center(draw, (220, 15), "보석 2", "#dca6ff", F["body_b"])
-    rounded(draw, (340, 0, 588, 32), 5, "#0b2840", "#65d9ff", 2)
-    text_center(draw, (420, 15), "웨이브 3", "#bceeff", F["body_b"])
-    text_center(draw, (524, 15), "적 18 / 42", "#ffbd7a", F["small"])
+    paste_ui(img, "badge-wave.png", (320, 26), (214, 52))
+    text_center(draw, (282, 26), "웨이브 3", "#bceeff", F["body_b"])
+    text_center(draw, (368, 26), "적 18 / 42", "#ffbd7a", F["small"])
+    paste_ui(img, "panel-resource.png", (530, 26), (212, 48))
+    text_center(draw, (485, 26), "골드 38", "#ffd766", F["mid"])
+    text_center(draw, (575, 26), "보석 2", "#dca6ff", F["body_b"])
 
-    # Board
     for r in range(ROWS):
-        for c in range(COLS):
-            x0 = GX + c * CELL
-            y0 = GY + r * CELL
-            fill = "#0b1725" if (r + c) % 2 else "#0e1f32"
-            draw.rectangle((x0 + 1, y0 + 1, x0 + CELL - 2, y0 + CELL - 2), fill=fill)
-            draw.rectangle((x0, y0, x0 + CELL, y0 + CELL), outline="#24475f")
-    obstacles = [(1, 2), (2, 2), (5, 3), (6, 3), (0, 5), (1, 5), (4, 6), (5, 6), (2, 7), (3, 7)]
-    for c, r in obstacles:
+      for c in range(COLS):
         x0 = GX + c * CELL
         y0 = GY + r * CELL
-        rounded(draw, (x0 + 7, y0 + 7, x0 + CELL - 7, y0 + CELL - 7), 8, "#253241", "#46596b", 2)
-        draw.line((x0 + 14, y0 + 14, x0 + CELL - 14, y0 + CELL - 14), fill="#708090", width=2)
+        tile = "environment/board-tile.png" if (r + c) % 2 == 0 else "environment/board-tile-alt.png"
+        paste_asset(img, tile, cell_center(c, r), CELL + 3)
+        draw.rectangle((x0 + 2, y0 + 2, x0 + CELL - 2, y0 + CELL - 2), fill=(3, 9, 20, 68))
+        draw.rectangle((x0, y0, x0 + CELL, y0 + CELL), outline="#24475f")
 
-    # Spawn/base and message
-    sx, sy = cell_center(3, 0)
-    rounded(draw, (sx - 30, sy - 18, sx + 30, sy + 18), 6, "#3a1010", "#ff6666", 1)
-    text_center(draw, (sx, sy), "스폰", "#ff8888", F["tiny"])
+    obstacles = [(1, 2), (2, 2), (5, 3), (6, 3), (0, 5), (1, 5), (4, 6), (5, 6), (2, 7), (3, 7)]
+    for idx, (c, r) in enumerate(obstacles):
+        rel = "environment/obstacle-stone.png" if idx % 2 == 0 else "environment/obstacle-barricade.png"
+        paste_asset(img, rel, cell_center(c, r), CELL + 6, (80, 120, 160, 45))
+
+    paste_asset(img, "environment/spawn-gate.png", cell_center(3, 0), CELL + 12, (255, 60, 60, 60))
+    paste_asset(img, "environment/base-core.png", cell_center(3, 8), CELL + 16, (80, 255, 120, 60))
     bx, by = cell_center(3, 8)
-    rounded(draw, (bx - 33, by - 23, bx + 33, by + 23), 7, "#11391f", "#44ff88", 2)
-    text_center(draw, (bx, by), "본진", "#66ffaa", F["small"])
     draw.rectangle((bx - 38, by - 35, bx + 38, by - 29), fill="#333333")
     draw.rectangle((bx - 38, by - 35, bx + 16, by - 29), fill="#44ff44")
-    rounded(draw, (160, 711, 480, 739), 5, "#08131f", "#2d6688", 1)
-    text_center(draw, (320, 725), "적 방어력 감소 중", "#ffd166", F["body_b"])
+    for rel, c, r, size, glow in [
+        ("towers/H.png", 2, 5, 56, (255, 90, 50, 55)),
+        ("towers/D.png", 4, 4, 72, (80, 220, 255, 95)),
+        ("towers/C.png", 1, 6, 48, (80, 255, 130, 45)),
+        ("towers/S.png", 5, 6, 78, (255, 225, 90, 105)),
+    ]:
+        paste_asset(img, rel, cell_center(c, r), size, glow)
 
-    # Towers and monsters using real assets
-    tower_positions = [("towers/H.png", 2, 5), ("towers/D.png", 4, 4), ("towers/C.png", 1, 6), ("towers/S.png", 5, 6)]
-    for rel, c, r in tower_positions:
-        paste_asset(img, rel, cell_center(c, r), 64, (80, 200, 255, 70))
-    monster_positions = [
+    for rel, c, r, size in [
         ("monsters/basic.png", 3, 1, 48), ("monsters/runner.png", 4, 2, 48),
         ("monsters/swarm.png", 2, 3, 44), ("monsters/freezer.png", 5, 3, 48),
         ("monsters/armored.png", 3, 4, 50), ("monsters/boss.png", 1, 1, 68),
         ("monsters/shielded.png", 4, 1, 54), ("monsters/aerial.png", 6, 2, 50),
-    ]
-    for rel, c, r, size in monster_positions:
+    ]:
         paste_asset(img, rel, cell_center(c, r), size, (255, 80, 80, 55))
         cx, cy = cell_center(c, r)
         draw.rectangle((cx - 17, cy - 28, cx + 17, cy - 24), fill="#2a2a2a")
         draw.rectangle((cx - 17, cy - 28, cx + 8, cy - 24), fill="#ff4d4d")
 
-    # Battle effects
-    draw.line((cell_center(2, 5), cell_center(4, 2)), fill="#ffb347", width=2)
-    draw.line((cell_center(4, 4), cell_center(5, 3)), fill="#7dd3ff", width=3)
+    paste_asset_rotated(img, "vfx/fire-projectile.png", (260, 430), 58, -33, (255, 120, 40, 80))
+    paste_asset(img, "vfx/fire-impact.png", cell_center(4, 2), 58, (255, 80, 40, 70))
+    paste_asset_rotated(img, "vfx/ice-projectile.png", (404, 334), 54, -48, (80, 210, 255, 70))
+    paste_asset(img, "vfx/ice-impact.png", cell_center(5, 3), 60, (80, 210, 255, 70))
+    paste_asset_rotated(img, "vfx/spade-projectile.png", (488, 290), 62, -15, (255, 210, 80, 60))
+    paste_asset(img, "vfx/pierce-impact.png", cell_center(6, 2), 52, (255, 230, 120, 55))
+    paste_asset(img, "vfx/aura-ring.png", cell_center(4, 4), 88, (255, 238, 80, 50))
     text_center(draw, (410, 255), "-86", "#ff6655", F["mid"])
     text_center(draw, (475, 305), "-42", "#ffdd66", F["body_b"])
 
-    # Bottom HUD panels
     draw.rectangle((0, PANEL_Y, W, H), fill="#07111d")
     rounded(draw, (14, PANEL_Y + 2, 626, PANEL_Y + 42), 5, "#050b14", "#17496a", 2)
-    tabs = [("카드패", 112, "#123b55", "#48d4ff"), ("업그레이드", 320, "#0a1522", "#314763"), ("강화 목록", 528, "#0a1522", "#314763")]
-    for label, x, fill, stroke in tabs:
-        rounded(draw, (x - 92, PANEL_Y + 2, x + 92, PANEL_Y + 34), 5, fill, stroke, 2 if label == "카드패" else 1)
-        text_center(draw, (x, PANEL_Y + 18), label, "#ffffff" if label == "카드패" else "#95a4b8", F["body_b"])
+    tabs = [("카드패", 112, "tab-active.png"), ("업그레이드", 320, "tab-inactive.png"), ("강화 목록", 528, "tab-inactive.png")]
+    for label, x, asset in tabs:
+        paste_ui(img, asset, (x, PANEL_Y + 18), (210, 42))
+        text_center(draw, (x, PANEL_Y + 20), label, "#ffffff" if label == "카드패" else "#95a4b8", F["body_b"])
 
     rounded(draw, (14, PANEL_Y + 45, 626, PANEL_Y + 127), 5, "#0b1725", "#2d6688", 1)
     rounded(draw, (14, PANEL_Y + 129, 626, PANEL_Y + 191), 5, "#081522", "#2d6688", 1)
-    rounded(draw, (284, 782, 356, 798), 4, "#08131f", "#2d6688", 1)
-    text_center(draw, (320, 790), "족보: 원페어", "#ffdd88", F["small"])
-    rounded(draw, (419, 782, 491, 798), 4, "#08131f", "#2d6688", 1)
-    text_center(draw, (455, 790), "공용패", "#9ee6ff", F["tiny"])
-    rounded(draw, (502, 782, 578, 798), 4, "#08131f", "#2d6688", 1)
-    text_center(draw, (540, 790), "무덤 7", "#d8b6ff", F["tiny"])
+    rounded(draw, (284, 790, 356, 806), 4, "#08131f", "#2d6688", 1)
+    text_center(draw, (320, 798), "족보: 원페어", "#ffdd88", F["small"])
+    rounded(draw, (419, 790, 491, 806), 4, "#08131f", "#2d6688", 1)
+    text_center(draw, (455, 798), "공용패", "#9ee6ff", F["tiny"])
+    rounded(draw, (502, 790, 578, 806), 4, "#08131f", "#2d6688", 1)
+    text_center(draw, (540, 798), "무덤 7", "#d8b6ff", F["tiny"])
 
-    cards = [("S", "A"), ("D", "7"), ("C", "K"), ("H", "10"), ("S", "Q")]
-    for i, card in enumerate(cards):
-        draw_card(draw, 53 + i * 56, 832, *card)
-    shared = [("H", "9"), ("D", "9")]
-    for i, card in enumerate(shared):
-        draw_card(draw, 475 + i * 51, 832, *card)
+    for i, card in enumerate([("S", "A"), ("D", "7"), ("C", "K"), ("H", "10"), ("S", "Q")]):
+        draw_card(draw, 53 + i * 56, 840, *card)
+    for i, card in enumerate([("H", "9"), ("D", "9")]):
+        draw_card(draw, 475 + i * 51, 840, *card)
 
-    rounded(draw, (216, 868, 424, 890), 5, "#091421", "#40546d", 1)
-    text_center(draw, (320, 879), "소환될 족보: 원페어", "#ffdd88", F["body_b"])
-    buttons = [("마법", 112, 184, "#56308f", "#b776ff"), ("소환 2G", 320, 196, "#8a5a12", "#ffd766"), ("교체 4G", 528, 184, "#0f5878", "#58d5ff")]
-    for label, x, w, fill, stroke in buttons:
-        rounded(draw, (x - w / 2, 895, x + w / 2, 937), 7, fill, stroke, 2)
-        text_center(draw, (x, 916), label, "#ffffff", F["mid"])
+    rounded(draw, (216, 876, 424, 898), 5, "#091421", "#40546d", 1)
+    text_center(draw, (320, 887), "소환될 족보: 원페어", "#ffdd88", F["body_b"])
+    buttons = [
+        ("마법", 112, 184, "button-action-purple.png"),
+        ("소환 2G", 320, 196, "button-action-gold.png"),
+        ("교체 4G", 528, 184, "button-action-cyan.png"),
+    ]
+    for label, x, w, asset in buttons:
+        paste_ui(img, asset, (x, 924), (w + 34, 60))
+        text_center(draw, (x, 924), label, "#ffffff", F["mid"])
 
-    img = img.convert("RGB")
     OUT_MAIN.parent.mkdir(parents=True, exist_ok=True)
-    img.save(OUT_MAIN, quality=95)
-    img.save(OUT_ALT, quality=95)
+    rgb = img.convert("RGB")
+    rgb.save(OUT_MAIN, quality=95)
+    rgb.save(OUT_ALT, quality=95)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 ﻿import Phaser from 'phaser';
 import { THEME } from '../theme.js';
-import Grid, { GRID_ROWS, GRID_COLS, CELL_BLOCKED, CELL_EMPTY, CELL_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, BATTLE_MESSAGE_Y } from '../grid/Grid.js';
+import Grid, { GRID_ROWS, GRID_COLS, CELL_BLOCKED, CELL_EMPTY, CELL_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y } from '../grid/Grid.js';
 import GridRenderer from '../grid/GridRenderer.js';
 import UnitManager from '../units/UnitManager.js';
 import EnemyManager from '../enemies/EnemyManager.js';
@@ -14,7 +14,7 @@ import { UPGRADE_POOL } from '../data/roguelite.js';
 import { STAGES, STAGE_OBSTACLES } from '../stages/StageData.js';
 import { shouldShowUpgradeTutorialOnStageClear } from './GameSceneTutorial.js';
 import { WAVE_CHOICE_LAYOUT } from './WaveChoiceLayout.js';
-import { preloadArtAssets } from '../assets/art/AssetKeys.js';
+import { ENV_TEXTURES, preloadArtAssets } from '../assets/art/AssetKeys.js';
 
 const BASE_HP = 100;
 
@@ -62,8 +62,6 @@ export default class GameScene extends Phaser.Scene {
     this._baseHpBar = null;
     this.selectedEnemy = null;
     this._enemyInfoObjs = [];
-    this._battleMessageObjs = [];
-    this._battleMessageTimer = null;
 
     this.enemyManager.onEnemyReachBase = (dmg) => {
       this.baseHp = Math.max(0, this.baseHp - dmg);
@@ -189,23 +187,35 @@ export default class GameScene extends Phaser.Scene {
     // 스폰 구역 표시 (row 0, col 3)
     const spawnX = GRID_OFFSET_X + 3 * CELL_SIZE;
     const spawnY = GRID_OFFSET_Y;
-    const sg = this.add.graphics().setDepth(0);
-    sg.fillStyle(0xff2222, 0.25);
-    sg.fillRect(spawnX + 1, spawnY + 1, CELL_SIZE - 2, CELL_SIZE - 2);
-    this.add.text(spawnX + CELL_SIZE / 2, spawnY + CELL_SIZE / 2, '스폰', {
-      fontSize: '9px', color: '#ff6666'
-    }).setOrigin(0.5).setDepth(1);
+    if (this.textures?.exists?.(ENV_TEXTURES.SPAWN_GATE) && this.add.image) {
+      this.add.image(spawnX + CELL_SIZE / 2, spawnY + CELL_SIZE / 2, ENV_TEXTURES.SPAWN_GATE)
+        .setDepth(1)
+        .setDisplaySize(CELL_SIZE + 10, CELL_SIZE + 10);
+    } else {
+      const sg = this.add.graphics().setDepth(0);
+      sg.fillStyle(0xff2222, 0.25);
+      sg.fillRect(spawnX + 1, spawnY + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+      this.add.text(spawnX + CELL_SIZE / 2, spawnY + CELL_SIZE / 2, '스폰', {
+        fontSize: '9px', color: '#ff6666'
+      }).setOrigin(0.5).setDepth(1);
+    }
 
     // 본진 표시 (row 8, 가운데 위치)
     const BASE_COL_IDX = Math.floor(GRID_COLS / 2);
     const baseY = GRID_OFFSET_Y + (GRID_ROWS - 1) * CELL_SIZE;
     const baseX = GRID_OFFSET_X + BASE_COL_IDX * CELL_SIZE;
-    const bg = this.add.graphics().setDepth(0);
-    bg.fillStyle(0x22aa44, 0.5);
-    bg.fillRect(baseX + 1, baseY + 1, CELL_SIZE - 2, CELL_SIZE - 2);
-    this.add.text(baseX + CELL_SIZE / 2, baseY + CELL_SIZE / 2, '본진', {
-      fontSize: '11px', color: '#44ff88', fontStyle: 'bold'
-    }).setOrigin(0.5).setDepth(1);
+    if (this.textures?.exists?.(ENV_TEXTURES.BASE_CORE) && this.add.image) {
+      this.add.image(baseX + CELL_SIZE / 2, baseY + CELL_SIZE / 2, ENV_TEXTURES.BASE_CORE)
+        .setDepth(1)
+        .setDisplaySize(CELL_SIZE + 14, CELL_SIZE + 14);
+    } else {
+      const bg = this.add.graphics().setDepth(0);
+      bg.fillStyle(0x22aa44, 0.5);
+      bg.fillRect(baseX + 1, baseY + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+      this.add.text(baseX + CELL_SIZE / 2, baseY + CELL_SIZE / 2, '본진', {
+        fontSize: '11px', color: '#44ff88', fontStyle: 'bold'
+      }).setOrigin(0.5).setDepth(1);
+    }
 
     // 본진 HP 바
     this._baseHpBar = this.add.graphics().setDepth(2);
@@ -262,31 +272,6 @@ export default class GameScene extends Phaser.Scene {
         color: index === 2 ? '#ffd166' : '#ffffff',
       }).setOrigin(0.5).setDepth(19);
       this._enemyInfoObjs.push(text);
-    });
-  }
-
-  showBattleMessage(message, color = '#ffd166', duration = 1200) {
-    this._battleMessageObjs.forEach(o => { if (o?.active) o.destroy(); });
-    this._battleMessageObjs = [];
-    if (this._battleMessageTimer?.remove) this._battleMessageTimer.remove(false);
-
-    const x = 320;
-    const y = BATTLE_MESSAGE_Y;
-    const bg = this.add.rectangle(x, y, 320, 30, THEME.bg.base, 0.86)
-      .setDepth(16)
-      .setStrokeStyle(1, THEME.ui.border, 0.85);
-    const text = this.add.text(x, y, message, {
-      fontSize: '13px',
-      color,
-      fontStyle: 'bold',
-      stroke: '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5).setDepth(17);
-    this._battleMessageObjs.push(bg, text);
-    this._battleMessageTimer = this.time.delayedCall(duration, () => {
-      this._battleMessageObjs.forEach(o => { if (o?.active) o.destroy(); });
-      this._battleMessageObjs = [];
-      this._battleMessageTimer = null;
     });
   }
 

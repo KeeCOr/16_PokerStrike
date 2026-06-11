@@ -15,7 +15,9 @@ export const ENEMY_TYPE = {
   SHIELDED:  'shielded',  // 흡수 방어막 — 고족보 버스트로 방어막 붕괴
 };
 
-export const ENEMY_STATS = {
+export const ENEMY_SPEED_MULTIPLIER = 0.7;
+
+const BASE_ENEMY_STATS = {
   [ENEMY_TYPE.BASIC]:        { hp: 50,  atk: 10, speed: 48,  reward: 0.5, magicImmune: false, isAerial: false },
   [ENEMY_TYPE.TANK]:         { hp: 200, atk: 15, speed: 24,  reward: 3,   magicImmune: false, isAerial: false },
   [ENEMY_TYPE.RUNNER]:       { hp: 25,  atk: 8,  speed: 96,  reward: 1,   magicImmune: false, isAerial: false },
@@ -30,3 +32,10 @@ export const ENEMY_STATS = {
   [ENEMY_TYPE.BERSERKER]: { hp: 55,  atk: 18, speed: 130, reward: 3, magicImmune: false, isAerial: false, slowImmune: true },
   [ENEMY_TYPE.SHIELDED]:  { hp: 100, atk: 12, speed: 40, reward: 5,  magicImmune: false, isAerial: false, shield: 120 },
 };
+
+export const ENEMY_STATS = Object.fromEntries(
+  Object.entries(BASE_ENEMY_STATS).map(([type, stats]) => [
+    type,
+    { ...stats, speed: Math.round(stats.speed * ENEMY_SPEED_MULTIPLIER) },
+  ]),
+);

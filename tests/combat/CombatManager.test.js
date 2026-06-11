@@ -52,9 +52,23 @@ function createScene() {
     },
     economyManager: { addGold() {} },
     add: {
+      image(x, y, key) {
+        return {
+          x,
+          y,
+          key,
+          setDepth() { return this; },
+          setDisplaySize(width, height) { this.displayWidth = width; this.displayHeight = height; return this; },
+          setRotation(angle) { this.rotation = angle; return this; },
+          setPosition(nx, ny) { this.x = nx; this.y = ny; return this; },
+          setAlpha() { return this; },
+          destroy() {},
+        };
+      },
       circle() {
         return {
           setDepth() { return this; },
+          setPosition() { return this; },
           destroy() {},
         };
       },
@@ -72,6 +86,17 @@ describe('CombatManager', () => {
 
     expect(() => manager.update(0, 100)).not.toThrow();
     expect(scene.enemy.lastDamage).toBe(10);
+  });
+
+  it('uses VFX image projectile when texture is loaded', () => {
+    const scene = createScene();
+    scene.textures = { exists: key => key === 'vfx-club-projectile' };
+    const manager = new CombatManager(scene);
+
+    manager._spawnProjectile({ x: 0, y: 0 }, { x: 40, y: 0 }, ROLE.ATTACK);
+
+    expect(manager.projectiles[0].sprite.key).toBe('vfx-club-projectile');
+    expect(manager.projectiles[0].sprite.displayWidth).toBe(28);
   });
 
   it('only applies straight flush aura to nearby allies with the same suit', () => {

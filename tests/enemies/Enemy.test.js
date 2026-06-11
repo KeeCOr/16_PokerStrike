@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import Enemy from '../../src/enemies/Enemy.js';
-import { ENEMY_TYPE } from '../../src/enemies/EnemyData.js';
+import { ENEMY_SPEED_MULTIPLIER, ENEMY_STATS, ENEMY_TYPE } from '../../src/enemies/EnemyData.js';
 
 function createScene() {
   const calls = [];
@@ -72,6 +72,12 @@ function createScene() {
 }
 
 describe('Enemy', () => {
+  it('applies the global 30% movement speed downgrade', () => {
+    expect(ENEMY_SPEED_MULTIPLIER).toBe(0.7);
+    expect(ENEMY_STATS[ENEMY_TYPE.BASIC].speed).toBe(34);
+    expect(ENEMY_STATS[ENEMY_TYPE.RUNNER].speed).toBe(67);
+  });
+
   it('exposes hp and armor info without numeric armor-break details', () => {
     const enemy = new Enemy(createScene(), 0, 0, ENEMY_TYPE.ARMORED);
 
@@ -89,7 +95,7 @@ describe('Enemy', () => {
     const enemy = new Enemy(createScene(), 0, 0, ENEMY_TYPE.RUNNER);
 
     enemy.applySlow(0.5, 5000);
-    expect(enemy.speed).toBe(48);
+    expect(enemy.speed).toBeCloseTo(ENEMY_STATS[ENEMY_TYPE.RUNNER].speed * 0.5);
 
     enemy._slowEffects[0].until = Date.now() - 1;
     enemy.updatePassive(16);

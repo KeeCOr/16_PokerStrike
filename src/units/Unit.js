@@ -33,6 +33,22 @@ export const SHAPE_DEF = {
   [HAND_RANK.STRAIGHT_FLUSH]:  { pts: r => _star(8, r, 0.48), sw: 2.5, sc: 0xffffff, sa: 0.75 },
 };
 
+export const HAND_RANK_VISUAL = {
+  [HAND_RANK.HIGH_CARD]:       { size: 0.44, ring: 0,    glow: 0,    stroke: 0x5f6b78, label: 'I' },
+  [HAND_RANK.ONE_PAIR]:        { size: 0.49, ring: 0,    glow: 0,    stroke: 0x77889a, label: 'II' },
+  [HAND_RANK.TWO_PAIR]:        { size: 0.53, ring: 0.28, glow: 0.08, stroke: 0x8aa2b8, label: 'III' },
+  [HAND_RANK.THREE_OF_A_KIND]: { size: 0.57, ring: 0.31, glow: 0.12, stroke: 0x9fd0ff, label: 'IV' },
+  [HAND_RANK.STRAIGHT]:        { size: 0.62, ring: 0.34, glow: 0.16, stroke: 0xffd166, label: 'V' },
+  [HAND_RANK.FLUSH]:           { size: 0.66, ring: 0.37, glow: 0.20, stroke: 0x7af6ff, label: 'VI' },
+  [HAND_RANK.FULL_HOUSE]:      { size: 0.72, ring: 0.41, glow: 0.25, stroke: 0xff9f43, label: 'VII' },
+  [HAND_RANK.FOUR_OF_A_KIND]:  { size: 0.78, ring: 0.45, glow: 0.31, stroke: 0xffef7a, label: 'VIII' },
+  [HAND_RANK.STRAIGHT_FLUSH]:  { size: 0.84, ring: 0.49, glow: 0.38, stroke: 0xffffff, label: 'MAX' },
+};
+
+export function getHandRankVisual(handRank) {
+  return HAND_RANK_VISUAL[handRank] ?? HAND_RANK_VISUAL[HAND_RANK.HIGH_CARD];
+}
+
 // Graphics를 사용해 로컬 (0,0) = 월드 (x,y)로 정확히 중앙 배치
 function _makeShape(scene, x, y, handRank, sz, color) {
   const r = Math.floor(sz / 2);
@@ -106,11 +122,24 @@ export default class Unit {
     const pos = scene.grid.cellToWorld(col, row);
     const color = SUIT_COLORS[suit] ?? 0xffffff;
     this._baseColor = color;
-    const sz = Math.floor(CELL_SIZE * 0.55);
+    const visual = getHandRankVisual(handRank);
+    if (visual.glow > 0) {
+      this.rankHalo = scene.add.circle(pos.x, pos.y, Math.floor(CELL_SIZE * (visual.ring + 0.04)), color, visual.glow)
+        .setDepth(1);
+    }
+    if (visual.ring > 0) {
+      this.rankRing = scene.add.circle(pos.x, pos.y, Math.floor(CELL_SIZE * visual.ring), 0xffffff, 0)
+        .setStrokeStyle(handRank >= HAND_RANK.FULL_HOUSE ? 3 : 2, visual.stroke, handRank >= HAND_RANK.STRAIGHT ? 0.95 : 0.72)
+        .setDepth(1);
+    }
+    const sz = Math.floor(CELL_SIZE * visual.size);
     this.sprite = _makeTowerSprite(scene, pos.x, pos.y, handRank, suit, sz, color).setDepth(2);
     this.hpBar = scene.add.graphics().setDepth(3);
-    this.gradeText = scene.add.text(pos.x, pos.y - Math.floor(CELL_SIZE * 0.22), `${grade}`, {
-      fontSize: '11px', color: '#fff'
+    this.gradeText = scene.add.text(pos.x, pos.y - Math.floor(CELL_SIZE * 0.26), `${visual.label}-${grade}`, {
+      fontSize: handRank >= HAND_RANK.FULL_HOUSE ? '12px' : '10px',
+      color: handRank >= HAND_RANK.STRAIGHT ? '#ffef9a' : '#dcecff',
+      stroke: '#000000',
+      strokeThickness: 3,
     }).setOrigin(0.5).setDepth(4);
     this._drawHpBar();
     this.glowCircle = null;
@@ -194,6 +223,8 @@ export default class Unit {
     this.gradeText.setAlpha(alpha);
     this.hpBar.setAlpha(alpha);
     if (this.glowCircle) this.glowCircle.setAlpha(active ? 0 : 1);
+    if (this.rankRing) this.rankRing.setAlpha(active ? 0.2 : 1);
+    if (this.rankHalo) this.rankHalo.setAlpha(active ? 0.05 : 1);
   }
 
   updateStatusPosition() {
@@ -233,6 +264,8 @@ export default class Unit {
     if (this.statusTimer?.remove) this.statusTimer.remove(false);
     if (this.statusText) this.statusText.destroy();
     if (this.glowCircle) this.glowCircle.destroy();
+    if (this.rankRing) this.rankRing.destroy();
+    if (this.rankHalo) this.rankHalo.destroy();
     if (this.selectCircle) this.selectCircle.destroy();
     if (this.rangeCircle) this.rangeCircle.destroy();
     if (this.highlightCircle) this.highlightCircle.destroy();

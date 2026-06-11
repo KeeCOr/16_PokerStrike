@@ -1,5 +1,6 @@
 import { ROLE } from '../units/UnitData.js';
 import { CELL_SIZE } from '../grid/Grid.js';
+import { VFX_TEXTURES } from '../assets/art/AssetKeys.js';
 
 // Projectile color by unit role
 const PROJ_COLOR = {
@@ -11,6 +12,39 @@ const PROJ_COLOR = {
   [ROLE.SUPPORT_SPEED]: 0x44ff88,
 };
 const PROJ_SPEED = 380; // px/sec
+
+const ROLE_VFX = {
+  [ROLE.AREA]: {
+    projectile: VFX_TEXTURES.FIRE_PROJECTILE,
+    impact: VFX_TEXTURES.FIRE_IMPACT,
+    projectileSize: 30,
+    impactSize: 54,
+  },
+  [ROLE.SUPPORT_SLOW]: {
+    projectile: VFX_TEXTURES.ICE_PROJECTILE,
+    impact: VFX_TEXTURES.ICE_IMPACT,
+    projectileSize: 30,
+    impactSize: 52,
+  },
+  [ROLE.ATTACK]: {
+    projectile: VFX_TEXTURES.CLUB_PROJECTILE,
+    impact: VFX_TEXTURES.ARMOR_BREAK_IMPACT,
+    projectileSize: 28,
+    impactSize: 50,
+  },
+  [ROLE.SNIPER]: {
+    projectile: VFX_TEXTURES.SPADE_PROJECTILE,
+    impact: VFX_TEXTURES.PIERCE_IMPACT,
+    projectileSize: 34,
+    impactSize: 48,
+  },
+  [ROLE.SUPPORT_SPEED]: {
+    projectile: VFX_TEXTURES.HIT_SPARK,
+    impact: VFX_TEXTURES.AURA_RING,
+    projectileSize: 26,
+    impactSize: 56,
+  },
+};
 
 export default class CombatManager {
   constructor(scene) {
@@ -32,12 +66,14 @@ export default class CombatManager {
       const dist = Math.sqrt(dx * dx + dy * dy);
       const move = PROJ_SPEED * dtSec;
       if (dist <= move) {
+        this._spawnImpact(p.tx, p.ty, p.role);
         p.sprite.destroy();
         this.projectiles.splice(i, 1);
       } else {
         p.x += (dx / dist) * move;
         p.y += (dy / dist) * move;
         p.sprite.setPosition(p.x, p.y);
+        if (p.sprite.setRotation) p.sprite.setRotation(Math.atan2(dy, dx));
       }
     }
 
@@ -129,11 +165,25 @@ export default class CombatManager {
       }
       // 오라 발동 시각 효과
       const gfx = this.scene.add.circle(pos.x, pos.y, radiusPx, 0xffee44, 0.18).setDepth(5);
-      this.scene.tweens.add({
-        targets: gfx, alpha: 0, scaleX: 1.4, scaleY: 1.4,
-        duration: 600, ease: 'Quad.easeOut',
-        onComplete: () => gfx.destroy(),
-      });
+      const auraKey = VFX_TEXTURES.AURA_RING;
+      if (this.scene.textures?.exists?.(auraKey) && this.scene.add.image) {
+        gfx.destroy();
+        const aura = this.scene.add.image(pos.x, pos.y, auraKey)
+          .setDepth(5)
+          .setAlpha(0.72)
+          .setDisplaySize(radiusPx * 2, radiusPx * 2);
+        this.scene.tweens.add({
+          targets: aura, alpha: 0, scaleX: 1.35, scaleY: 1.35,
+          duration: 700, ease: 'Quad.easeOut',
+          onComplete: () => aura.destroy(),
+        });
+      } else {
+        this.scene.tweens.add({
+          targets: gfx, alpha: 0, scaleX: 1.4, scaleY: 1.4,
+          duration: 600, ease: 'Quad.easeOut',
+          onComplete: () => gfx.destroy(),
+        });
+      }
     }
 
     // Freezer enemies: no longer freeze towers (removed mechanic)
@@ -218,8 +268,35 @@ export default class CombatManager {
   _spawnProjectile(from, to, role) {
     const color = PROJ_COLOR[role] ?? 0xffffff;
     const size  = role === ROLE.SNIPER ? 5 : role === ROLE.AREA ? 6 : 4;
-    const sprite = this.scene.add.circle(from.x, from.y, size, color).setDepth(6);
-    this.projectiles.push({ x: from.x, y: from.y, tx: to.x, ty: to.y, sprite });
+    const vfx = ROLE_VFX[role];
+    let sprite;
+    if (vfx?.projectile && this.scene.textures?.exists?.(vfx.projectile) && this.scene.add.image) {
+      sprite = this.scene.add.image(from.x, from.y, vfx.projectile)
+        .setDepth(6)
+        .setDisplaySize(vfx.projectileSize, vfx.projectileSize);
+      sprite.setRotation(Math.atan2(to.y - from.y, to.x - from.x));
+    } else {
+      sprite = this.scene.add.circle(from.x, from.y, size, color).setDepth(6);
+    }
+    this.projectiles.push({ x: from.x, y: from.y, tx: to.x, ty: to.y, role, sprite });
+  }
+
+  _spawnImpact(x, y, role) {
+    const vfx = ROLE_VFX[role];
+    if (!vfx?.impact || !this.scene.textures?.exists?.(vfx.impact) || !this.scene.add.image) return;
+    const impact = this.scene.add.image(x, y, vfx.impact)
+      .setDepth(7)
+      .setAlpha(0.92)
+      .setDisplaySize(vfx.impactSize, vfx.impactSize);
+    this.scene.tweens.add({
+      targets: impact,
+      alpha: 0,
+      scaleX: 1.35,
+      scaleY: 1.35,
+      duration: 260,
+      ease: 'Quad.easeOut',
+      onComplete: () => impact.destroy(),
+    });
   }
 
   _onEnemyDied(enemy) {

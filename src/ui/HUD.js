@@ -1,14 +1,15 @@
 import { PANEL_Y } from '../grid/Grid.js';
+import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
 import { THEME } from '../theme.js';
 
 export const HUD_LAYOUT = {
-  RESOURCE_PANEL: { x: 154, y: 14, w: 280, h: 30 },
-  GOLD_TEXT: { x: 88, y: 14 },
-  GEM_TEXT: { x: 220, y: 14 },
-  WAVE_PANEL: { x: 464, y: 14, w: 248, h: 32 },
-  WAVE_TEXT: { x: 420, y: 14 },
-  ENEMY_COUNT_TEXT: { x: 524, y: 14 },
-  RESOURCE_WAVE_GAP: 26,
+  RESOURCE_PANEL: { x: 530, y: 26, w: 200, h: 30 },
+  GOLD_TEXT: { x: 485, y: 26 },
+  GEM_TEXT: { x: 575, y: 26 },
+  WAVE_PANEL: { x: 320, y: 26, w: 200, h: 32 },
+  WAVE_TEXT: { x: 282, y: 26 },
+  ENEMY_COUNT_TEXT: { x: 368, y: 26 },
+  RESOURCE_WAVE_GAP: 10,
 };
 
 export default class HUD {
@@ -17,7 +18,7 @@ export default class HUD {
     const panelY = PANEL_Y;
 
     // Bottom panel background
-    scene.add.rectangle(320, panelY + 108, 640, 216, THEME.bg.base, 0.98).setDepth(10)
+    scene.add.rectangle(320, panelY + 104, 640, 208, THEME.bg.base, 0.98).setDepth(10)
       .setStrokeStyle(2, 0x17496a, 0.9);
     scene.add.rectangle(320, panelY + 22, 612, 42, 0x050b14, 0.96).setDepth(10)
       .setStrokeStyle(1, THEME.ui.border, 0.75);
@@ -62,16 +63,30 @@ export default class HUD {
 
   _drawResourceCluster() {
     const { x, y, w, h } = HUD_LAYOUT.RESOURCE_PANEL;
-    this._drawHudShell(x, y, w, h, 0x1d1b21, THEME.text.gold);
-    this.scene.add.rectangle(x - 8, y, 2, h - 10, 0x6f5c35, 0.8).setDepth(11);
+    if (this.scene.textures?.exists?.(UI_TEXTURES.PANEL_RESOURCE) && this.scene.add.image) {
+      this.scene.add.image(x, y, UI_TEXTURES.PANEL_RESOURCE)
+        .setDepth(10)
+        .setDisplaySize(w + 12, h + 18)
+        .setAlpha(0.96);
+    } else {
+      this._drawHudShell(x, y, w, h, 0x1d1b21, THEME.text.gold);
+      this.scene.add.rectangle(x - 8, y, 2, h - 10, 0x6f5c35, 0.8).setDepth(11);
+    }
   }
 
   _drawWaveBadge() {
     const { x, y, w, h } = HUD_LAYOUT.WAVE_PANEL;
-    this.scene.add.rectangle(x, y, w, h, 0x02070d, 0.78).setDepth(9);
-    this.scene.add.rectangle(x, y, w - 4, h - 4, 0x0b2840, 0.92).setDepth(10)
-      .setStrokeStyle(2, 0x65d9ff, 0.9);
-    this.scene.add.rectangle(x - 70, y, 2, h - 10, 0x65d9ff, 0.45).setDepth(11);
+    if (this.scene.textures?.exists?.(UI_TEXTURES.BADGE_WAVE) && this.scene.add.image) {
+      this.scene.add.image(x, y, UI_TEXTURES.BADGE_WAVE)
+        .setDepth(10)
+        .setDisplaySize(w + 14, h + 20)
+        .setAlpha(0.96);
+    } else {
+      this.scene.add.rectangle(x, y, w, h, 0x02070d, 0.78).setDepth(9);
+      this.scene.add.rectangle(x, y, w - 4, h - 4, 0x0b2840, 0.92).setDepth(10)
+        .setStrokeStyle(2, 0x65d9ff, 0.9);
+      this.scene.add.rectangle(x - 70, y, 2, h - 10, 0x65d9ff, 0.45).setDepth(11);
+    }
   }
 
   _drawHudShell(x, y, w, h, fill, stroke) {

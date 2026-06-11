@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import HUD from '../ui/HUD.js';
 import CardUI from '../ui/CardUI.js';
 import { THEME } from '../theme.js';
+import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
 import Deck from '../cards/Deck.js';
 import Hand from '../cards/Hand.js';
 import SharedCards from '../cards/SharedCards.js';
@@ -10,6 +11,10 @@ import { SKILLS } from '../data/skills.js';
 import { PANEL_Y } from '../grid/Grid.js';
 import { SUIT_ICONS } from '../cards/Card.js';
 import { applyGoldSuitUpgradeToUnits, createGoldSuitUpgrade, GOLD_SUIT_UPGRADE_COST } from '../roguelite/GoldSuitUpgrade.js';
+
+export const READABLE_TAB_LAYOUT = {
+  TEXT_Y_OFFSET: 2,
+};
 
 export default class UIScene extends Phaser.Scene {
   constructor() { super('UIScene'); }
@@ -77,11 +82,16 @@ export default class UIScene extends Phaser.Scene {
   }
 
   _createReadableTab(key, x, y, width, label) {
-    const bg = this.add.rectangle(x, y, width, 32, 0x0a1522, 1)
-      .setStrokeStyle(1, 0x314763, 1)
-      .setDepth(13)
-      .setInteractive({ useHandCursor: true });
-    const text = this.add.text(x, y, label, {
+    const bg = this.textures?.exists?.(UI_TEXTURES.TAB_INACTIVE) && this.add.image
+      ? this.add.image(x, y, UI_TEXTURES.TAB_INACTIVE)
+        .setDisplaySize(width + 26, 42)
+        .setDepth(13)
+        .setInteractive({ useHandCursor: true })
+      : this.add.rectangle(x, y, width, 32, 0x0a1522, 1)
+        .setStrokeStyle(1, 0x314763, 1)
+        .setDepth(13)
+        .setInteractive({ useHandCursor: true });
+    const text = this.add.text(x, y + READABLE_TAB_LAYOUT.TEXT_Y_OFFSET, label, {
       fontSize: '14px', color: '#c9d6ea', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(14).setInteractive({ useHandCursor: true });
     bg.on('pointerdown', () => this._switchTab(key));
@@ -94,8 +104,13 @@ export default class UIScene extends Phaser.Scene {
       const active = tab.key === this._activeTab;
       const activeFill = tab.key === 'card' ? 0x123b55 : tab.key === 'upgrade' ? 0x26321a : 0x2a2140;
       const activeStroke = tab.key === 'card' ? THEME.economy.gem : tab.key === 'upgrade' ? 0x9fd56c : 0xc88cff;
-      tab.bg.setFillStyle(active ? activeFill : 0x0a1522, 1);
-      tab.bg.setStrokeStyle(active ? 2 : 1, active ? activeStroke : 0x314763, active ? 1 : 0.75);
+      if (tab.bg.setTexture && this.textures?.exists?.(active ? UI_TEXTURES.TAB_ACTIVE : UI_TEXTURES.TAB_INACTIVE)) {
+        tab.bg.setTexture(active ? UI_TEXTURES.TAB_ACTIVE : UI_TEXTURES.TAB_INACTIVE);
+        tab.bg.setAlpha(active ? 1 : 0.72);
+      } else {
+        tab.bg.setFillStyle(active ? activeFill : 0x0a1522, 1);
+        tab.bg.setStrokeStyle(active ? 2 : 1, active ? activeStroke : 0x314763, active ? 1 : 0.75);
+      }
       tab.text.setStyle({ color: active ? '#ffffff' : '#95a4b8' });
     });
   }
@@ -398,10 +413,18 @@ export default class UIScene extends Phaser.Scene {
   }
 
   _drawUpgradeButton(x, y, width, label, fill, stroke, onClick, options = {}) {
-    const bg = this.add.rectangle(x, y, width, 24, fill, 0.94)
-      .setDepth(12)
-      .setStrokeStyle(1, stroke, 0.85)
-      .setInteractive({ useHandCursor: true });
+    const textureKey = options.textureKey ?? this._getUpgradeButtonTexture(fill);
+    const hasTexture = textureKey && this.textures?.exists?.(textureKey) && this.add.image;
+    const bg = hasTexture
+      ? this.add.image(x, y, textureKey)
+        .setDepth(12)
+        .setDisplaySize(width + 24, 34)
+        .setInteractive({ useHandCursor: true })
+        .setAlpha(0.96)
+      : this.add.rectangle(x, y, width, 24, fill, 0.94)
+        .setDepth(12)
+        .setStrokeStyle(1, stroke, 0.85)
+        .setInteractive({ useHandCursor: true });
     const text = this.add.text(x, y, label, {
       fontSize: options.fontSize ?? '11px',
       color: '#ffffff',
@@ -409,13 +432,19 @@ export default class UIScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(13).setInteractive({ useHandCursor: true });
 
     const over = () => {
-      bg.setFillStyle(fill, 1);
-      bg.setStrokeStyle(2, stroke, 1);
+      if (hasTexture) bg.setAlpha(1);
+      else {
+        bg.setFillStyle(fill, 1);
+        bg.setStrokeStyle(2, stroke, 1);
+      }
       text.setStyle({ color: '#ffef9a' });
     };
     const out = () => {
-      bg.setFillStyle(fill, 0.94);
-      bg.setStrokeStyle(1, stroke, 0.85);
+      if (hasTexture) bg.setAlpha(0.96);
+      else {
+        bg.setFillStyle(fill, 0.94);
+        bg.setStrokeStyle(1, stroke, 0.85);
+      }
       text.setStyle({ color: '#ffffff' });
     };
     bg.on('pointerover', over);
@@ -426,6 +455,12 @@ export default class UIScene extends Phaser.Scene {
     text.on('pointerdown', onClick);
     this._upgradeObjs.push(bg, text);
     return bg;
+  }
+
+  _getUpgradeButtonTexture(fill) {
+    if (fill === 0x17351f) return UI_TEXTURES.BUTTON_UPGRADE_GREEN;
+    if (fill === 0x3d2412 || fill === 0x332914) return UI_TEXTURES.BUTTON_UPGRADE_ORANGE;
+    return UI_TEXTURES.BUTTON_UPGRADE_BLUE;
   }
 
   _showTutorial() {

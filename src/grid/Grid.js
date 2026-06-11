@@ -8,10 +8,9 @@ export const CELL_BLOCKED = 1;
 export const CELL_UNIT = 2;
 
 export const GRID_OFFSET_X = (GAME_WIDTH - GRID_COLS * CELL_SIZE) / 2; // 54
-export const GRID_OFFSET_Y = 28;
-// Bottom panel keeps a fixed UI slot. The smaller grid leaves room above it for battle text.
-export const PANEL_Y = 744;
-export const BATTLE_MESSAGE_Y = PANEL_Y - 16;
+export const GRID_OFFSET_Y = 52;
+// Bottom panel starts after the board with a small breathing gap.
+export const PANEL_Y = 752;
 
 export default class Grid {
   constructor() {
