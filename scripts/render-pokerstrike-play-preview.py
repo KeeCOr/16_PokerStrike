@@ -129,8 +129,8 @@ def main():
     draw.rectangle((0, 0, W, PANEL_Y), fill=(8, 17, 29, 245))
 
     paste_ui(img, "badge-wave.png", (320, 26), (214, 52))
-    text_center(draw, (282, 26), "웨이브 3", "#bceeff", F["body_b"])
-    text_center(draw, (368, 26), "적 18 / 42", "#ffbd7a", F["small"])
+    text_center(draw, (320, 26), "Wave 3", "#bceeff", F["body_b"])
+    text_center(draw, (392, 26), "적 18 / 42", "#ffbd7a", F["small"])
     paste_ui(img, "panel-resource.png", (530, 26), (212, 48))
     paste_ui(img, "resource-gold.png", (456, 26), (24, 24))
     text_center(draw, (489, 26), "38", "#ffd766", F["mid"])
@@ -216,7 +216,7 @@ def main():
     ]
     for label, x, w, asset in buttons:
         paste_ui(img, asset, (x, 924), (w + 34, 60))
-        text_center(draw, (x, 924), label, "#ffffff", F["mid"])
+        text_center(draw, (x, 926), label, "#ffffff", F["mid"])
 
     OUT_MAIN.parent.mkdir(parents=True, exist_ok=True)
     rgb = img.convert("RGB")

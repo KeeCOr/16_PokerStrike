@@ -18,6 +18,7 @@ describe('HUD layout', () => {
     expect(HUD_LAYOUT.GOLD_ICON.size).toBeGreaterThanOrEqual(24);
     expect(HUD_LAYOUT.GEM_ICON.size).toBeGreaterThanOrEqual(24);
     expect(waveCenter).toBe(320);
+    expect(HUD_LAYOUT.WAVE_TEXT.x).toBe(HUD_LAYOUT.WAVE_PANEL.x);
     expect(resourceLeft).toBeGreaterThanOrEqual(waveRight + HUD_LAYOUT.RESOURCE_WAVE_GAP);
     expect(waveLeft).toBeLessThan(320);
     expect(waveRight).toBeGreaterThan(320);

@@ -9,8 +9,8 @@ export const HUD_LAYOUT = {
   GEM_ICON: { x: 548, y: 26, size: 24 },
   GEM_TEXT: { x: 581, y: 26 },
   WAVE_PANEL: { x: 320, y: 26, w: 200, h: 32 },
-  WAVE_TEXT: { x: 282, y: 26 },
-  ENEMY_COUNT_TEXT: { x: 368, y: 26 },
+  WAVE_TEXT: { x: 320, y: 26 },
+  ENEMY_COUNT_TEXT: { x: 392, y: 26 },
   RESOURCE_WAVE_GAP: 10,
 };
 
@@ -39,8 +39,8 @@ export default class HUD {
     this.gemText = scene.add.text(HUD_LAYOUT.GEM_TEXT.x, HUD_LAYOUT.GEM_TEXT.y, '0', {
       fontSize: '16px', color: '#dca6ff', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
-    this.waveText = scene.add.text(HUD_LAYOUT.WAVE_TEXT.x, HUD_LAYOUT.WAVE_TEXT.y, '웨이브 1', {
-      fontSize: '14px', color: '#bceeff', fontStyle: 'bold'
+    this.waveText = scene.add.text(HUD_LAYOUT.WAVE_TEXT.x, HUD_LAYOUT.WAVE_TEXT.y, 'Wave 1', {
+      fontSize: '15px', color: '#bceeff', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
     this.enemyCountText = scene.add.text(HUD_LAYOUT.ENEMY_COUNT_TEXT.x, HUD_LAYOUT.ENEMY_COUNT_TEXT.y, '', {
       fontSize: '12px', color: '#ffbd7a', fontStyle: 'bold'
@@ -48,7 +48,7 @@ export default class HUD {
 
     const onGold = (_, val) => { if (this.goldText?.active) this.goldText.setText(`${val}`); };
     const onGems = (_, val) => { if (this.gemText?.active) this.gemText.setText(`${val}`); };
-    const onWave = (_, val) => { if (this.waveText?.active) this.waveText.setText(`웨이브 ${val}`); };
+    const onWave = (_, val) => { if (this.waveText?.active) this.waveText.setText(`Wave ${val}`); };
     const onCount = (_, val) => { if (this.enemyCountText?.active) this.enemyCountText.setText(`적 ${val}`); };
 
     scene.registry.events.on('changedata-gold', onGold);

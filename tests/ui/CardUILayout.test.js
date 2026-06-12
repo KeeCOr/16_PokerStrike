@@ -25,4 +25,8 @@ describe('CardUI layout', () => {
     expect(CARD_LAYOUT.VALUE_FONT).toBeGreaterThanOrEqual(26);
     expect(CARD_LAYOUT.SUIT_MARK_FONT).toBeGreaterThanOrEqual(18);
   });
+
+  it('keeps action button labels visually centered without leading icons', () => {
+    expect(CARD_LAYOUT.ACTION_TEXT_Y_OFFSET).toBe(2);
+  });
 });

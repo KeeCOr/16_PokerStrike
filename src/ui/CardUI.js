@@ -12,6 +12,7 @@ export const CARD_LAYOUT = {
   PREVIEW_H: 22,
   ACTION_Y: 924,
   ACTION_H: 42,
+  ACTION_TEXT_Y_OFFSET: 2,
   SHARED_SCALE: 0.86,
   SUIT_LABEL_FONT: 9,
   VALUE_FONT: 26,
@@ -179,9 +180,9 @@ export default class CardUI {
       [magicPreviewBg, magicPreview] = this._drawPreviewStrip(112, 184, magicSkillName, '#dca7ff', 10);
     }
 
-    const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '✦ 마법', 0x56308f, 0xb776ff, UI_TEXTURES.BUTTON_ACTION_PURPLE);
-    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `♜ 소환 ${drawCost}G`, THEME.ui.btnGold, THEME.text.gold, UI_TEXTURES.BUTTON_ACTION_GOLD);
-    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `↻ 교체 ${replaceCost}G`, 0x0f5878, THEME.economy.gem, UI_TEXTURES.BUTTON_ACTION_CYAN);
+    const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '마법', 0x56308f, 0xb776ff, UI_TEXTURES.BUTTON_ACTION_PURPLE);
+    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `소환 ${drawCost}G`, THEME.ui.btnGold, THEME.text.gold, UI_TEXTURES.BUTTON_ACTION_GOLD);
+    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `교체 ${replaceCost}G`, 0x0f5878, THEME.economy.gem, UI_TEXTURES.BUTTON_ACTION_CYAN);
 
     this._buttons = { summonBtn, magicBtn, replaceBtn, summonPreviewBg, summonPreview, magicPreviewBg, magicPreview };
     return { summonBtn, magicBtn, replaceBtn };
@@ -191,7 +192,7 @@ export default class CardUI {
     const bg = this.scene.add.rectangle(x, y, w, META_H, 0x08131f, 0.92)
       .setDepth(depth)
       .setStrokeStyle(1, 0x2d6688, 0.7);
-    const text = this.scene.add.text(x, y, label, {
+    const text = this.scene.add.text(x, y + CARD_LAYOUT.ACTION_TEXT_Y_OFFSET, label, {
       fontSize: '10px',
       color,
       fontStyle: 'bold',
