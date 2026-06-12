@@ -34,15 +34,20 @@ export const SHAPE_DEF = {
 };
 
 export const HAND_RANK_VISUAL = {
-  [HAND_RANK.HIGH_CARD]:       { size: 0.44, ring: 0,    glow: 0,    stroke: 0x5f6b78, label: 'I' },
-  [HAND_RANK.ONE_PAIR]:        { size: 0.49, ring: 0,    glow: 0,    stroke: 0x77889a, label: 'II' },
-  [HAND_RANK.TWO_PAIR]:        { size: 0.53, ring: 0.28, glow: 0.08, stroke: 0x8aa2b8, label: 'III' },
-  [HAND_RANK.THREE_OF_A_KIND]: { size: 0.57, ring: 0.31, glow: 0.12, stroke: 0x9fd0ff, label: 'IV' },
-  [HAND_RANK.STRAIGHT]:        { size: 0.62, ring: 0.34, glow: 0.16, stroke: 0xffd166, label: 'V' },
-  [HAND_RANK.FLUSH]:           { size: 0.66, ring: 0.37, glow: 0.20, stroke: 0x7af6ff, label: 'VI' },
-  [HAND_RANK.FULL_HOUSE]:      { size: 0.72, ring: 0.41, glow: 0.25, stroke: 0xff9f43, label: 'VII' },
-  [HAND_RANK.FOUR_OF_A_KIND]:  { size: 0.78, ring: 0.45, glow: 0.31, stroke: 0xffef7a, label: 'VIII' },
-  [HAND_RANK.STRAIGHT_FLUSH]:  { size: 0.84, ring: 0.49, glow: 0.38, stroke: 0xffffff, label: 'MAX' },
+  [HAND_RANK.HIGH_CARD]:       { size: 0.38, ring: 0,    glow: 0,    stroke: 0x5f6b78, label: 'I' },
+  [HAND_RANK.ONE_PAIR]:        { size: 0.42, ring: 0,    glow: 0,    stroke: 0x77889a, label: 'II' },
+  [HAND_RANK.TWO_PAIR]:        { size: 0.46, ring: 0.23, glow: 0.07, stroke: 0x8aa2b8, label: 'III' },
+  [HAND_RANK.THREE_OF_A_KIND]: { size: 0.50, ring: 0.26, glow: 0.10, stroke: 0x9fd0ff, label: 'IV' },
+  [HAND_RANK.STRAIGHT]:        { size: 0.54, ring: 0.29, glow: 0.13, stroke: 0xffd166, label: 'V' },
+  [HAND_RANK.FLUSH]:           { size: 0.58, ring: 0.32, glow: 0.16, stroke: 0x7af6ff, label: 'VI' },
+  [HAND_RANK.FULL_HOUSE]:      { size: 0.62, ring: 0.35, glow: 0.20, stroke: 0xff9f43, label: 'VII' },
+  [HAND_RANK.FOUR_OF_A_KIND]:  { size: 0.65, ring: 0.38, glow: 0.24, stroke: 0xffef7a, label: 'VIII' },
+  [HAND_RANK.STRAIGHT_FLUSH]:  { size: 0.68, ring: 0.41, glow: 0.28, stroke: 0xffffff, label: 'MAX' },
+};
+
+export const TOWER_VISUAL_STYLE = {
+  SPRITE_PADDING: 4,
+  MAX_DISPLAY_RATIO: 0.74,
 };
 
 export function getHandRankVisual(handRank) {
@@ -88,7 +93,7 @@ function _makeTowerSprite(scene, x, y, handRank, suit, sz, color) {
   const textureKey = getTowerTextureKey(suit);
   if (scene.textures?.exists?.(textureKey) && scene.add.image) {
     const image = scene.add.image(x, y, textureKey)
-      .setDisplaySize(sz + 10, sz + 10);
+      .setDisplaySize(sz + TOWER_VISUAL_STYLE.SPRITE_PADDING, sz + TOWER_VISUAL_STYLE.SPRITE_PADDING);
     image._baseColor = color;
     image.setFillStyle = function (c) {
       if (c === this._baseColor && this.clearTint) {
@@ -155,6 +160,11 @@ export default class Unit {
     const by = Math.floor(CELL_SIZE * 0.25); // y offset from center
     this.hpBar.clear();
     const ratio = this.hp / this.maxHp;
+    if (ratio >= 1) {
+      this.hpBar.setVisible?.(false);
+      return;
+    }
+    this.hpBar.setVisible?.(true);
     this.hpBar.fillStyle(0x333333);
     this.hpBar.fillRect(pos.x - hw, pos.y + by, hw * 2, 4);
     this.hpBar.fillStyle(ratio > 0.5 ? 0x44ff44 : ratio > 0.25 ? 0xffaa00 : 0xff4444);

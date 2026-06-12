@@ -62,6 +62,8 @@ export const UI_TEXTURES = {
   TAB_INACTIVE: 'ui-tab-inactive',
   PANEL_RESOURCE: 'ui-panel-resource',
   BADGE_WAVE: 'ui-badge-wave',
+  RESOURCE_GOLD: 'ui-resource-gold',
+  RESOURCE_GEM: 'ui-resource-gem',
 };
 
 const ENEMY_ASSETS = {
@@ -126,6 +128,8 @@ const UI_ASSETS = {
   [UI_TEXTURES.TAB_INACTIVE]: new URL('../ui/generated/tab-inactive.png', import.meta.url).href,
   [UI_TEXTURES.PANEL_RESOURCE]: new URL('../ui/generated/panel-resource.png', import.meta.url).href,
   [UI_TEXTURES.BADGE_WAVE]: new URL('../ui/generated/badge-wave.png', import.meta.url).href,
+  [UI_TEXTURES.RESOURCE_GOLD]: new URL('../ui/generated/resource-gold.png', import.meta.url).href,
+  [UI_TEXTURES.RESOURCE_GEM]: new URL('../ui/generated/resource-gem.png', import.meta.url).href,
 };
 
 export function preloadArtAssets(scene) {

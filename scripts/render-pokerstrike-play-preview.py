@@ -101,6 +101,24 @@ def draw_card(draw, x, y, suit, value):
     text_center(draw, (x, y + 24), suit_icon, suit_color, F["mid"])
 
 
+def draw_buildable_effect(draw, x0, y0):
+    pad = 9
+    corner = 15
+    x1 = x0 + CELL
+    y1 = y0 + CELL
+    color = (55, 230, 255, 158)
+    fill = (55, 230, 255, 10)
+    draw.rectangle((x0 + pad, y0 + pad, x1 - pad, y1 - pad), fill=fill, outline=(55, 230, 255, 70), width=1)
+    segments = [
+        ((x0 + pad, y0 + pad + corner), (x0 + pad, y0 + pad), (x0 + pad + corner, y0 + pad)),
+        ((x1 - pad - corner, y0 + pad), (x1 - pad, y0 + pad), (x1 - pad, y0 + pad + corner)),
+        ((x1 - pad, y1 - pad - corner), (x1 - pad, y1 - pad), (x1 - pad - corner, y1 - pad)),
+        ((x0 + pad + corner, y1 - pad), (x0 + pad, y1 - pad), (x0 + pad, y1 - pad - corner)),
+    ]
+    for a, b, c in segments:
+        draw.line((a, b, c), fill=color, width=2, joint="curve")
+
+
 def main():
     img = Image.new("RGBA", (W, H), "#07111d")
     draw = ImageDraw.Draw(img)
@@ -114,8 +132,10 @@ def main():
     text_center(draw, (282, 26), "웨이브 3", "#bceeff", F["body_b"])
     text_center(draw, (368, 26), "적 18 / 42", "#ffbd7a", F["small"])
     paste_ui(img, "panel-resource.png", (530, 26), (212, 48))
-    text_center(draw, (485, 26), "골드 38", "#ffd766", F["mid"])
-    text_center(draw, (575, 26), "보석 2", "#dca6ff", F["body_b"])
+    paste_ui(img, "resource-gold.png", (456, 26), (24, 24))
+    text_center(draw, (489, 26), "38", "#ffd766", F["mid"])
+    paste_ui(img, "resource-gem.png", (548, 26), (24, 24))
+    text_center(draw, (581, 26), "2", "#dca6ff", F["body_b"])
 
     for r in range(ROWS):
       for c in range(COLS):
@@ -124,6 +144,7 @@ def main():
         tile = "environment/board-tile.png" if (r + c) % 2 == 0 else "environment/board-tile-alt.png"
         paste_asset(img, tile, cell_center(c, r), CELL + 3)
         draw.rectangle((x0 + 2, y0 + 2, x0 + CELL - 2, y0 + CELL - 2), fill=(2, 6, 16, 132))
+        draw_buildable_effect(draw, x0, y0)
         draw.rectangle((x0, y0, x0 + CELL, y0 + CELL), outline="#24475f")
 
     obstacles = [(1, 2), (2, 2), (5, 3), (6, 3), (0, 5), (1, 5), (4, 6), (5, 6), (2, 7), (3, 7)]
@@ -137,10 +158,10 @@ def main():
     draw.rectangle((bx - 38, by - 35, bx + 38, by - 29), fill="#333333")
     draw.rectangle((bx - 38, by - 35, bx + 16, by - 29), fill="#44ff44")
     for rel, c, r, size, glow in [
-        ("towers/H.png", 2, 5, 56, (255, 90, 50, 55)),
-        ("towers/D.png", 4, 4, 72, (80, 220, 255, 95)),
-        ("towers/C.png", 1, 6, 48, (80, 255, 130, 45)),
-        ("towers/S.png", 5, 6, 78, (255, 225, 90, 105)),
+        ("towers/H.png", 2, 5, 44, (255, 90, 50, 45)),
+        ("towers/D.png", 4, 4, 54, (80, 220, 255, 80)),
+        ("towers/C.png", 1, 6, 40, (80, 255, 130, 40)),
+        ("towers/S.png", 5, 6, 58, (255, 225, 90, 90)),
     ]:
         paste_asset(img, rel, cell_center(c, r), size, glow)
 

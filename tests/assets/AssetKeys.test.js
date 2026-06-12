@@ -42,6 +42,8 @@ describe('AssetKeys', () => {
     expect(getEnvironmentTextureKey('BASE_CORE')).toBe(ENV_TEXTURES.BASE_CORE);
     expect(getEnvironmentTextureKey('unknown')).toBe(ENV_TEXTURES.BOARD_TILE);
     expect(getUiTextureKey('BUTTON_ACTION_GOLD')).toBe(UI_TEXTURES.BUTTON_ACTION_GOLD);
+    expect(getUiTextureKey('RESOURCE_GOLD')).toBe(UI_TEXTURES.RESOURCE_GOLD);
+    expect(getUiTextureKey('RESOURCE_GEM')).toBe(UI_TEXTURES.RESOURCE_GEM);
     expect(getUiTextureKey('unknown')).toBe(UI_TEXTURES.BUTTON_ACTION_DISABLED);
   });
 
@@ -61,6 +63,8 @@ describe('AssetKeys', () => {
     expect(loaded.map(item => item.key)).toContain('vfx-aura-ring');
     expect(loaded.map(item => item.key)).toContain('env-base-core');
     expect(loaded.map(item => item.key)).toContain('ui-button-action-gold');
+    expect(loaded.map(item => item.key)).toContain('ui-resource-gold');
+    expect(loaded.map(item => item.key)).toContain('ui-resource-gem');
     expect(loaded.every(item => item.url.endsWith('.png'))).toBe(true);
   });
 });

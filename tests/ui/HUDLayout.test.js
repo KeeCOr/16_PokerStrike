@@ -13,6 +13,10 @@ describe('HUD layout', () => {
     expect(HUD_LAYOUT.GOLD_TEXT.x).toBeLessThan(resourceRight);
     expect(HUD_LAYOUT.GEM_TEXT.x).toBeGreaterThan(resourceLeft);
     expect(HUD_LAYOUT.GEM_TEXT.x).toBeLessThan(resourceRight);
+    expect(HUD_LAYOUT.GOLD_ICON.x).toBeGreaterThan(resourceLeft);
+    expect(HUD_LAYOUT.GEM_ICON.x).toBeGreaterThan(HUD_LAYOUT.GOLD_TEXT.x);
+    expect(HUD_LAYOUT.GOLD_ICON.size).toBeGreaterThanOrEqual(24);
+    expect(HUD_LAYOUT.GEM_ICON.size).toBeGreaterThanOrEqual(24);
     expect(waveCenter).toBe(320);
     expect(resourceLeft).toBeGreaterThanOrEqual(waveRight + HUD_LAYOUT.RESOURCE_WAVE_GAP);
     expect(waveLeft).toBeLessThan(320);

@@ -4,8 +4,10 @@ import { THEME } from '../theme.js';
 
 export const HUD_LAYOUT = {
   RESOURCE_PANEL: { x: 530, y: 26, w: 200, h: 30 },
-  GOLD_TEXT: { x: 485, y: 26 },
-  GEM_TEXT: { x: 575, y: 26 },
+  GOLD_ICON: { x: 456, y: 26, size: 24 },
+  GOLD_TEXT: { x: 489, y: 26 },
+  GEM_ICON: { x: 548, y: 26, size: 24 },
+  GEM_TEXT: { x: 581, y: 26 },
   WAVE_PANEL: { x: 320, y: 26, w: 200, h: 32 },
   WAVE_TEXT: { x: 282, y: 26 },
   ENEMY_COUNT_TEXT: { x: 368, y: 26 },
@@ -17,7 +19,6 @@ export default class HUD {
     this.scene = scene;
     const panelY = PANEL_Y;
 
-    // Bottom panel background
     scene.add.rectangle(320, panelY + 104, 640, 208, THEME.bg.base, 0.98).setDepth(10)
       .setStrokeStyle(2, 0x17496a, 0.9);
     scene.add.rectangle(320, panelY + 22, 612, 42, 0x050b14, 0.96).setDepth(10)
@@ -29,12 +30,14 @@ export default class HUD {
 
     this._drawResourceCluster();
     this._drawWaveBadge();
+    this._drawResourceIcon(UI_TEXTURES.RESOURCE_GOLD, HUD_LAYOUT.GOLD_ICON, 0xffc247);
+    this._drawResourceIcon(UI_TEXTURES.RESOURCE_GEM, HUD_LAYOUT.GEM_ICON, 0xc677ff);
 
-    this.goldText = scene.add.text(HUD_LAYOUT.GOLD_TEXT.x, HUD_LAYOUT.GOLD_TEXT.y, '● 골드 20', {
-      fontSize: '15px', color: '#ffd766', fontStyle: 'bold'
+    this.goldText = scene.add.text(HUD_LAYOUT.GOLD_TEXT.x, HUD_LAYOUT.GOLD_TEXT.y, '20', {
+      fontSize: '17px', color: '#ffd766', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
-    this.gemText = scene.add.text(HUD_LAYOUT.GEM_TEXT.x, HUD_LAYOUT.GEM_TEXT.y, '◆ 보석 0', {
-      fontSize: '14px', color: '#dca6ff', fontStyle: 'bold'
+    this.gemText = scene.add.text(HUD_LAYOUT.GEM_TEXT.x, HUD_LAYOUT.GEM_TEXT.y, '0', {
+      fontSize: '16px', color: '#dca6ff', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
     this.waveText = scene.add.text(HUD_LAYOUT.WAVE_TEXT.x, HUD_LAYOUT.WAVE_TEXT.y, '웨이브 1', {
       fontSize: '14px', color: '#bceeff', fontStyle: 'bold'
@@ -43,20 +46,20 @@ export default class HUD {
       fontSize: '12px', color: '#ffbd7a', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
 
-    const onGold  = (_, val) => { if (this.goldText?.active)       this.goldText.setText(`● 골드 ${val}`); };
-    const onGems  = (_, val) => { if (this.gemText?.active)        this.gemText.setText(`◆ 보석 ${val}`); };
-    const onWave  = (_, val) => { if (this.waveText?.active)       this.waveText.setText(`웨이브 ${val}`); };
+    const onGold = (_, val) => { if (this.goldText?.active) this.goldText.setText(`${val}`); };
+    const onGems = (_, val) => { if (this.gemText?.active) this.gemText.setText(`${val}`); };
+    const onWave = (_, val) => { if (this.waveText?.active) this.waveText.setText(`웨이브 ${val}`); };
     const onCount = (_, val) => { if (this.enemyCountText?.active) this.enemyCountText.setText(`적 ${val}`); };
 
-    scene.registry.events.on('changedata-gold',      onGold);
-    scene.registry.events.on('changedata-gems',      onGems);
-    scene.registry.events.on('changedata-wave',      onWave);
+    scene.registry.events.on('changedata-gold', onGold);
+    scene.registry.events.on('changedata-gems', onGems);
+    scene.registry.events.on('changedata-wave', onWave);
     scene.registry.events.on('changedata-enemyCount', onCount);
 
     scene.events.once('shutdown', () => {
-      scene.registry.events.off('changedata-gold',      onGold);
-      scene.registry.events.off('changedata-gems',      onGems);
-      scene.registry.events.off('changedata-wave',      onWave);
+      scene.registry.events.off('changedata-gold', onGold);
+      scene.registry.events.off('changedata-gems', onGems);
+      scene.registry.events.off('changedata-wave', onWave);
       scene.registry.events.off('changedata-enemyCount', onCount);
     });
   }
@@ -87,6 +90,18 @@ export default class HUD {
         .setStrokeStyle(2, 0x65d9ff, 0.9);
       this.scene.add.rectangle(x - 70, y, 2, h - 10, 0x65d9ff, 0.45).setDepth(11);
     }
+  }
+
+  _drawResourceIcon(textureKey, layout, fallbackColor) {
+    const { x, y, size } = layout;
+    if (this.scene.textures?.exists?.(textureKey) && this.scene.add.image) {
+      this.scene.add.image(x, y, textureKey)
+        .setDepth(11)
+        .setDisplaySize(size, size);
+      return;
+    }
+    this.scene.add.circle(x, y, size / 2, fallbackColor, 0.92).setDepth(11)
+      .setStrokeStyle(1, 0xffffff, 0.55);
   }
 
   _drawHudShell(x, y, w, h, fill, stroke) {
