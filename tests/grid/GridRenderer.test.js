@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import { GRID_RENDERER_STYLE } from '../../src/grid/GridRenderer.js';
 
 describe('GridRenderer style', () => {
@@ -8,9 +8,10 @@ describe('GridRenderer style', () => {
     expect(GRID_RENDERER_STYLE.WALKABLE_OVERLAY_ALPHA).toBeGreaterThanOrEqual(0.5);
   });
 
-  it('adds a restrained buildable effect layer for empty cells', () => {
-    expect(GRID_RENDERER_STYLE.BUILDABLE_EFFECT_COLOR).toBe(0x37e6ff);
-    expect(GRID_RENDERER_STYLE.BUILDABLE_EFFECT_FILL_ALPHA).toBeLessThanOrEqual(0.04);
-    expect(GRID_RENDERER_STYLE.BUILDABLE_EFFECT_CORNER_ALPHA).toBeGreaterThanOrEqual(0.6);
+  it('disables the buildable sparkle layer so empty tiles do not compete for attention', () => {
+    expect(GRID_RENDERER_STYLE.BUILDABLE_EFFECT_ENABLED).toBe(false);
+    expect(GRID_RENDERER_STYLE.BUILDABLE_EFFECT_FILL_ALPHA).toBe(0);
+    expect(GRID_RENDERER_STYLE.BUILDABLE_EFFECT_LINE_ALPHA).toBe(0);
+    expect(GRID_RENDERER_STYLE.BUILDABLE_EFFECT_CORNER_ALPHA).toBe(0);
   });
 });

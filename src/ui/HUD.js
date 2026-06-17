@@ -1,16 +1,17 @@
-import { PANEL_Y } from '../grid/Grid.js';
+﻿import { PANEL_Y } from '../grid/Grid.js';
 import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
 import { THEME } from '../theme.js';
 
 export const HUD_LAYOUT = {
-  RESOURCE_PANEL: { x: 530, y: 26, w: 200, h: 30 },
-  GOLD_ICON: { x: 456, y: 26, size: 24 },
-  GOLD_TEXT: { x: 489, y: 26 },
-  GEM_ICON: { x: 548, y: 26, size: 24 },
-  GEM_TEXT: { x: 581, y: 26 },
+  RESOURCE_PANEL: { x: 532, y: 26, w: 188, h: 32, paddingX: 14 },
+  GOLD_ICON: { x: 476, y: 26, size: 22 },
+  GOLD_TEXT: { x: 524, y: 26, originX: 1, maxWidth: 44 },
+  GEM_ICON: { x: 558, y: 26, size: 22 },
+  GEM_TEXT: { x: 612, y: 26, originX: 1, maxWidth: 44 },
   WAVE_PANEL: { x: 320, y: 26, w: 200, h: 32 },
-  WAVE_TEXT: { x: 320, y: 26 },
-  ENEMY_COUNT_TEXT: { x: 392, y: 26 },
+  WAVE_BADGE_DISPLAY: { w: 204, h: 44 },
+  WAVE_TEXT: { x: 320, y: 27, offsetY: 1 },
+  ENEMY_COUNT_TEXT: { x: 392, y: 27 },
   RESOURCE_WAVE_GAP: 10,
 };
 
@@ -35,10 +36,10 @@ export default class HUD {
 
     this.goldText = scene.add.text(HUD_LAYOUT.GOLD_TEXT.x, HUD_LAYOUT.GOLD_TEXT.y, '20', {
       fontSize: '17px', color: '#ffd766', fontStyle: 'bold'
-    }).setOrigin(0.5).setDepth(11);
+    }).setOrigin(HUD_LAYOUT.GOLD_TEXT.originX, 0.5).setDepth(11);
     this.gemText = scene.add.text(HUD_LAYOUT.GEM_TEXT.x, HUD_LAYOUT.GEM_TEXT.y, '0', {
       fontSize: '16px', color: '#dca6ff', fontStyle: 'bold'
-    }).setOrigin(0.5).setDepth(11);
+    }).setOrigin(HUD_LAYOUT.GEM_TEXT.originX, 0.5).setDepth(11);
     this.waveText = scene.add.text(HUD_LAYOUT.WAVE_TEXT.x, HUD_LAYOUT.WAVE_TEXT.y, 'Wave 1', {
       fontSize: '15px', color: '#bceeff', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
@@ -49,7 +50,7 @@ export default class HUD {
     const onGold = (_, val) => { if (this.goldText?.active) this.goldText.setText(`${val}`); };
     const onGems = (_, val) => { if (this.gemText?.active) this.gemText.setText(`${val}`); };
     const onWave = (_, val) => { if (this.waveText?.active) this.waveText.setText(`Wave ${val}`); };
-    const onCount = (_, val) => { if (this.enemyCountText?.active) this.enemyCountText.setText(`적 ${val}`); };
+    const onCount = (_, val) => { if (this.enemyCountText?.active) this.enemyCountText.setText(`??${val}`); };
 
     scene.registry.events.on('changedata-gold', onGold);
     scene.registry.events.on('changedata-gems', onGems);
@@ -79,10 +80,11 @@ export default class HUD {
 
   _drawWaveBadge() {
     const { x, y, w, h } = HUD_LAYOUT.WAVE_PANEL;
+    const display = HUD_LAYOUT.WAVE_BADGE_DISPLAY;
     if (this.scene.textures?.exists?.(UI_TEXTURES.BADGE_WAVE) && this.scene.add.image) {
       this.scene.add.image(x, y, UI_TEXTURES.BADGE_WAVE)
         .setDepth(10)
-        .setDisplaySize(w + 14, h + 20)
+        .setDisplaySize(display.w, display.h)
         .setAlpha(0.96);
     } else {
       this.scene.add.rectangle(x, y, w, h, 0x02070d, 0.78).setDepth(9);
@@ -110,3 +112,5 @@ export default class HUD {
       .setStrokeStyle(1, stroke, 0.75);
   }
 }
+
+

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import { HAND_RANK } from '../../src/cards/HandEvaluator.js';
 import { CELL_SIZE } from '../../src/grid/Grid.js';
 import Unit, { getHandRankVisual, TOWER_VISUAL_STYLE } from '../../src/units/Unit.js';
@@ -28,6 +28,10 @@ function createUnitScene() {
         fillPoints() { return this; },
         lineStyle() { return this; },
         strokePoints() { return this; },
+        fillCircle() { return this; },
+        strokeCircle() { return this; },
+        fillTriangle() { return this; },
+        lineBetween() { return this; },
         setFillStyle() { return this; },
         setAlpha() { return this; },
         destroy() {},
@@ -50,24 +54,33 @@ function createUnitScene() {
 }
 
 describe('Unit hand-rank visuals', () => {
-  it('makes better poker hands visibly larger and brighter', () => {
+  it('makes better poker hands visibly more decorated without filling the tile', () => {
     const low = getHandRankVisual(HAND_RANK.HIGH_CARD);
     const mid = getHandRankVisual(HAND_RANK.STRAIGHT);
     const high = getHandRankVisual(HAND_RANK.STRAIGHT_FLUSH);
 
     expect(mid.size).toBeGreaterThan(low.size);
     expect(high.size).toBeGreaterThan(mid.size);
-    expect(mid.ring).toBeGreaterThan(low.ring);
-    expect(high.glow).toBeGreaterThan(mid.glow);
+    expect(mid.ornamentTier).toBeGreaterThan(low.ornamentTier);
+    expect(high.ornamentTier).toBeGreaterThan(mid.ornamentTier);
     expect(high.label).toBe('MAX');
+  });
+
+  it('gives two pair and three of a kind different tower silhouettes', () => {
+    const twoPair = getHandRankVisual(HAND_RANK.TWO_PAIR);
+    const triple = getHandRankVisual(HAND_RANK.THREE_OF_A_KIND);
+
+    expect(twoPair.ornament).not.toBe(triple.ornament);
+    expect(triple.ornamentTier).toBeGreaterThan(twoPair.ornamentTier);
   });
 
   it('keeps even the best tower comfortably inside one tile', () => {
     const high = getHandRankVisual(HAND_RANK.STRAIGHT_FLUSH);
     const displaySize = Math.floor(CELL_SIZE * high.size) + TOWER_VISUAL_STYLE.SPRITE_PADDING;
 
+    expect(TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO).toBeLessThanOrEqual(0.62);
     expect(displaySize).toBeLessThanOrEqual(Math.floor(CELL_SIZE * TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO));
-    expect(high.ring).toBeLessThanOrEqual(0.41);
+    expect(high.ring).toBeLessThanOrEqual(0.34);
   });
 
   it('hides the HP bar while the tower is at max health', () => {

@@ -1,4 +1,4 @@
-import { ROLE } from '../units/UnitData.js';
+﻿import { ROLE } from '../units/UnitData.js';
 import { CELL_SIZE } from '../grid/Grid.js';
 import { VFX_TEXTURES } from '../assets/art/AssetKeys.js';
 
@@ -7,42 +7,47 @@ const PROJ_COLOR = {
   [ROLE.AREA]:          0xff6622,
   [ROLE.SNIPER]:        0xccff44,
   [ROLE.SUPPORT_SLOW]:  0x44ddff,
-  earth:                0xaaaaff, // 땅 속성 (C suit)
+  earth:                0xaaaaff, // ???띿꽦 (C suit)
   [ROLE.ATTACK]:        0xffffff,
   [ROLE.SUPPORT_SPEED]: 0x44ff88,
 };
 const PROJ_SPEED = 380; // px/sec
 
-const ROLE_VFX = {
+export const COMBAT_VFX_STYLE = {
+  MAX_IMPACT_SIZE: 38,
+  IMPACT_EXPAND_SCALE: 1.14,
+};
+
+export const ROLE_VFX = {
   [ROLE.AREA]: {
     projectile: VFX_TEXTURES.FIRE_PROJECTILE,
     impact: VFX_TEXTURES.FIRE_IMPACT,
     projectileSize: 30,
-    impactSize: 54,
+    impactSize: 34,
   },
   [ROLE.SUPPORT_SLOW]: {
     projectile: VFX_TEXTURES.ICE_PROJECTILE,
     impact: VFX_TEXTURES.ICE_IMPACT,
     projectileSize: 30,
-    impactSize: 52,
+    impactSize: 34,
   },
   [ROLE.ATTACK]: {
     projectile: VFX_TEXTURES.CLUB_PROJECTILE,
     impact: VFX_TEXTURES.ARMOR_BREAK_IMPACT,
     projectileSize: 28,
-    impactSize: 50,
+    impactSize: 32,
   },
   [ROLE.SNIPER]: {
     projectile: VFX_TEXTURES.SPADE_PROJECTILE,
     impact: VFX_TEXTURES.PIERCE_IMPACT,
     projectileSize: 34,
-    impactSize: 48,
+    impactSize: 32,
   },
   [ROLE.SUPPORT_SPEED]: {
     projectile: VFX_TEXTURES.HIT_SPARK,
     impact: VFX_TEXTURES.AURA_RING,
     projectileSize: 26,
-    impactSize: 56,
+    impactSize: 36,
   },
 };
 
@@ -50,7 +55,7 @@ export default class CombatManager {
   constructor(scene) {
     this.scene = scene;
     this.projectiles = [];
-    this._rewardAccum = 0; // 소수점 보상 누산기
+    this._rewardAccum = 0;
   }
 
   update(time, delta) {
@@ -101,14 +106,14 @@ export default class CombatManager {
       inRange.sort((a, b) => b.row - a.row);
       const target = inRange[0];
 
-      // ── 플러시: 다중 타깃 공격 ──
+      // ?? ?뚮윭?? ?ㅼ쨷 ?源?怨듦꺽 ??
       if (s.multiTarget > 1) {
         const targets = inRange.slice(0, s.multiTarget);
         for (const t of targets) {
           this._spawnProjectile(unitPos, { x: t.x, y: t.y }, role);
           this._applyAttack(unit, t, enemies);
         }
-      // ── 포카인드: 직선 관통 공격 ──
+      // ?? ?ъ뭅?몃뱶: 吏곸꽑 愿??怨듦꺽 ??
       } else if (s.piercing) {
         const dx0 = target.x - unitPos.x;
         const dy0 = target.y - unitPos.y;
@@ -128,7 +133,7 @@ export default class CombatManager {
           this._applyAttack(unit, t, enemies);
         }
         this._spawnProjectile(unitPos, { x: target.x, y: target.y }, role);
-      // ── 기본 단일 공격 ──
+      // ?? 湲곕낯 ?⑥씪 怨듦꺽 ??
       } else {
         this._spawnProjectile(unitPos, { x: target.x, y: target.y }, role);
         this._applyAttack(unit, target, enemies);
@@ -137,7 +142,7 @@ export default class CombatManager {
       unit.atkCooldown = Math.floor(1000 / unit.stats.atkSpeed);
     }
 
-    // ── 스트레이트플러시: 주기 버프 오라 ──
+    // ?? ?ㅽ듃?덉씠?명뵆?ъ떆: 二쇨린 踰꾪봽 ?ㅻ씪 ??
     for (const unit of units) {
       if (!unit.stats.auraInterval) continue;
       if (unit.nextAuraTick === undefined) unit.nextAuraTick = time + unit.stats.auraInterval;
@@ -163,7 +168,7 @@ export default class CombatManager {
           u.stats.atkSpeed = +(u.stats.atkSpeed / buffMult).toFixed(3);
         });
       }
-      // 오라 발동 시각 효과
+      // ?ㅻ씪 諛쒕룞 ?쒓컖 ?④낵
       const gfx = this.scene.add.circle(pos.x, pos.y, radiusPx, 0xffee44, 0.18).setDepth(5);
       const auraKey = VFX_TEXTURES.AURA_RING;
       if (this.scene.textures?.exists?.(auraKey) && this.scene.add.image) {
@@ -194,7 +199,7 @@ export default class CombatManager {
     const role = s.role;
 
     if (role === ROLE.AREA) {
-      // 불: 확률로 스플래시, 아니면 단일
+      // 遺? ?뺣쪧濡??ㅽ뵆?섏떆, ?꾨땲硫??⑥씪
       if (s.splashChance > 0 && Math.random() < s.splashChance) {
         const areaInPx = s.areaRadius * CELL_SIZE;
         for (const e of [...enemies]) {
@@ -211,7 +216,7 @@ export default class CombatManager {
       }
 
     } else if (role === ROLE.SUPPORT_SLOW) {
-      // 물: 대미지 후 확률 슬로우 (등급에 따라 범위, slowImmune 적 제외)
+      // 臾? ?誘몄? ???뺣쪧 ?щ줈??(?깃툒???곕씪 踰붿쐞, slowImmune ???쒖쇅)
       const dead = target.takeDamage(s.atk);
       if (dead) { this._onEnemyDied(target); return; }
       if (s.slowChance > 0 && Math.random() < s.slowChance) {
@@ -231,7 +236,7 @@ export default class CombatManager {
       }
 
     } else if (s.stunChance > 0) {
-      // 땅(C속성): 대미지 후 확률 스턴 (등급에 따라 범위·지속)
+      // ??C?띿꽦): ?誘몄? ???뺣쪧 ?ㅽ꽩 (?깃툒???곕씪 踰붿쐞쨌吏??
       if (s.armorBreakAmount > 0 && typeof target.applyArmorBreak === 'function') {
         target.applyArmorBreak(s.armorBreakAmount, s.armorBreakDuration);
       }
@@ -253,13 +258,13 @@ export default class CombatManager {
       }
 
     } else if (role === ROLE.SNIPER) {
-      // 바람: 기본 대미지 + 적 최대HP% 추가 대미지 (방어력 관통, 단일)
+      // 諛붾엺: 湲곕낯 ?誘몄? + ??理쒕?HP% 異붽? ?誘몄? (諛⑹뼱??愿?? ?⑥씪)
       const bonusDmg = s.hpPctDamage > 0 ? Math.floor(target.maxHp * s.hpPctDamage) : 0;
       const dead = target.takeDamage(s.atk + bonusDmg);
       if (dead) this._onEnemyDied(target);
 
     } else {
-      // 기본 단일 공격
+      // 湲곕낯 ?⑥씪 怨듦꺽
       const dead = target.takeDamage(s.atk);
       if (dead) this._onEnemyDied(target);
     }
@@ -291,8 +296,8 @@ export default class CombatManager {
     this.scene.tweens.add({
       targets: impact,
       alpha: 0,
-      scaleX: 1.35,
-      scaleY: 1.35,
+      scaleX: COMBAT_VFX_STYLE.IMPACT_EXPAND_SCALE,
+      scaleY: COMBAT_VFX_STYLE.IMPACT_EXPAND_SCALE,
       duration: 260,
       ease: 'Quad.easeOut',
       onComplete: () => impact.destroy(),
@@ -308,7 +313,7 @@ export default class CombatManager {
         this._rewardAccum -= toAdd;
       }
     }
-    // 낮은 확률로 특수 재화(젬) 드랍
+    // ??? ?뺣쪧濡??뱀닔 ?ы솕(?? ?쒕엻
     if (Math.random() < 0.06) {
       this.scene.gems = (this.scene.gems ?? 0) + 1;
       this.scene.registry.set('gems', this.scene.gems);
@@ -320,3 +325,7 @@ export default class CombatManager {
     }
   }
 }
+
+
+
+

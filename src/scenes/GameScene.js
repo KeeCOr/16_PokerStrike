@@ -13,7 +13,7 @@ import { getAffectedUnitCount, pickWaveUpgrades } from '../roguelite/UpgradeChoi
 import { UPGRADE_POOL } from '../data/roguelite.js';
 import { STAGES, STAGE_OBSTACLES } from '../stages/StageData.js';
 import { shouldShowUpgradeTutorialOnStageClear } from './GameSceneTutorial.js';
-import { WAVE_CHOICE_LAYOUT } from './WaveChoiceLayout.js';
+import { getWaveChoiceTextureKey, WAVE_CHOICE_LAYOUT } from './WaveChoiceLayout.js';
 import { ENV_TEXTURES, preloadArtAssets } from '../assets/art/AssetKeys.js';
 
 const BASE_HP = 100;
@@ -290,42 +290,56 @@ export default class GameScene extends Phaser.Scene {
 
     const objs = [overlay, titleText];
     pool.forEach((upgrade, i) => {
-      const y = 240 + i * 150;
-      const bg = this.add.rectangle(320, y, 420, 120, 0x1a2a3a).setDepth(21)
-        .setInteractive({ useHandCursor: true });
-      const border = this.add.rectangle(320, y, 416, 116, THEME.bg.panel).setDepth(21);
+      const y = WAVE_CHOICE_LAYOUT.START_Y + i * WAVE_CHOICE_LAYOUT.ROW_GAP;
+      const textureKey = getWaveChoiceTextureKey(upgrade);
+      const hasTexture = this.textures?.exists?.(textureKey) && this.add.image;
+      const bg = hasTexture
+        ? this.add.image(320, y, textureKey)
+          .setDepth(21)
+          .setDisplaySize(
+            WAVE_CHOICE_LAYOUT.CARD_W + WAVE_CHOICE_LAYOUT.CARD_TEXTURE_PADDING_X,
+            WAVE_CHOICE_LAYOUT.CARD_H + WAVE_CHOICE_LAYOUT.CARD_TEXTURE_PADDING_Y,
+          )
+          .setAlpha(0.96)
+          .setInteractive({ useHandCursor: true })
+        : this.add.rectangle(320, y, WAVE_CHOICE_LAYOUT.CARD_W, WAVE_CHOICE_LAYOUT.CARD_H, 0x10253a, 0.96)
+          .setDepth(21)
+          .setStrokeStyle(2, THEME.ui.borderBright, 0.9)
+          .setInteractive({ useHandCursor: true });
       const affectedCount = getAffectedUnitCount(upgrade, this.unitManager.units, this.rogueliteManager);
-      const label = this.add.text(320, y - 20, upgrade.label, {
-        fontSize: `${WAVE_CHOICE_LAYOUT.LABEL_FONT}px`, color: '#ffffff', fontStyle: 'bold'
+      const label = this.add.text(320, y + WAVE_CHOICE_LAYOUT.LABEL_Y_OFFSET, upgrade.label, {
+        fontSize: `${WAVE_CHOICE_LAYOUT.LABEL_FONT}px`, color: '#ffffff', fontStyle: 'bold',
+        stroke: '#000000', strokeThickness: 3,
+        wordWrap: { width: WAVE_CHOICE_LAYOUT.CARD_W - 42 },
+        align: 'center',
       }).setOrigin(0.5).setDepth(22);
       const affectedText = affectedCount === null ? '즉시/향후 적용' : `${affectedCount}명 적용`;
-      const typeLabel = this.add.text(320, y + 18, `${_upgradeTypeLabel(upgrade)}  (${affectedText})`, {
-        fontSize: `${WAVE_CHOICE_LAYOUT.TYPE_FONT}px`, color: '#88ccff'
+      const typeLabel = this.add.text(320, y + WAVE_CHOICE_LAYOUT.TYPE_Y_OFFSET, `${_upgradeTypeLabel(upgrade)}  (${affectedText})`, {
+        fontSize: `${WAVE_CHOICE_LAYOUT.TYPE_FONT}px`, color: '#bceeff', fontStyle: 'bold',
+        stroke: '#000000', strokeThickness: 2,
       }).setOrigin(0.5).setDepth(22);
-      objs.push(bg, border, label, typeLabel);
+      objs.push(bg, label, typeLabel);
 
       bg.on('pointerover', () => {
-        bg.setFillStyle(THEME.ui.btnHover);
-        border.setFillStyle(THEME.ui.btnBase);
+        bg.setAlpha(1);
+        if (bg.setScale) bg.setScale(1.015);
         this.unitManager.units.forEach(u => {
           if (this.rogueliteManager.matches(upgrade, u)) u.setHighlight(true);
         });
       });
       bg.on('pointerout', () => {
-        bg.setFillStyle(0x1a2a3a);
-        border.setFillStyle(THEME.bg.panel);
+        bg.setAlpha(0.96);
+        if (bg.setScale) bg.setScale(1);
         this.unitManager.units.forEach(u => u.setHighlight(false));
       });
       bg.on('pointerdown', () => {
         this.unitManager.units.forEach(u => u.setHighlight(false));
         this.rogueliteManager.addUpgrade(upgrade);
 
-        // Doherty Threshold: 선택 피드백 — 버튼 강조 후 "강화 적용!" 표시
-        bg.setFillStyle(0x4a8a2a);
-        border.setFillStyle(0x2a6010);
+        bg.setAlpha(1);
         this.tweens.add({
           targets: bg,
-          alpha: { from: 1, to: 0.6 },
+          alpha: { from: 1, to: 0.66 },
           yoyo: true,
           duration: 150,
         });
@@ -623,3 +637,6 @@ export default class GameScene extends Phaser.Scene {
     if (this.selectedEnemy) this._renderEnemyInfo();
   }
 }
+
+
+

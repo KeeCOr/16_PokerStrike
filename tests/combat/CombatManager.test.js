@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import CombatManager from '../../src/combat/CombatManager.js';
+﻿import { describe, expect, it } from 'vitest';
+import CombatManager, { COMBAT_VFX_STYLE, ROLE_VFX } from '../../src/combat/CombatManager.js';
 import { ROLE } from '../../src/units/UnitData.js';
 
 function createScene() {
@@ -61,7 +61,7 @@ function createScene() {
           setDisplaySize(width, height) { this.displayWidth = width; this.displayHeight = height; return this; },
           setRotation(angle) { this.rotation = angle; return this; },
           setPosition(nx, ny) { this.x = nx; this.y = ny; return this; },
-          setAlpha() { return this; },
+          setAlpha(value) { this.alpha = value; return this; },
           destroy() {},
         };
       },
@@ -74,7 +74,7 @@ function createScene() {
       },
     },
     time: { delayedCall() {} },
-    tweens: { add() {} },
+    tweens: { add(config) { this.lastConfig = config; } },
     registry: { set() {} },
   };
 }
@@ -97,6 +97,14 @@ describe('CombatManager', () => {
 
     expect(manager.projectiles[0].sprite.key).toBe('vfx-club-projectile');
     expect(manager.projectiles[0].sprite.displayWidth).toBe(28);
+  });
+
+  it('keeps hit impact VFX smaller than a tile and avoids large expansion', () => {
+    const maxImpact = Math.max(...Object.values(ROLE_VFX).map(vfx => vfx.impactSize));
+
+    expect(maxImpact).toBeLessThanOrEqual(COMBAT_VFX_STYLE.MAX_IMPACT_SIZE);
+    expect(COMBAT_VFX_STYLE.MAX_IMPACT_SIZE).toBeLessThanOrEqual(38);
+    expect(COMBAT_VFX_STYLE.IMPACT_EXPAND_SCALE).toBeLessThanOrEqual(1.16);
   });
 
   it('only applies straight flush aura to nearby allies with the same suit', () => {
@@ -227,3 +235,4 @@ describe('CombatManager', () => {
     expect(target.lastSlow).toEqual({ amount: 0.4, duration: 3000 });
   });
 });
+

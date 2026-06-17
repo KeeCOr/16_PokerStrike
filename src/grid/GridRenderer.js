@@ -1,14 +1,15 @@
-import { CELL_SIZE, GRID_COLS, GRID_ROWS, GRID_OFFSET_X, GRID_OFFSET_Y, CELL_BLOCKED } from './Grid.js';
+﻿import { CELL_SIZE, GRID_COLS, GRID_ROWS, GRID_OFFSET_X, GRID_OFFSET_Y, CELL_BLOCKED } from './Grid.js';
 import { ENV_TEXTURES } from '../assets/art/AssetKeys.js';
 
 export const GRID_RENDERER_STYLE = {
   WALKABLE_TILE_ALPHA: 0.72,
   WALKABLE_OVERLAY_COLOR: 0x020610,
   WALKABLE_OVERLAY_ALPHA: 0.52,
+  BUILDABLE_EFFECT_ENABLED: false,
   BUILDABLE_EFFECT_COLOR: 0x37e6ff,
-  BUILDABLE_EFFECT_FILL_ALPHA: 0.035,
-  BUILDABLE_EFFECT_LINE_ALPHA: 0.28,
-  BUILDABLE_EFFECT_CORNER_ALPHA: 0.62,
+  BUILDABLE_EFFECT_FILL_ALPHA: 0,
+  BUILDABLE_EFFECT_LINE_ALPHA: 0,
+  BUILDABLE_EFFECT_CORNER_ALPHA: 0,
 };
 
 export default class GridRenderer {
@@ -16,16 +17,19 @@ export default class GridRenderer {
     this.scene = scene;
     this.grid = grid;
     this.graphics = scene.add.graphics();
-    this.buildableEffects = scene.add.graphics().setDepth(0.4).setAlpha(0.78);
+    this.buildableEffects = scene.add.graphics().setDepth(0.4).setAlpha(0);
     this.tileImages = [];
-    this.scene.tweens?.add?.({
-      targets: this.buildableEffects,
-      alpha: 0.44,
-      duration: 1150,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
+    if (GRID_RENDERER_STYLE.BUILDABLE_EFFECT_ENABLED) {
+      this.buildableEffects.setAlpha(0.78);
+      this.scene.tweens?.add?.({
+        targets: this.buildableEffects,
+        alpha: 0.44,
+        duration: 1150,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    }
     this.draw();
   }
 
@@ -65,7 +69,7 @@ export default class GridRenderer {
           }
           g.fillStyle(GRID_RENDERER_STYLE.WALKABLE_OVERLAY_COLOR, GRID_RENDERER_STYLE.WALKABLE_OVERLAY_ALPHA);
           g.fillRect(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
-          this._drawBuildableEffect(fx, x, y);
+          if (GRID_RENDERER_STYLE.BUILDABLE_EFFECT_ENABLED) this._drawBuildableEffect(fx, x, y);
         }
         g.lineStyle(1, 0x2a3a4a, 0.42);
         g.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
@@ -106,3 +110,5 @@ export default class GridRenderer {
     g.strokePath();
   }
 }
+
+
