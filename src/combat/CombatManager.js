@@ -78,7 +78,7 @@ export default class CombatManager {
         p.x += (dx / dist) * move;
         p.y += (dy / dist) * move;
         p.sprite.setPosition(p.x, p.y);
-        if (p.sprite.setRotation) p.sprite.setRotation(Math.atan2(dy, dx));
+        if (p.sprite.setRotation) p.sprite.setRotation(Math.atan2(dy, dx) - Math.PI / 4);
       }
     }
 
@@ -279,7 +279,7 @@ export default class CombatManager {
       sprite = this.scene.add.image(from.x, from.y, vfx.projectile)
         .setDepth(6)
         .setDisplaySize(vfx.projectileSize, vfx.projectileSize);
-      sprite.setRotation(Math.atan2(to.y - from.y, to.x - from.x));
+      sprite.setRotation(Math.atan2(to.y - from.y, to.x - from.x) - Math.PI / 4);
     } else {
       sprite = this.scene.add.circle(from.x, from.y, size, color).setDepth(6);
     }
