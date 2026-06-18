@@ -1,4 +1,4 @@
-# PokerStrike 아트 리소스 목록
+﻿# PokerStrike 아트 리소스 목록
 
 ## 생성 방식
 
@@ -65,3 +65,8 @@
 5. 보드/본진/장애물/UI 버튼은 `scripts/process-pokerstrike-board-ui-assets.py`를 실행한다.
 6. `scripts/render-pokerstrike-play-preview.py`로 문서용 플레이 예시를 다시 만든다.
 7. `npm.cmd test`와 `npm.cmd run dist`로 검증한다.
+## 이동 가능 타일 파생 PNG
+
+- `src/assets/art/environment/board-tile-move.png` - 이동 가능 구역용 저채도/저명도 기본 타일
+- `src/assets/art/environment/board-tile-alt-move.png` - 이동 가능 구역용 저채도/저명도 교차 타일
+

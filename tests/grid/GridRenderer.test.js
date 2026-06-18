@@ -10,11 +10,12 @@ describe('GridRenderer style', () => {
     expect(GRID_RENDERER_STYLE.GRID_LINE_ALPHA_WITH_TILE).toBeLessThan(GRID_RENDERER_STYLE.GRID_LINE_ALPHA_FALLBACK);
   });
 
-  it('disables the buildable sparkle layer so empty tiles do not compete for attention', () => {
+  it('uses only a weak outline for random summonable cells', () => {
     expect(GRID_RENDERER_STYLE.BUILDABLE_EFFECT_ENABLED).toBe(true);
     expect(GRID_RENDERER_STYLE.BUILDABLE_EFFECT_FILL_ALPHA).toBe(0);
     expect(GRID_RENDERER_STYLE.BUILDABLE_EFFECT_LINE_ALPHA).toBeLessThanOrEqual(0.16);
     expect(GRID_RENDERER_STYLE.BUILDABLE_EFFECT_CORNER_ALPHA).toBeLessThanOrEqual(0.24);
   });
 });
+
 

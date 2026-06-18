@@ -34,20 +34,20 @@ export const SHAPE_DEF = {
 };
 
 export const HAND_RANK_VISUAL = {
-  [HAND_RANK.HIGH_CARD]:       { size: 0.32, ring: 0,    glow: 0,    stroke: 0x5f6b78, label: 'I',   ornament: 'base',       ornamentTier: 0 },
-  [HAND_RANK.ONE_PAIR]:        { size: 0.34, ring: 0,    glow: 0,    stroke: 0x77889a, label: 'II',  ornament: 'side-pips',  ornamentTier: 1 },
-  [HAND_RANK.TWO_PAIR]:        { size: 0.36, ring: 0.18, glow: 0.04, stroke: 0x8aa2b8, label: 'III', ornament: 'dual-guard', ornamentTier: 2 },
-  [HAND_RANK.THREE_OF_A_KIND]: { size: 0.38, ring: 0.20, glow: 0.06, stroke: 0x9fd0ff, label: 'IV',  ornament: 'tri-spire',  ornamentTier: 3 },
-  [HAND_RANK.STRAIGHT]:        { size: 0.40, ring: 0.23, glow: 0.08, stroke: 0xffd166, label: 'V',   ornament: 'blade-crown', ornamentTier: 4 },
-  [HAND_RANK.FLUSH]:           { size: 0.42, ring: 0.25, glow: 0.10, stroke: 0x7af6ff, label: 'VI',  ornament: 'halo-crown', ornamentTier: 5 },
-  [HAND_RANK.FULL_HOUSE]:      { size: 0.45, ring: 0.28, glow: 0.12, stroke: 0xff9f43, label: 'VII', ornament: 'royal-core', ornamentTier: 6 },
-  [HAND_RANK.FOUR_OF_A_KIND]:  { size: 0.47, ring: 0.31, glow: 0.14, stroke: 0xffef7a, label: 'VIII', ornament: 'quad-spire', ornamentTier: 7 },
-  [HAND_RANK.STRAIGHT_FLUSH]:  { size: 0.49, ring: 0.34, glow: 0.16, stroke: 0xffffff, label: 'MAX', ornament: 'max-crown',  ornamentTier: 8 },
+  [HAND_RANK.HIGH_CARD]:       { size: 0.25, ring: 0,    glow: 0,    stroke: 0x5f6b78, label: 'I',   ornament: 'base',       ornamentTier: 0 },
+  [HAND_RANK.ONE_PAIR]:        { size: 0.27, ring: 0,    glow: 0,    stroke: 0x77889a, label: 'II',  ornament: 'side-pips',  ornamentTier: 1 },
+  [HAND_RANK.TWO_PAIR]:        { size: 0.29, ring: 0.13, glow: 0.025, stroke: 0x8aa2b8, label: 'III', ornament: 'dual-guard', ornamentTier: 2 },
+  [HAND_RANK.THREE_OF_A_KIND]: { size: 0.31, ring: 0.15, glow: 0.035, stroke: 0x9fd0ff, label: 'IV',  ornament: 'tri-spire',  ornamentTier: 3 },
+  [HAND_RANK.STRAIGHT]:        { size: 0.33, ring: 0.18, glow: 0.045, stroke: 0xffd166, label: 'V',   ornament: 'blade-crown', ornamentTier: 4 },
+  [HAND_RANK.FLUSH]:           { size: 0.35, ring: 0.20, glow: 0.055, stroke: 0x7af6ff, label: 'VI',  ornament: 'halo-crown', ornamentTier: 5 },
+  [HAND_RANK.FULL_HOUSE]:      { size: 0.37, ring: 0.23, glow: 0.065, stroke: 0xff9f43, label: 'VII', ornament: 'royal-core', ornamentTier: 6 },
+  [HAND_RANK.FOUR_OF_A_KIND]:  { size: 0.39, ring: 0.25, glow: 0.075, stroke: 0xffef7a, label: 'VIII', ornament: 'quad-spire', ornamentTier: 7 },
+  [HAND_RANK.STRAIGHT_FLUSH]:  { size: 0.40, ring: 0.27, glow: 0.085, stroke: 0xffffff, label: 'MAX', ornament: 'max-crown',  ornamentTier: 8 },
 };
 
 export const TOWER_VISUAL_STYLE = {
-  SPRITE_PADDING: 4,
-  MAX_DISPLAY_RATIO: 0.62,
+  SPRITE_PADDING: 2,
+  MAX_DISPLAY_RATIO: 0.48,
 };
 
 export function getHandRankVisual(handRank) {
@@ -93,8 +93,8 @@ function _makeRankOrnament(scene, x, y, visual, color) {
   if (!visual?.ornamentTier || !scene.add.graphics) return null;
   const tier = visual.ornamentTier;
   const accent = visual.stroke ?? color;
-  const top = y - Math.floor(CELL_SIZE * (0.17 + Math.min(tier, 5) * 0.008));
-  const side = Math.floor(CELL_SIZE * (0.12 + Math.min(tier, 4) * 0.008));
+  const top = y - Math.floor(CELL_SIZE * (0.13 + Math.min(tier, 5) * 0.006));
+  const side = Math.floor(CELL_SIZE * (0.09 + Math.min(tier, 4) * 0.006));
   const gfx = scene.add.graphics().setDepth(3);
 
   gfx.lineStyle(1, 0x000000, 0.45);
@@ -191,7 +191,7 @@ export default class Unit {
     this.sprite = _makeTowerSprite(scene, pos.x, pos.y, handRank, suit, sz, color).setDepth(2);
     this.rankOrnament = _makeRankOrnament(scene, pos.x, pos.y, visual, color);
     this.hpBar = scene.add.graphics().setDepth(3);
-    this.gradeText = scene.add.text(pos.x, pos.y - Math.floor(CELL_SIZE * 0.26), `${visual.label}-${grade}`, {
+    this.gradeText = scene.add.text(pos.x, pos.y - Math.floor(CELL_SIZE * 0.21), `${visual.label}-${grade}`, {
       fontSize: handRank >= HAND_RANK.FULL_HOUSE ? '12px' : '10px',
       color: handRank >= HAND_RANK.STRAIGHT ? '#ffef9a' : '#dcecff',
       stroke: '#000000',
@@ -335,4 +335,5 @@ export default class Unit {
     if (this.dimOverlay) this.dimOverlay.destroy();
   }
 }
+
 

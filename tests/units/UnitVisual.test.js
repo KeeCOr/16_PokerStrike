@@ -78,9 +78,9 @@ describe('Unit hand-rank visuals', () => {
     const high = getHandRankVisual(HAND_RANK.STRAIGHT_FLUSH);
     const displaySize = Math.floor(CELL_SIZE * high.size) + TOWER_VISUAL_STYLE.SPRITE_PADDING;
 
-    expect(TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO).toBeLessThanOrEqual(0.62);
+    expect(TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO).toBeLessThanOrEqual(0.48);
     expect(displaySize).toBeLessThanOrEqual(Math.floor(CELL_SIZE * TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO));
-    expect(high.ring).toBeLessThanOrEqual(0.34);
+    expect(high.ring).toBeLessThanOrEqual(0.28);
   });
 
   it('hides the HP bar while the tower is at max health', () => {
@@ -99,3 +99,4 @@ describe('Unit hand-rank visuals', () => {
     expect(scene.hpBar.visible).toBe(true);
   });
 });
+

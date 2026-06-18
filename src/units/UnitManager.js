@@ -23,7 +23,7 @@ export default class UnitManager {
     this._summonPreviewGfx = null;
   }
 
-  // row 0(?ㅽ룿)怨?蹂몄쭊 ?(GRID_ROWS-1, BASE_COL)???쒖쇅???좏슚 諛곗튂 移?  _isValidPlacement(col, row) {
+  _isValidPlacement(col, row) {
     if (row <= 0 || row >= GRID_ROWS) return false;
     if (row === GRID_ROWS - 1 && col === BASE_COL) return false;
     return true;
@@ -73,7 +73,7 @@ export default class UnitManager {
 
   _playSpawnEffect(col, row, unit) {
     const pos = this.scene.grid.cellToWorld(col, row);
-    // 異쒗쁽 ?쒗겢 ?뚮옒??    const flash = this.scene.add.circle(pos.x, pos.y, CELL_SIZE * 0.38, 0xffffff, 0.75).setDepth(5);
+    const flash = this.scene.add.circle(pos.x, pos.y, CELL_SIZE * 0.34, 0xffffff, 0.48).setDepth(5);
     this.scene.tweens.add({
       targets: flash, alpha: 0, scaleX: 2.0, scaleY: 2.0,
       duration: 350, ease: 'Quad.easeOut',
@@ -383,4 +383,6 @@ export default class UnitManager {
     this.units.forEach(u => u.update(time));
   }
 }
+
+
 

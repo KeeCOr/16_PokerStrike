@@ -8,10 +8,10 @@ export const HUD_LAYOUT = {
   GOLD_TEXT: { x: 522, y: 26, originX: 1, maxWidth: 42 },
   GEM_ICON: { x: 552, y: 26, size: 22 },
   GEM_TEXT: { x: 608, y: 26, originX: 1, maxWidth: 42 },
-  WAVE_PANEL: { x: 312, y: 26, w: 188, h: 32 },
+  WAVE_PANEL: { x: 320, y: 26, w: 188, h: 32 },
   WAVE_BADGE_DISPLAY: { w: 192, h: 42 },
-  WAVE_TEXT: { x: 286, y: 26, offsetY: 0 },
-  ENEMY_COUNT_TEXT: { x: 366, y: 26 },
+  WAVE_TEXT: { x: 320, y: 26, offsetY: 0 },
+  ENEMY_COUNT_TEXT: { x: 386, y: 26 },
   RESOURCE_WAVE_GAP: 10,
 };
 
@@ -44,13 +44,13 @@ export default class HUD {
       fontSize: '15px', color: '#bceeff', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
     this.enemyCountText = scene.add.text(HUD_LAYOUT.ENEMY_COUNT_TEXT.x, HUD_LAYOUT.ENEMY_COUNT_TEXT.y, '', {
-      fontSize: '12px', color: '#ffbd7a', fontStyle: 'bold'
+      fontSize: '11px', color: '#ffbd7a', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(11);
 
     const onGold = (_, val) => { if (this.goldText?.active) this.goldText.setText(`${val}`); };
     const onGems = (_, val) => { if (this.gemText?.active) this.gemText.setText(`${val}`); };
     const onWave = (_, val) => { if (this.waveText?.active) this.waveText.setText(`Wave ${val}`); };
-    const onCount = (_, val) => { if (this.enemyCountText?.active) this.enemyCountText.setText(`??${val}`); };
+    const onCount = (_, val) => { if (this.enemyCountText?.active) this.enemyCountText.setText(`${val}`); };
 
     scene.registry.events.on('changedata-gold', onGold);
     scene.registry.events.on('changedata-gems', onGems);
@@ -112,6 +112,9 @@ export default class HUD {
       .setStrokeStyle(1, stroke, 0.75);
   }
 }
+
+
+
 
 
 

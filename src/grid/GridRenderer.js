@@ -63,7 +63,9 @@ export default class GridRenderer {
             g.fillRect(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
           }
         } else {
-          const key = (col + row) % 2 === 0 ? GRID_RENDERER_STYLE.WALKABLE_TILE_TEXTURES[0] : GRID_RENDERER_STYLE.WALKABLE_TILE_TEXTURES[1];
+          const moveKey = (col + row) % 2 === 0 ? GRID_RENDERER_STYLE.WALKABLE_TILE_TEXTURES[0] : GRID_RENDERER_STYLE.WALKABLE_TILE_TEXTURES[1];
+          const fallbackKey = (col + row) % 2 === 0 ? ENV_TEXTURES.BOARD_TILE : ENV_TEXTURES.BOARD_TILE_ALT;
+          const key = this.scene.textures?.exists?.(moveKey) ? moveKey : fallbackKey;
           const hasTileTexture = this.scene.textures?.exists?.(key) && this.scene.add.image;
           if (hasTileTexture) {
             this.tileImages.push(this.scene.add.image(cx, cy, key)
@@ -118,6 +120,7 @@ export default class GridRenderer {
     g.strokePath();
   }
 }
+
 
 
 
