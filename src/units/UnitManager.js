@@ -1,9 +1,18 @@
-import Unit, { SHAPE_DEF } from './Unit.js';
+﻿import Unit, { SHAPE_DEF } from './Unit.js';
 import { getUnitStats, ROLE } from './UnitData.js';
 import { CELL_UNIT, CELL_EMPTY, GRID_COLS, GRID_ROWS, CELL_SIZE, PANEL_Y } from '../grid/Grid.js';
 import { HAND_RANK } from '../cards/HandEvaluator.js';
 
 const BASE_COL = Math.floor(GRID_COLS / 2);
+
+export const SUMMON_PREVIEW_STYLE = {
+  FILL_COLOR: 0x2f86ff,
+  FILL_ALPHA: 0,
+  LINE_COLOR: 0x72b9ff,
+  LINE_ALPHA: 0.18,
+  LINE_WIDTH: 1,
+  CELL_PADDING: 9,
+};
 
 export default class UnitManager {
   constructor(scene) {
@@ -14,8 +23,7 @@ export default class UnitManager {
     this._summonPreviewGfx = null;
   }
 
-  // row 0(스폰)과 본진 셀(GRID_ROWS-1, BASE_COL)을 제외한 유효 배치 칸
-  _isValidPlacement(col, row) {
+  // row 0(?ㅽ룿)怨?蹂몄쭊 ?(GRID_ROWS-1, BASE_COL)???쒖쇅???좏슚 諛곗튂 移?  _isValidPlacement(col, row) {
     if (row <= 0 || row >= GRID_ROWS) return false;
     if (row === GRID_ROWS - 1 && col === BASE_COL) return false;
     return true;
@@ -42,7 +50,7 @@ export default class UnitManager {
   placeUnit(col, row, handRank, suit, grade) {
     if (!this.scene.grid.isWalkable(col, row)) return null;
     const stats = getUnitStats(handRank, suit, grade);
-    // 영구 강화 보너스 적용
+    // ?곴뎄 媛뺥솕 蹂대꼫???곸슜
     const gs = this.scene;
     if (gs.permHpLevel > 0) {
       const bonus = 1 + gs.permHpLevel * 0.03;
@@ -65,14 +73,13 @@ export default class UnitManager {
 
   _playSpawnEffect(col, row, unit) {
     const pos = this.scene.grid.cellToWorld(col, row);
-    // 출현 서클 플래시
-    const flash = this.scene.add.circle(pos.x, pos.y, CELL_SIZE * 0.38, 0xffffff, 0.75).setDepth(5);
+    // 異쒗쁽 ?쒗겢 ?뚮옒??    const flash = this.scene.add.circle(pos.x, pos.y, CELL_SIZE * 0.38, 0xffffff, 0.75).setDepth(5);
     this.scene.tweens.add({
       targets: flash, alpha: 0, scaleX: 2.0, scaleY: 2.0,
       duration: 350, ease: 'Quad.easeOut',
       onComplete: () => flash.destroy(),
     });
-    // 스프라이트 팝인
+    // ?ㅽ봽?쇱씠???앹씤
     unit.sprite.setAlpha(0).setScale(0.15);
     this.scene.tweens.add({
       targets: unit.sprite, alpha: 1, scaleX: 1, scaleY: 1,
@@ -80,7 +87,7 @@ export default class UnitManager {
     });
   }
 
-  // ── Summon placement preview ──────────────────────────────────
+  // ?? Summon placement preview ??????????????????????????????????
   showSummonPreview() {
     this.hideSummonPreview();
     const emptyCells = [];
@@ -93,12 +100,14 @@ export default class UnitManager {
     const pool = emptyCells.slice(0, Math.min(10, emptyCells.length));
 
     this._summonPreviewGfx = this.scene.add.graphics().setDepth(1);
-    this._summonPreviewGfx.fillStyle(0x2244cc, 0.3);
-    this._summonPreviewGfx.lineStyle(1, 0x4488ff, 0.6);
+    this._summonPreviewGfx.fillStyle(SUMMON_PREVIEW_STYLE.FILL_COLOR, SUMMON_PREVIEW_STYLE.FILL_ALPHA);
+    this._summonPreviewGfx.lineStyle(SUMMON_PREVIEW_STYLE.LINE_WIDTH, SUMMON_PREVIEW_STYLE.LINE_COLOR, SUMMON_PREVIEW_STYLE.LINE_ALPHA);
     pool.forEach(({ col, row }) => {
       const pos = this.scene.grid.cellToWorld(col, row);
-      const half = CELL_SIZE / 2 - 2;
-      this._summonPreviewGfx.fillRect(pos.x - half, pos.y - half, half * 2, half * 2);
+      const half = CELL_SIZE / 2 - SUMMON_PREVIEW_STYLE.CELL_PADDING;
+      if (SUMMON_PREVIEW_STYLE.FILL_ALPHA > 0) {
+        this._summonPreviewGfx.fillRect(pos.x - half, pos.y - half, half * 2, half * 2);
+      }
       this._summonPreviewGfx.strokeRect(pos.x - half, pos.y - half, half * 2, half * 2);
     });
   }
@@ -110,7 +119,7 @@ export default class UnitManager {
     }
   }
 
-  // ── Merge / interaction ───────────────────────────────────────
+  // ?? Merge / interaction ???????????????????????????????????????
   _checkMerge(newUnit) {
     const matches = this.units.filter(u =>
       u !== newUnit &&
@@ -150,7 +159,7 @@ export default class UnitManager {
     this.units = this.units.filter(u => u !== unit);
     this._refreshAllGlows();
     this._clearDim();
-    // 유닛 제거 시 경로 재계산 (막혀 있던 적들이 다시 이동할 수 있도록)
+    // ?좊떅 ?쒓굅 ??寃쎈줈 ?ш퀎??(留됲? ?덈뜕 ?곷뱾???ㅼ떆 ?대룞?????덈룄濡?
     if (this.scene.enemyManager) this.scene.enemyManager.recalculateAllPaths();
   }
 
@@ -207,7 +216,7 @@ export default class UnitManager {
     });
   }
 
-  // ── Input setup ───────────────────────────────────────────────
+  // ?? Input setup ???????????????????????????????????????????????
   setupMergeInteraction() {
     const scene = this.scene;
     this.selectedUnit = null;
@@ -280,7 +289,7 @@ export default class UnitManager {
             dropTarget.handRank === dragUnit.handRank &&
             dropTarget.grade === dragUnit.grade &&
             dragUnit.grade < 3) {
-          // 드래그-머지: 같은 족보·등급 유닛 위에 드롭
+          // ?쒕옒洹?癒몄?: 媛숈? 議깅낫쨌?깃툒 ?좊떅 ?꾩뿉 ?쒕∼
           if (this.selectedUnit === dragUnit) {
             dragUnit.setSelected(false);
             this.selectedUnit = null;
@@ -290,7 +299,7 @@ export default class UnitManager {
           if (scene.enemyManager) scene.enemyManager.recalculateAllPaths();
         } else if (this._isValidPlacement(col, row) && scene.grid.isWalkable(col, row) &&
             !(scene.enemyManager && scene.enemyManager.isEnemyAt(col, row))) {
-          // 일반 드래그 이동
+          // ?쇰컲 ?쒕옒洹??대룞
           if (this.selectedUnit === dragUnit) {
             dragUnit.setSelected(false);
             this.selectedUnit = null;
@@ -344,7 +353,7 @@ export default class UnitManager {
         if (this.onUnitSelected) this.onUnitSelected(clicked);
       }
     } else {
-      // Click on empty cell — move selected unit
+      // Click on empty cell ??move selected unit
       if (this.selectedUnit && this._isValidPlacement(col, row) && scene.grid.isWalkable(col, row) &&
           !(scene.enemyManager && scene.enemyManager.isEnemyAt(col, row))) {
         this._moveUnit(this.selectedUnit, col, row);
@@ -374,3 +383,4 @@ export default class UnitManager {
     this.units.forEach(u => u.update(time));
   }
 }
+

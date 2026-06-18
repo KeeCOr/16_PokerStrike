@@ -2,16 +2,17 @@
 import { ENV_TEXTURES } from '../assets/art/AssetKeys.js';
 
 export const GRID_RENDERER_STYLE = {
-  WALKABLE_TILE_ALPHA: 0.96,
+  WALKABLE_TILE_ALPHA: 0.98,
+  WALKABLE_TILE_TEXTURES: [ENV_TEXTURES.BOARD_TILE_MOVE, ENV_TEXTURES.BOARD_TILE_ALT_MOVE],
   WALKABLE_OVERLAY_COLOR: 0x020610,
   WALKABLE_OVERLAY_ALPHA: 0,
-  GRID_LINE_ALPHA_WITH_TILE: 0.18,
+  GRID_LINE_ALPHA_WITH_TILE: 0.22,
   GRID_LINE_ALPHA_FALLBACK: 0.42,
-  BUILDABLE_EFFECT_ENABLED: false,
+  BUILDABLE_EFFECT_ENABLED: true,
   BUILDABLE_EFFECT_COLOR: 0x37e6ff,
   BUILDABLE_EFFECT_FILL_ALPHA: 0,
-  BUILDABLE_EFFECT_LINE_ALPHA: 0,
-  BUILDABLE_EFFECT_CORNER_ALPHA: 0,
+  BUILDABLE_EFFECT_LINE_ALPHA: 0.12,
+  BUILDABLE_EFFECT_CORNER_ALPHA: 0.18,
 };
 
 export default class GridRenderer {
@@ -62,7 +63,7 @@ export default class GridRenderer {
             g.fillRect(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
           }
         } else {
-          const key = (col + row) % 2 === 0 ? ENV_TEXTURES.BOARD_TILE : ENV_TEXTURES.BOARD_TILE_ALT;
+          const key = (col + row) % 2 === 0 ? GRID_RENDERER_STYLE.WALKABLE_TILE_TEXTURES[0] : GRID_RENDERER_STYLE.WALKABLE_TILE_TEXTURES[1];
           const hasTileTexture = this.scene.textures?.exists?.(key) && this.scene.add.image;
           if (hasTileTexture) {
             this.tileImages.push(this.scene.add.image(cx, cy, key)
@@ -75,7 +76,8 @@ export default class GridRenderer {
           }
           if (GRID_RENDERER_STYLE.BUILDABLE_EFFECT_ENABLED) this._drawBuildableEffect(fx, x, y);
         }
-        const hasBaseTile = this.scene.textures?.exists?.(ENV_TEXTURES.BOARD_TILE)
+        const hasBaseTile = GRID_RENDERER_STYLE.WALKABLE_TILE_TEXTURES.some(key => this.scene.textures?.exists?.(key))
+          || this.scene.textures?.exists?.(ENV_TEXTURES.BOARD_TILE)
           || this.scene.textures?.exists?.(ENV_TEXTURES.BOARD_TILE_ALT);
         g.lineStyle(1, 0x2a3a4a, hasBaseTile ? GRID_RENDERER_STYLE.GRID_LINE_ALPHA_WITH_TILE : GRID_RENDERER_STYLE.GRID_LINE_ALPHA_FALLBACK);
         g.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
@@ -88,9 +90,9 @@ export default class GridRenderer {
   }
 
   _drawBuildableEffect(g, x, y) {
-    const pad = 9;
+    const pad = 8;
     const inner = CELL_SIZE - pad * 2;
-    const corner = 15;
+    const corner = 12;
     const color = GRID_RENDERER_STYLE.BUILDABLE_EFFECT_COLOR;
 
     g.fillStyle(color, GRID_RENDERER_STYLE.BUILDABLE_EFFECT_FILL_ALPHA);
@@ -116,5 +118,6 @@ export default class GridRenderer {
     g.strokePath();
   }
 }
+
 
 

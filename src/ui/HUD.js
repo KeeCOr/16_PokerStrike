@@ -3,15 +3,15 @@ import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
 import { THEME } from '../theme.js';
 
 export const HUD_LAYOUT = {
-  RESOURCE_PANEL: { x: 532, y: 26, w: 188, h: 32, paddingX: 14 },
-  GOLD_ICON: { x: 476, y: 26, size: 22 },
-  GOLD_TEXT: { x: 524, y: 26, originX: 1, maxWidth: 44 },
-  GEM_ICON: { x: 558, y: 26, size: 22 },
-  GEM_TEXT: { x: 612, y: 26, originX: 1, maxWidth: 44 },
-  WAVE_PANEL: { x: 320, y: 26, w: 200, h: 32 },
-  WAVE_BADGE_DISPLAY: { w: 204, h: 44 },
-  WAVE_TEXT: { x: 320, y: 27, offsetY: 1 },
-  ENEMY_COUNT_TEXT: { x: 392, y: 27 },
+  RESOURCE_PANEL: { x: 536, y: 26, w: 176, h: 32, paddingX: 14 },
+  GOLD_ICON: { x: 472, y: 26, size: 22 },
+  GOLD_TEXT: { x: 522, y: 26, originX: 1, maxWidth: 42 },
+  GEM_ICON: { x: 552, y: 26, size: 22 },
+  GEM_TEXT: { x: 608, y: 26, originX: 1, maxWidth: 42 },
+  WAVE_PANEL: { x: 312, y: 26, w: 188, h: 32 },
+  WAVE_BADGE_DISPLAY: { w: 192, h: 42 },
+  WAVE_TEXT: { x: 286, y: 26, offsetY: 0 },
+  ENEMY_COUNT_TEXT: { x: 366, y: 26 },
   RESOURCE_WAVE_GAP: 10,
 };
 
@@ -112,5 +112,6 @@ export default class HUD {
       .setStrokeStyle(1, stroke, 0.75);
   }
 }
+
 
 

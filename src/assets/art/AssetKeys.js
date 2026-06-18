@@ -1,4 +1,4 @@
-import { ENEMY_TYPE } from '../../enemies/EnemyData.js';
+﻿import { ENEMY_TYPE } from '../../enemies/EnemyData.js';
 
 export const ENEMY_TEXTURES = {
   [ENEMY_TYPE.BASIC]: 'enemy-basic',
@@ -41,6 +41,8 @@ export const VFX_TEXTURES = {
 export const ENV_TEXTURES = {
   BOARD_TILE: 'env-board-tile',
   BOARD_TILE_ALT: 'env-board-tile-alt',
+  BOARD_TILE_MOVE: 'env-board-tile-move',
+  BOARD_TILE_ALT_MOVE: 'env-board-tile-alt-move',
   OBSTACLE_STONE: 'env-obstacle-stone',
   OBSTACLE_BARRICADE: 'env-obstacle-barricade',
   SPAWN_GATE: 'env-spawn-gate',
@@ -107,6 +109,8 @@ const VFX_ASSETS = {
 const ENV_ASSETS = {
   [ENV_TEXTURES.BOARD_TILE]: new URL('./environment/board-tile.png', import.meta.url).href,
   [ENV_TEXTURES.BOARD_TILE_ALT]: new URL('./environment/board-tile-alt.png', import.meta.url).href,
+  [ENV_TEXTURES.BOARD_TILE_MOVE]: new URL('./environment/board-tile-move.png', import.meta.url).href,
+  [ENV_TEXTURES.BOARD_TILE_ALT_MOVE]: new URL('./environment/board-tile-alt-move.png', import.meta.url).href,
   [ENV_TEXTURES.OBSTACLE_STONE]: new URL('./environment/obstacle-stone.png', import.meta.url).href,
   [ENV_TEXTURES.OBSTACLE_BARRICADE]: new URL('./environment/obstacle-barricade.png', import.meta.url).href,
   [ENV_TEXTURES.SPAWN_GATE]: new URL('./environment/spawn-gate.png', import.meta.url).href,
@@ -170,3 +174,4 @@ export function getEnvironmentTextureKey(key) {
 export function getUiTextureKey(key) {
   return UI_TEXTURES[key] ?? UI_TEXTURES.BUTTON_ACTION_DISABLED;
 }
+

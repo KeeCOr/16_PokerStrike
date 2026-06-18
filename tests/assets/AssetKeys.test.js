@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import {
   ENEMY_TEXTURES,
   ENV_TEXTURES,
@@ -40,6 +40,8 @@ describe('AssetKeys', () => {
 
   it('maps environment and UI texture keys', () => {
     expect(getEnvironmentTextureKey('BASE_CORE')).toBe(ENV_TEXTURES.BASE_CORE);
+    expect(getEnvironmentTextureKey('BOARD_TILE_MOVE')).toBe(ENV_TEXTURES.BOARD_TILE_MOVE);
+    expect(getEnvironmentTextureKey('BOARD_TILE_ALT_MOVE')).toBe(ENV_TEXTURES.BOARD_TILE_ALT_MOVE);
     expect(getEnvironmentTextureKey('unknown')).toBe(ENV_TEXTURES.BOARD_TILE);
     expect(getUiTextureKey('BUTTON_ACTION_GOLD')).toBe(UI_TEXTURES.BUTTON_ACTION_GOLD);
     expect(getUiTextureKey('RESOURCE_GOLD')).toBe(UI_TEXTURES.RESOURCE_GOLD);
@@ -62,9 +64,12 @@ describe('AssetKeys', () => {
     expect(loaded.map(item => item.key)).toContain('vfx-fire-projectile');
     expect(loaded.map(item => item.key)).toContain('vfx-aura-ring');
     expect(loaded.map(item => item.key)).toContain('env-base-core');
+    expect(loaded.map(item => item.key)).toContain('env-board-tile-move');
+    expect(loaded.map(item => item.key)).toContain('env-board-tile-alt-move');
     expect(loaded.map(item => item.key)).toContain('ui-button-action-gold');
     expect(loaded.map(item => item.key)).toContain('ui-resource-gold');
     expect(loaded.map(item => item.key)).toContain('ui-resource-gem');
     expect(loaded.every(item => item.url.endsWith('.png'))).toBe(true);
   });
 });
+

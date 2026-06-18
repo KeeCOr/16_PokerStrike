@@ -210,7 +210,12 @@
     <li>PNG ?꾪듃 由ъ냼?ㅻ뒗 Phaser??PNG ?띿뒪??濡쒕뜑媛 ?꾨땲???쇰컲 ?대?吏 濡쒕뜑濡?遺덈윭?⑤떎.</li>
     <li>?꾨줈?뺤뀡 鍮뚮뱶?먯꽌 PNG媛 data URL濡??몃씪?몃릺?대룄 寃뚯엫 ?쒖옉 preload ?④퀎媛 硫덉텛吏 ?딅룄濡??쒕떎.</li>
   </ul>
-</main>
+  <h2>실행파일 최신화 규칙</h2>
+  <ul>
+    <li>Electron portable 산출물은 <code>package.json</code>의 <code>build.portable.artifactName</code>에서 <code>PokerStrike_v${version}_portable.exe</code> 템플릿을 사용한다.</li>
+    <li>패치 버전이 올라가면 electron-builder가 현재 <code>package.json</code> 버전을 반영한 파일명을 직접 생성한다.</li>
+    <li>배포 시 프로젝트 루트, <code>release/</code>, <code>G:\내 드라이브\실행파일\</code>에는 같은 버전의 portable 실행파일 하나만 유지한다.</li>
+  </ul></main>
 <!-- RESOURCE_PREVIEWS_START -->
 <section class="resource-previews">
   <h2>怨듭쑀???대?吏 誘몃━蹂닿린</h2>
@@ -245,6 +250,7 @@
 <!-- RESOURCE_PREVIEWS_END -->
 </body>
 </html>
+
 
 
 

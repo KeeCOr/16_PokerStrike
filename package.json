@@ -1,6 +1,6 @@
 {
   "name": "card-defense",
-  "version": "0.1.49",
+  "version": "0.1.50",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
@@ -22,7 +22,7 @@
   },
   "build": {
     "appId": "com.carddefense.app",
-    "productName": "Card Defense",
+    "productName": "PokerStrike",
     "directories": {
       "output": "release"
     },
@@ -35,7 +35,7 @@
       "target": "portable"
     },
     "portable": {
-      "artifactName": "PokerStrike_v0.1.49_portable.exe"
+      "artifactName": "PokerStrike_v${version}_portable.exe"
     }
   }
 }

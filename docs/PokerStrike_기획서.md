@@ -213,5 +213,9 @@ PokerStrike???ъ빱 議깅낫濡??좊떅 ?뚰솚怨?留덈쾿??寃곗젙?섎뒗 
 - 스트레이트 플러시 오라는 `aura-ring.png`를 사용한다.
 - 현재 구현 플레이 예시 이미지에도 공격 VFX를 반영했다.
 - 런타임 로더는 `src/assets/art/AssetKeys.js`에서 VFX PNG를 함께 preload한다.
+## 실행파일 최신화 규칙
 
+- Electron portable 산출물은 `package.json`의 `build.portable.artifactName`에서 `PokerStrike_v${version}_portable.exe` 템플릿을 사용한다.
+- 패치 버전이 올라가면 electron-builder가 현재 `package.json` 버전을 반영한 파일명을 직접 생성한다.
+- 배포 시 프로젝트 루트, `release/`, `G:\내 드라이브\실행파일\`에는 같은 버전의 portable 실행파일 하나만 유지한다.
 
