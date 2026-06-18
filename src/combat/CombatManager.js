@@ -12,6 +12,11 @@ const PROJ_COLOR = {
   [ROLE.SUPPORT_SPEED]: 0x44ff88,
 };
 const PROJ_SPEED = 380; // px/sec
+const DIAGONAL_PROJECTILE_ROTATION_OFFSET = -Math.PI / 4;
+
+function getProjectileRotation(from, to, vfx) {
+  return Math.atan2(to.y - from.y, to.x - from.x) + (vfx?.projectileRotationOffset ?? 0);
+}
 
 export const COMBAT_VFX_STYLE = {
   MAX_IMPACT_SIZE: 38,
@@ -23,30 +28,35 @@ export const ROLE_VFX = {
     projectile: VFX_TEXTURES.FIRE_PROJECTILE,
     impact: VFX_TEXTURES.FIRE_IMPACT,
     projectileSize: 30,
+    projectileRotationOffset: DIAGONAL_PROJECTILE_ROTATION_OFFSET,
     impactSize: 34,
   },
   [ROLE.SUPPORT_SLOW]: {
     projectile: VFX_TEXTURES.ICE_PROJECTILE,
     impact: VFX_TEXTURES.ICE_IMPACT,
     projectileSize: 30,
+    projectileRotationOffset: DIAGONAL_PROJECTILE_ROTATION_OFFSET,
     impactSize: 34,
   },
   [ROLE.ATTACK]: {
     projectile: VFX_TEXTURES.CLUB_PROJECTILE,
     impact: VFX_TEXTURES.ARMOR_BREAK_IMPACT,
     projectileSize: 28,
+    projectileRotationOffset: DIAGONAL_PROJECTILE_ROTATION_OFFSET,
     impactSize: 32,
   },
   [ROLE.SNIPER]: {
     projectile: VFX_TEXTURES.SPADE_PROJECTILE,
     impact: VFX_TEXTURES.PIERCE_IMPACT,
     projectileSize: 34,
+    projectileRotationOffset: DIAGONAL_PROJECTILE_ROTATION_OFFSET,
     impactSize: 32,
   },
   [ROLE.SUPPORT_SPEED]: {
     projectile: VFX_TEXTURES.HIT_SPARK,
     impact: VFX_TEXTURES.AURA_RING,
     projectileSize: 26,
+    projectileRotationOffset: DIAGONAL_PROJECTILE_ROTATION_OFFSET,
     impactSize: 36,
   },
 };
@@ -78,7 +88,7 @@ export default class CombatManager {
         p.x += (dx / dist) * move;
         p.y += (dy / dist) * move;
         p.sprite.setPosition(p.x, p.y);
-        if (p.sprite.setRotation) p.sprite.setRotation(Math.atan2(dy, dx) - Math.PI / 4);
+        if (p.sprite.setRotation) p.sprite.setRotation(getProjectileRotation({ x: p.x, y: p.y }, { x: p.tx, y: p.ty }, ROLE_VFX[p.role]));
       }
     }
 
@@ -279,7 +289,7 @@ export default class CombatManager {
       sprite = this.scene.add.image(from.x, from.y, vfx.projectile)
         .setDepth(6)
         .setDisplaySize(vfx.projectileSize, vfx.projectileSize);
-      sprite.setRotation(Math.atan2(to.y - from.y, to.x - from.x) - Math.PI / 4);
+      sprite.setRotation(getProjectileRotation(from, to, vfx));
     } else {
       sprite = this.scene.add.circle(from.x, from.y, size, color).setDepth(6);
     }
@@ -325,6 +335,7 @@ export default class CombatManager {
     }
   }
 }
+
 
 
 
