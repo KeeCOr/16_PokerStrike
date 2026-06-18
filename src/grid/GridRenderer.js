@@ -2,9 +2,11 @@
 import { ENV_TEXTURES } from '../assets/art/AssetKeys.js';
 
 export const GRID_RENDERER_STYLE = {
-  WALKABLE_TILE_ALPHA: 0.72,
+  WALKABLE_TILE_ALPHA: 0.96,
   WALKABLE_OVERLAY_COLOR: 0x020610,
-  WALKABLE_OVERLAY_ALPHA: 0.52,
+  WALKABLE_OVERLAY_ALPHA: 0,
+  GRID_LINE_ALPHA_WITH_TILE: 0.18,
+  GRID_LINE_ALPHA_FALLBACK: 0.42,
   BUILDABLE_EFFECT_ENABLED: false,
   BUILDABLE_EFFECT_COLOR: 0x37e6ff,
   BUILDABLE_EFFECT_FILL_ALPHA: 0,
@@ -61,17 +63,21 @@ export default class GridRenderer {
           }
         } else {
           const key = (col + row) % 2 === 0 ? ENV_TEXTURES.BOARD_TILE : ENV_TEXTURES.BOARD_TILE_ALT;
-          if (this.scene.textures?.exists?.(key) && this.scene.add.image) {
+          const hasTileTexture = this.scene.textures?.exists?.(key) && this.scene.add.image;
+          if (hasTileTexture) {
             this.tileImages.push(this.scene.add.image(cx, cy, key)
               .setDepth(-1)
               .setDisplaySize(CELL_SIZE + 3, CELL_SIZE + 3)
               .setAlpha(GRID_RENDERER_STYLE.WALKABLE_TILE_ALPHA));
+          } else {
+            g.fillStyle(GRID_RENDERER_STYLE.WALKABLE_OVERLAY_COLOR, 0.72);
+            g.fillRect(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
           }
-          g.fillStyle(GRID_RENDERER_STYLE.WALKABLE_OVERLAY_COLOR, GRID_RENDERER_STYLE.WALKABLE_OVERLAY_ALPHA);
-          g.fillRect(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
           if (GRID_RENDERER_STYLE.BUILDABLE_EFFECT_ENABLED) this._drawBuildableEffect(fx, x, y);
         }
-        g.lineStyle(1, 0x2a3a4a, 0.42);
+        const hasBaseTile = this.scene.textures?.exists?.(ENV_TEXTURES.BOARD_TILE)
+          || this.scene.textures?.exists?.(ENV_TEXTURES.BOARD_TILE_ALT);
+        g.lineStyle(1, 0x2a3a4a, hasBaseTile ? GRID_RENDERER_STYLE.GRID_LINE_ALPHA_WITH_TILE : GRID_RENDERER_STYLE.GRID_LINE_ALPHA_FALLBACK);
         g.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
       }
     }

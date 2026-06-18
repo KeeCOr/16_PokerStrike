@@ -2,10 +2,11 @@
 import { GRID_RENDERER_STYLE } from '../../src/grid/GridRenderer.js';
 
 describe('GridRenderer style', () => {
-  it('keeps walkable cells visibly darker than the PNG tile base', () => {
-    expect(GRID_RENDERER_STYLE.WALKABLE_TILE_ALPHA).toBeLessThanOrEqual(0.72);
+  it('lets loaded PNG board tiles carry the cell texture instead of covering them with code fill', () => {
+    expect(GRID_RENDERER_STYLE.WALKABLE_TILE_ALPHA).toBeGreaterThanOrEqual(0.95);
     expect(GRID_RENDERER_STYLE.WALKABLE_OVERLAY_COLOR).toBe(0x020610);
-    expect(GRID_RENDERER_STYLE.WALKABLE_OVERLAY_ALPHA).toBeGreaterThanOrEqual(0.5);
+    expect(GRID_RENDERER_STYLE.WALKABLE_OVERLAY_ALPHA).toBe(0);
+    expect(GRID_RENDERER_STYLE.GRID_LINE_ALPHA_WITH_TILE).toBeLessThan(GRID_RENDERER_STYLE.GRID_LINE_ALPHA_FALLBACK);
   });
 
   it('disables the buildable sparkle layer so empty tiles do not compete for attention', () => {
