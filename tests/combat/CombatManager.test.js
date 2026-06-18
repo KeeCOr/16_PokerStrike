@@ -99,6 +99,17 @@ describe('CombatManager', () => {
     expect(manager.projectiles[0].sprite.displayWidth).toBe(28);
   });
 
+
+  it('aligns diagonal projectile PNGs with their travel direction using a rotation offset', () => {
+    const scene = createScene();
+    scene.textures = { exists: key => key === 'vfx-club-projectile' };
+    const manager = new CombatManager(scene);
+
+    manager._spawnProjectile({ x: 0, y: 0 }, { x: 40, y: 0 }, ROLE.ATTACK);
+
+    expect(ROLE_VFX[ROLE.ATTACK].projectileRotationOffset).toBeCloseTo(-Math.PI / 4, 5);
+    expect(manager.projectiles[0].sprite.rotation).toBeCloseTo(-Math.PI / 4, 5);
+  });
   it('keeps hit impact VFX smaller than a tile and avoids large expansion', () => {
     const maxImpact = Math.max(...Object.values(ROLE_VFX).map(vfx => vfx.impactSize));
 
@@ -235,4 +246,5 @@ describe('CombatManager', () => {
     expect(target.lastSlow).toEqual({ amount: 0.4, duration: 3000 });
   });
 });
+
 
