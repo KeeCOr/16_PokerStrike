@@ -335,11 +335,32 @@ export default class GameScene extends Phaser.Scene {
     const uiScene = this.scene.get('UIScene');
     if (uiScene) uiScene.input.enabled = false;
 
-    const titleText = this.add.text(320, 100, '강화 선택', {
-      fontSize: `${WAVE_CHOICE_LAYOUT.TITLE_FONT}px`, color: '#ffdd44', fontStyle: 'bold'
-    }).setOrigin(0.5).setDepth(21);
+    const titleY = WAVE_CHOICE_LAYOUT.TITLE_Y;
+    let titleFrame;
+    if (this.textures?.exists?.(ENV_TEXTURES.BATTLE_LABEL_FRAME) && this.add.image) {
+      titleFrame = this.add.image(320, titleY, ENV_TEXTURES.BATTLE_LABEL_FRAME)
+        .setDepth(21)
+        .setDisplaySize(WAVE_CHOICE_LAYOUT.TITLE_FRAME.w, WAVE_CHOICE_LAYOUT.TITLE_FRAME.h)
+        .setAlpha(0.98);
+    } else {
+      titleFrame = this.add.rectangle(320, titleY, WAVE_CHOICE_LAYOUT.TITLE_FRAME.w, WAVE_CHOICE_LAYOUT.TITLE_FRAME.h, 0x0b1725, 0.96)
+        .setDepth(21)
+        .setStrokeStyle(2, 0xf2c96b, 0.9);
+    }
+    const titleEyebrow = this.add.text(320, titleY + WAVE_CHOICE_LAYOUT.TITLE_EYEBROW_Y, 'WAVE REWARD', {
+      fontSize: `${WAVE_CHOICE_LAYOUT.TITLE_EYEBROW_FONT}px`, color: '#9eeeff', fontStyle: 'bold',
+      stroke: '#06111c', strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(22);
+    const titleText = this.add.text(320, titleY + WAVE_CHOICE_LAYOUT.TITLE_TEXT_Y, '강화 선택', {
+      fontSize: `${WAVE_CHOICE_LAYOUT.TITLE_FONT}px`, color: '#ffdd44', fontStyle: 'bold',
+      stroke: '#120902', strokeThickness: 6,
+    }).setOrigin(0.5).setDepth(22);
+    const titleSubtitle = this.add.text(320, titleY + WAVE_CHOICE_LAYOUT.TITLE_SUBTITLE_Y, '다음 웨이브를 버틸 보상을 고르세요', {
+      fontSize: `${WAVE_CHOICE_LAYOUT.TITLE_SUBTITLE_FONT}px`, color: '#d7f4ff', fontStyle: 'bold',
+      stroke: '#06111c', strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(22);
 
-    const objs = [overlay, titleText];
+    const objs = [overlay, titleFrame, titleEyebrow, titleText, titleSubtitle];
     pool.forEach((upgrade, i) => {
       const y = WAVE_CHOICE_LAYOUT.START_Y + i * WAVE_CHOICE_LAYOUT.ROW_GAP;
       const textureKey = getWaveChoiceTextureKey(upgrade);
@@ -361,13 +382,16 @@ export default class GameScene extends Phaser.Scene {
       const label = this.add.text(320, y + WAVE_CHOICE_LAYOUT.LABEL_Y_OFFSET, upgrade.label, {
         fontSize: `${WAVE_CHOICE_LAYOUT.LABEL_FONT}px`, color: '#ffffff', fontStyle: 'bold',
         stroke: '#000000', strokeThickness: 3,
-        wordWrap: { width: WAVE_CHOICE_LAYOUT.CARD_W - 42 },
+        wordWrap: { width: WAVE_CHOICE_LAYOUT.LABEL_WRAP_WIDTH },
+        lineSpacing: 4,
         align: 'center',
       }).setOrigin(0.5).setDepth(22);
       const affectedText = affectedCount === null ? '즉시/향후 적용' : `${affectedCount}명 적용`;
       const typeLabel = this.add.text(320, y + WAVE_CHOICE_LAYOUT.TYPE_Y_OFFSET, `${_upgradeTypeLabel(upgrade)}  (${affectedText})`, {
         fontSize: `${WAVE_CHOICE_LAYOUT.TYPE_FONT}px`, color: '#bceeff', fontStyle: 'bold',
         stroke: '#000000', strokeThickness: 2,
+        wordWrap: { width: WAVE_CHOICE_LAYOUT.TYPE_WRAP_WIDTH },
+        align: 'center',
       }).setOrigin(0.5).setDepth(22);
       objs.push(bg, label, typeLabel);
 
@@ -688,6 +712,9 @@ export default class GameScene extends Phaser.Scene {
     if (this.selectedEnemy) this._renderEnemyInfo();
   }
 }
+
+
+
 
 
 
