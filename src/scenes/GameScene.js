@@ -14,9 +14,11 @@ import { UPGRADE_POOL } from '../data/roguelite.js';
 import { STAGES, STAGE_OBSTACLES } from '../stages/StageData.js';
 import { shouldShowUpgradeTutorialOnStageClear } from './GameSceneTutorial.js';
 import { getWaveChoiceTextureKey, WAVE_CHOICE_LAYOUT } from './WaveChoiceLayout.js';
+import { STAGE_INTRO_LAYOUT } from './StageIntroLayout.js';
 import { ENV_TEXTURES, preloadArtAssets } from '../assets/art/AssetKeys.js';
 
 const BASE_HP = 100;
+
 
 function _upgradeTypeLabel(upgrade) {
   const typeMap = {
@@ -142,24 +144,74 @@ export default class GameScene extends Phaser.Scene {
   }
 
   _showStageIntro(stageIndex, onComplete) {
-    const stageName = `STAGE ${stageIndex + 1}`;
-    const cx = 320, cy = 380;
-    const overlay = this.add.rectangle(cx, cy + 80, 640, 300, 0x000000, 0.7).setDepth(24).setAlpha(0);
-    const title = this.add.text(cx, cy, stageName, {
-      fontSize: '52px', color: '#ffdd44', fontStyle: 'bold',
-      stroke: '#000000', strokeThickness: 6,
-    }).setOrigin(0.5).setAlpha(0).setDepth(25);
+    const layout = STAGE_INTRO_LAYOUT;
+    const cx = layout.x;
+    const cy = layout.y;
+    const stageNumber = `${stageIndex + 1}`.padStart(2, '0');
+    const objects = [];
 
-    this.tweens.add({ targets: overlay, alpha: 1, duration: 250 });
+    const backdrop = this.add.rectangle(cx, cy + 12, layout.backdrop.w, layout.backdrop.h, 0x02070d, layout.backdrop.alpha)
+      .setDepth(24)
+      .setAlpha(0);
+    objects.push(backdrop);
+
+    let frame;
+    if (this.textures?.exists?.(ENV_TEXTURES.BATTLE_LABEL_FRAME) && this.add.image) {
+      frame = this.add.image(cx, cy, ENV_TEXTURES.BATTLE_LABEL_FRAME)
+        .setDepth(25)
+        .setDisplaySize(layout.frame.w, layout.frame.h)
+        .setAlpha(0);
+    } else {
+      frame = this.add.rectangle(cx, cy, layout.frame.w, layout.frame.h, 0x0b1725, 0.94)
+        .setDepth(25)
+        .setAlpha(0)
+        .setStrokeStyle(2, 0xf2c96b, 0.86);
+    }
+    objects.push(frame);
+
+    const eyebrow = this.add.text(cx, cy + layout.eyebrowY, 'STAGE', {
+      fontSize: layout.eyebrowFontSize,
+      color: '#9eeeff',
+      fontStyle: 'bold',
+      stroke: '#06111c',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(26).setAlpha(0);
+
+    const title = this.add.text(cx, cy + layout.numberY, stageNumber, {
+      fontSize: layout.titleFontSize,
+      color: '#ffe08a',
+      fontStyle: 'bold',
+      stroke: '#130b02',
+      strokeThickness: 7,
+    }).setOrigin(0.5).setDepth(26).setAlpha(0);
+
+    const subtitle = this.add.text(cx, cy + layout.subtitleY, '전투 준비', {
+      fontSize: layout.subtitleFontSize,
+      color: '#d7f4ff',
+      fontStyle: 'bold',
+      stroke: '#06111c',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(26).setAlpha(0);
+
+    objects.push(eyebrow, title, subtitle);
+
+    this.tweens.add({ targets: backdrop, alpha: 1, duration: 180, ease: 'Quad.easeOut' });
     this.tweens.add({
-      targets: title, alpha: 1, scaleX: 1.0, scaleY: 1.0,
-      duration: 300, ease: 'Back.easeOut',
+      targets: [frame, eyebrow, title, subtitle],
+      alpha: 1,
+      scaleX: 1,
+      scaleY: 1,
+      duration: 320,
+      ease: 'Back.easeOut',
       onComplete: () => {
-        this.time.delayedCall(900, () => {
+        this.time.delayedCall(850, () => {
           this.tweens.add({
-            targets: [overlay, title], alpha: 0, duration: 400,
+            targets: objects,
+            alpha: 0,
+            duration: 360,
+            ease: 'Quad.easeIn',
             onComplete: () => {
-              overlay.destroy(); title.destroy();
+              objects.forEach(obj => obj.destroy());
               if (onComplete) onComplete();
             },
           });
@@ -167,7 +219,6 @@ export default class GameScene extends Phaser.Scene {
       },
     });
   }
-
   _applyObstacles(stageIndex) {
     for (let r = 0; r < GRID_ROWS; r++) {
       for (let c = 0; c < GRID_COLS; c++) {
@@ -637,6 +688,9 @@ export default class GameScene extends Phaser.Scene {
     if (this.selectedEnemy) this._renderEnemyInfo();
   }
 }
+
+
+
 
 
 
