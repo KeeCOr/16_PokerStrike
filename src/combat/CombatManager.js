@@ -322,6 +322,12 @@ export default class CombatManager {
         this.scene.economyManager.addGold(toAdd);
         this._rewardAccum -= toAdd;
       }
+      this.scene.events?.emit?.('battle-feedback', {
+        type: 'kill',
+        enemyType: enemy.type,
+        reward: enemy.reward,
+        goldAdded: toAdd,
+      });
     }
     // ??? ?뺣쪧濡??뱀닔 ?ы솕(?? ?쒕엻
     if (Math.random() < 0.06) {

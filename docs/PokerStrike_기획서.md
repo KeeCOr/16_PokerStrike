@@ -1,3 +1,12 @@
+## 2026-06-19 Update: Battle Feedback Quality Pass
+
+- Version: `v0.1.57`
+- Added a short battle-feedback banner above the card panel for summon, magic, and enemy-kill results.
+- Summon feedback now shows the hand rank, dominant suit, and gold spent so the card combo immediately connects to the board result.
+- Magic feedback shows the activated skill, combo rank, and burned-card count; kill feedback shows reward/gold gains.
+
+---
+
 ﻿# PokerStrike 湲고쉷??
 
 ## 2026-06-18 업데이트: 보드 타일 코드드로잉 1차 정리

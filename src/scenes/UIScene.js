@@ -2,7 +2,8 @@ import Phaser from 'phaser';
 import HUD from '../ui/HUD.js';
 import CardUI from '../ui/CardUI.js';
 import { THEME } from '../theme.js';
-import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
+import { ENV_TEXTURES, UI_TEXTURES } from '../assets/art/AssetKeys.js';
+import { BATTLE_FEEDBACK_COLORS, getBattleFeedback } from '../ui/BattleFeedback.js';
 import Deck from '../cards/Deck.js';
 import Hand from '../cards/Hand.js';
 import SharedCards from '../cards/SharedCards.js';
@@ -46,9 +47,18 @@ export default class UIScene extends Phaser.Scene {
     }
 
     const gameScene = this.scene.get('GameScene');
+    this._battleFeedbackObjects = [];
+    this._battleFeedbackTimer = null;
+    this._onBattleFeedback = payload => this._showBattleFeedback(payload);
+
     gameScene.events.on('refreshSharedCards', () => {
       this.sharedCards.consume(this.deck);
       this._refreshUI();
+    });
+    gameScene.events.on('battle-feedback', this._onBattleFeedback);
+    this.events.once('shutdown', () => {
+      gameScene.events.off('battle-feedback', this._onBattleFeedback);
+      this._clearBattleFeedback();
     });
 
     gameScene.unitManager.onUnitSelected = () => {
@@ -123,6 +133,8 @@ export default class UIScene extends Phaser.Scene {
     eco.recordSummon();
 
     const { rank, dominantSuit } = evaluateHand(this.hand.cards);
+    const rankName = HAND_NAMES[rank];
+    const suitLabel = SUIT_ICONS[dominantSuit] || dominantSuit;
     this.deck.discardMany(this.hand.consumeAll());
 
     for (let i = 0; i < 5; i++) {
@@ -131,6 +143,12 @@ export default class UIScene extends Phaser.Scene {
     }
 
     gameScene.unitManager.placeUnitRandom(rank, dominantSuit, 1);
+    gameScene.events.emit('battle-feedback', {
+      type: 'summon',
+      rankName,
+      suitLabel,
+      cost,
+    });
     if (gameScene.rogueliteManager) {
       const bonus = gameScene.rogueliteManager.getGoldOnSummon(rank);
       if (bonus > 0) eco.addGold(bonus);
@@ -163,7 +181,14 @@ export default class UIScene extends Phaser.Scene {
     // Cards are burned (permanently removed from deck this session)
     const burnedHand = this.hand.consumeAll();
     const burnedShared = this.sharedCards.consume(this.deck);
+    const burnedCount = burnedHand.length + burnedShared.length;
     this.deck.burnMany([...burnedHand, ...burnedShared]);
+    gameScene.events.emit('battle-feedback', {
+      type: 'magic',
+      skillName: skill?.name,
+      rankName: HAND_NAMES[bestRank],
+      burnedCount,
+    });
     eco.resetReplaceCost();
 
     for (let i = 0; i < 5; i++) {
@@ -252,6 +277,51 @@ export default class UIScene extends Phaser.Scene {
   _clearUpgradeObjs() {
     this._upgradeObjs.forEach(o => { if (o && o.active) o.destroy(); });
     this._upgradeObjs = [];
+  }
+
+  _showBattleFeedback(payload) {
+    this._clearBattleFeedback();
+    const feedback = getBattleFeedback(payload);
+    const x = 320;
+    const y = PANEL_Y - 18;
+    let bg;
+    if (this.textures?.exists?.(ENV_TEXTURES.BATTLE_LABEL_FRAME) && this.add.image) {
+      bg = this.add.image(x, y, ENV_TEXTURES.BATTLE_LABEL_FRAME)
+        .setDisplaySize(420, 34)
+        .setAlpha(0.96)
+        .setDepth(30);
+    } else {
+      bg = this.add.rectangle(x, y, 420, 28, 0x08131f, 0.94)
+        .setStrokeStyle(1, 0xf2c96b, 0.85)
+        .setDepth(30);
+    }
+    const text = this.add.text(x, y + 1, feedback.text, {
+      fontSize: '13px',
+      color: BATTLE_FEEDBACK_COLORS[feedback.tone] || BATTLE_FEEDBACK_COLORS.info,
+      fontStyle: 'bold',
+      align: 'center',
+      fixedWidth: 388,
+    }).setOrigin(0.5).setDepth(31);
+    text.setStroke?.('#02070d', 3);
+    this._battleFeedbackObjects = [bg, text];
+    this.tweens.add({
+      targets: this._battleFeedbackObjects,
+      scaleX: { from: 0.96, to: 1 },
+      scaleY: { from: 0.96, to: 1 },
+      alpha: { from: 0.72, to: 1 },
+      duration: 120,
+      ease: 'Quad.easeOut',
+    });
+    this._battleFeedbackTimer = this.time.delayedCall(1700, () => this._clearBattleFeedback());
+  }
+
+  _clearBattleFeedback() {
+    if (this._battleFeedbackTimer) {
+      this._battleFeedbackTimer.remove(false);
+      this._battleFeedbackTimer = null;
+    }
+    this._battleFeedbackObjects?.forEach(obj => { if (obj?.active) obj.destroy(); });
+    this._battleFeedbackObjects = [];
   }
 
   _renderRogueliteTab() {
