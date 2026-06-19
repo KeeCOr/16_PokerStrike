@@ -34,20 +34,20 @@ export const SHAPE_DEF = {
 };
 
 export const HAND_RANK_VISUAL = {
-  [HAND_RANK.HIGH_CARD]:       { size: 0.25, ring: 0,    glow: 0,    stroke: 0x5f6b78, label: 'I',   ornament: 'base',       ornamentTier: 0 },
-  [HAND_RANK.ONE_PAIR]:        { size: 0.27, ring: 0,    glow: 0,    stroke: 0x77889a, label: 'II',  ornament: 'side-pips',  ornamentTier: 1 },
-  [HAND_RANK.TWO_PAIR]:        { size: 0.29, ring: 0.13, glow: 0.025, stroke: 0x8aa2b8, label: 'III', ornament: 'dual-guard', ornamentTier: 2 },
-  [HAND_RANK.THREE_OF_A_KIND]: { size: 0.31, ring: 0.15, glow: 0.035, stroke: 0x9fd0ff, label: 'IV',  ornament: 'tri-spire',  ornamentTier: 3 },
-  [HAND_RANK.STRAIGHT]:        { size: 0.33, ring: 0.18, glow: 0.045, stroke: 0xffd166, label: 'V',   ornament: 'blade-crown', ornamentTier: 4 },
-  [HAND_RANK.FLUSH]:           { size: 0.35, ring: 0.20, glow: 0.055, stroke: 0x7af6ff, label: 'VI',  ornament: 'halo-crown', ornamentTier: 5 },
-  [HAND_RANK.FULL_HOUSE]:      { size: 0.37, ring: 0.23, glow: 0.065, stroke: 0xff9f43, label: 'VII', ornament: 'royal-core', ornamentTier: 6 },
-  [HAND_RANK.FOUR_OF_A_KIND]:  { size: 0.39, ring: 0.25, glow: 0.075, stroke: 0xffef7a, label: 'VIII', ornament: 'quad-spire', ornamentTier: 7 },
-  [HAND_RANK.STRAIGHT_FLUSH]:  { size: 0.40, ring: 0.27, glow: 0.085, stroke: 0xffffff, label: 'MAX', ornament: 'max-crown',  ornamentTier: 8 },
+  [HAND_RANK.HIGH_CARD]:       { size: 0.18,  ring: 0,     glow: 0,     stroke: 0x5f6b78, label: 'I',   ornament: 'base',        ornamentTier: 0 },
+  [HAND_RANK.ONE_PAIR]:        { size: 0.20,  ring: 0,     glow: 0,     stroke: 0x77889a, label: 'II',  ornament: 'side-pips',   ornamentTier: 1 },
+  [HAND_RANK.TWO_PAIR]:        { size: 0.22,  ring: 0.09,  glow: 0.018, stroke: 0x8aa2b8, label: 'III', ornament: 'dual-guard',  ornamentTier: 2 },
+  [HAND_RANK.THREE_OF_A_KIND]: { size: 0.235, ring: 0.105, glow: 0.024, stroke: 0x9fd0ff, label: 'IV',  ornament: 'tri-spire',   ornamentTier: 3 },
+  [HAND_RANK.STRAIGHT]:        { size: 0.25,  ring: 0.13,  glow: 0.032, stroke: 0xffd166, label: 'V',   ornament: 'blade-crown', ornamentTier: 4 },
+  [HAND_RANK.FLUSH]:           { size: 0.265, ring: 0.15,  glow: 0.040, stroke: 0x7af6ff, label: 'VI',  ornament: 'halo-crown',  ornamentTier: 5 },
+  [HAND_RANK.FULL_HOUSE]:      { size: 0.28,  ring: 0.17,  glow: 0.048, stroke: 0xff9f43, label: 'VII', ornament: 'royal-core',  ornamentTier: 6 },
+  [HAND_RANK.FOUR_OF_A_KIND]:  { size: 0.295, ring: 0.19,  glow: 0.056, stroke: 0xffef7a, label: 'VIII', ornament: 'quad-spire', ornamentTier: 7 },
+  [HAND_RANK.STRAIGHT_FLUSH]:  { size: 0.31,  ring: 0.21,  glow: 0.064, stroke: 0xffffff, label: 'MAX', ornament: 'max-crown',   ornamentTier: 8 },
 };
 
 export const TOWER_VISUAL_STYLE = {
-  SPRITE_PADDING: 2,
-  MAX_DISPLAY_RATIO: 0.48,
+  SPRITE_PADDING: 1,
+  MAX_DISPLAY_RATIO: 0.38,
 };
 
 export function getHandRankVisual(handRank) {
@@ -93,19 +93,19 @@ function _makeRankOrnament(scene, x, y, visual, color) {
   if (!visual?.ornamentTier || !scene.add.graphics) return null;
   const tier = visual.ornamentTier;
   const accent = visual.stroke ?? color;
-  const top = y - Math.floor(CELL_SIZE * (0.13 + Math.min(tier, 5) * 0.006));
-  const side = Math.floor(CELL_SIZE * (0.09 + Math.min(tier, 4) * 0.006));
+  const top = y - Math.floor(CELL_SIZE * (0.10 + Math.min(tier, 5) * 0.004));
+  const side = Math.floor(CELL_SIZE * (0.07 + Math.min(tier, 4) * 0.004));
   const gfx = scene.add.graphics().setDepth(3);
 
   gfx.lineStyle(1, 0x000000, 0.45);
   gfx.fillStyle(accent, tier >= 5 ? 0.92 : 0.78);
 
   if (visual.ornament === 'side-pips') {
-    gfx.fillCircle(x - side, y - 2, 2.2);
-    gfx.fillCircle(x + side, y - 2, 2.2);
+    gfx.fillCircle(x - side, y - 2, 1.8);
+    gfx.fillCircle(x + side, y - 2, 1.8);
   } else if (visual.ornament === 'dual-guard') {
-    gfx.fillCircle(x - side, top + 7, 2.6);
-    gfx.fillCircle(x + side, top + 7, 2.6);
+    gfx.fillCircle(x - side, top + 7, 2.1);
+    gfx.fillCircle(x + side, top + 7, 2.1);
     gfx.lineBetween(x - side, top + 11, x - side, top + 18);
     gfx.lineBetween(x + side, top + 11, x + side, top + 18);
   } else if (visual.ornament === 'tri-spire') {
@@ -116,21 +116,21 @@ function _makeRankOrnament(scene, x, y, visual, color) {
     gfx.fillTriangle(x, top - 5, x - 5, top + 8, x + 5, top + 8);
     gfx.lineBetween(x - side, y + 10, x + side, y + 10);
   } else if (visual.ornament === 'halo-crown') {
-    gfx.strokeCircle(x, y, Math.floor(CELL_SIZE * 0.19));
+    gfx.strokeCircle(x, y, Math.floor(CELL_SIZE * 0.14));
     gfx.fillTriangle(x, top - 5, x - 5, top + 8, x + 5, top + 8);
   } else if (visual.ornament === 'royal-core') {
-    gfx.fillCircle(x, y, 4.2);
-    gfx.strokeCircle(x, y, Math.floor(CELL_SIZE * 0.20));
+    gfx.fillCircle(x, y, 3.2);
+    gfx.strokeCircle(x, y, Math.floor(CELL_SIZE * 0.15));
     gfx.fillTriangle(x, top - 6, x - 6, top + 9, x + 6, top + 9);
   } else if (visual.ornament === 'quad-spire') {
-    gfx.strokeCircle(x, y, Math.floor(CELL_SIZE * 0.21));
+    gfx.strokeCircle(x, y, Math.floor(CELL_SIZE * 0.16));
     [-1, 1].forEach(dir => {
       gfx.fillTriangle(x + dir * side, top, x + dir * (side - 4), top + 11, x + dir * (side + 4), top + 11);
     });
     gfx.fillTriangle(x, top - 7, x - 5, top + 9, x + 5, top + 9);
   } else if (visual.ornament === 'max-crown') {
-    gfx.strokeCircle(x, y, Math.floor(CELL_SIZE * 0.22));
-    gfx.fillCircle(x, y, 4.8);
+    gfx.strokeCircle(x, y, Math.floor(CELL_SIZE * 0.17));
+    gfx.fillCircle(x, y, 3.6);
     [-1, 0, 1].forEach(dir => {
       const px = x + dir * Math.floor(side * 0.75);
       gfx.fillTriangle(px, top - (dir === 0 ? 8 : 2), px - 5, top + 10, px + 5, top + 10);
@@ -191,8 +191,8 @@ export default class Unit {
     this.sprite = _makeTowerSprite(scene, pos.x, pos.y, handRank, suit, sz, color).setDepth(2);
     this.rankOrnament = _makeRankOrnament(scene, pos.x, pos.y, visual, color);
     this.hpBar = scene.add.graphics().setDepth(3);
-    this.gradeText = scene.add.text(pos.x, pos.y - Math.floor(CELL_SIZE * 0.21), `${visual.label}-${grade}`, {
-      fontSize: handRank >= HAND_RANK.FULL_HOUSE ? '12px' : '10px',
+    this.gradeText = scene.add.text(pos.x, pos.y - Math.floor(CELL_SIZE * 0.18), `${visual.label}-${grade}`, {
+      fontSize: handRank >= HAND_RANK.FULL_HOUSE ? '11px' : '9px',
       color: handRank >= HAND_RANK.STRAIGHT ? '#ffef9a' : '#dcecff',
       stroke: '#000000',
       strokeThickness: 3,
@@ -335,5 +335,6 @@ export default class Unit {
     if (this.dimOverlay) this.dimOverlay.destroy();
   }
 }
+
 
 

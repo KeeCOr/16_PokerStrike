@@ -14,6 +14,18 @@ export const SUMMON_PREVIEW_STYLE = {
   CELL_PADDING: 9,
 };
 
+export const RANGE_DECAL_STYLE = {
+  FILL_COLOR: 0x7fd7ff,
+  FILL_ALPHA: 0.028,
+  RING_COLOR: 0xbfefff,
+  RING_ALPHA: 0.16,
+  INNER_RING_ALPHA: 0.08,
+  TICK_ALPHA: 0.18,
+  TICK_COUNT: 16,
+  TICK_LENGTH: 8,
+  DEPTH: 0.65,
+};
+
 export default class UnitManager {
   constructor(scene) {
     this.scene = scene;
@@ -163,6 +175,29 @@ export default class UnitManager {
     if (this.scene.enemyManager) this.scene.enemyManager.recalculateAllPaths();
   }
 
+  _createRangeDecal(scene, x, y, radius) {
+    const style = RANGE_DECAL_STYLE;
+    const gfx = scene.add.graphics().setDepth(style.DEPTH).setPosition(x, y);
+    gfx.fillStyle(style.FILL_COLOR, style.FILL_ALPHA);
+    gfx.fillCircle(0, 0, radius);
+    gfx.lineStyle(1, style.RING_COLOR, style.RING_ALPHA);
+    gfx.strokeCircle(0, 0, radius);
+    gfx.lineStyle(1, style.RING_COLOR, style.INNER_RING_ALPHA);
+    gfx.strokeCircle(0, 0, radius * 0.62);
+    gfx.lineStyle(1, style.RING_COLOR, style.TICK_ALPHA);
+    for (let i = 0; i < style.TICK_COUNT; i++) {
+      const angle = (i / style.TICK_COUNT) * Math.PI * 2;
+      const inner = Math.max(0, radius - style.TICK_LENGTH);
+      gfx.lineBetween(
+        Math.cos(angle) * inner,
+        Math.sin(angle) * inner,
+        Math.cos(angle) * radius,
+        Math.sin(angle) * radius
+      );
+    }
+    return gfx;
+  }
+
   _createDragGfx(scene, x, y, handRank, color) {
     const r = Math.floor(CELL_SIZE * 0.55 / 2);
     const def = SHAPE_DEF[handRank] ?? SHAPE_DEF[HAND_RANK.ONE_PAIR];
@@ -226,7 +261,7 @@ export default class UnitManager {
     this._dragStartY = 0;
     this._isDragging = false;
     this._dragIndicator = null;
-    this._dragRangeCircle = null;
+    this._dragRangeDecal = null;
 
     scene.input.on('pointerdown', (ptr) => {
       this._pointerDownActive = false;
@@ -249,8 +284,7 @@ export default class UnitManager {
         const u = this._pointerDownUnit;
         const pos = scene.grid.cellToWorld(u.col, u.row);
         const rangeInPx = u.stats.range * CELL_SIZE;
-        this._dragRangeCircle = scene.add.circle(pos.x, pos.y, rangeInPx, 0xffffff, 0.07)
-          .setStrokeStyle(1, 0xffffff, 0.45).setDepth(1);
+        this._dragRangeDecal = this._createRangeDecal(scene, pos.x, pos.y, rangeInPx);
         this._dragIndicator = this._createDragGfx(scene, pos.x, pos.y, u.handRank, 0x00ffff);
       }
       if (this._isDragging && !this._dimApplied) {
@@ -259,7 +293,7 @@ export default class UnitManager {
       }
       if (this._isDragging) {
         this._dragIndicator?.setPosition(ptr.x, ptr.y);
-        this._dragRangeCircle?.setPosition(ptr.x, ptr.y);
+        this._dragRangeDecal?.setPosition(ptr.x, ptr.y);
         const { col, row } = scene.grid.worldToCell(ptr.x, ptr.y);
         const canDrop = this._isValidPlacement(col, row) && scene.grid.isWalkable(col, row) &&
           !(scene.enemyManager && scene.enemyManager.isEnemyAt(col, row));
@@ -311,7 +345,7 @@ export default class UnitManager {
         this._clearDim();
         this._dimApplied = false;
         this._dragIndicator?.destroy(); this._dragIndicator = null;
-        this._dragRangeCircle?.destroy(); this._dragRangeCircle = null;
+        this._dragRangeCircle?.destroy(); this._dragRangeDecal = null;
       } else if (!this._isDragging) {
         this._handleClick(ptr);
       }
@@ -383,6 +417,7 @@ export default class UnitManager {
     this.units.forEach(u => u.update(time));
   }
 }
+
 
 
 
