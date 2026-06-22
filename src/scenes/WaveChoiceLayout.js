@@ -3,6 +3,7 @@
 export const WAVE_CHOICE_LAYOUT = {
   TITLE_Y: 108,
   TITLE_FRAME: { w: 368, h: 84 },
+  TITLE_TEXTURE: UI_TEXTURES.TAB_ACTIVE,
   TITLE_EYEBROW_Y: -24,
   TITLE_TEXT_Y: -1,
   TITLE_SUBTITLE_Y: 28,
@@ -30,4 +31,5 @@ export function getWaveChoiceTextureKey(upgrade) {
   }
   return UI_TEXTURES.BUTTON_UPGRADE_BLUE;
 }
+
 

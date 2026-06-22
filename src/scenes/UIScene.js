@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
 import HUD from '../ui/HUD.js';
 import CardUI from '../ui/CardUI.js';
 import { THEME } from '../theme.js';
@@ -35,22 +35,19 @@ export default class UIScene extends Phaser.Scene {
 
     this._activeTab = 'card';
     this._upgradeObjs = [];
+    this._battleFeedbackObjects = [];
+    this._battleFeedbackTimer = null;
 
     this._createTabButtons();
     this._createReadableTabs();
     this._refreshUI();
 
-    // 1스테이지 시작 시 항상 튜토리얼 표시
-    const gs = this.scene.get('GameScene');
-    if (!gs || gs.startStageIndex === 0) {
+    const gameScene = this.scene.get('GameScene');
+    if (!gameScene || gameScene.startStageIndex === 0) {
       this.time.delayedCall(800, () => this._showTutorial());
     }
 
-    const gameScene = this.scene.get('GameScene');
-    this._battleFeedbackObjects = [];
-    this._battleFeedbackTimer = null;
     this._onBattleFeedback = payload => this._showBattleFeedback(payload);
-
     gameScene.events.on('refreshSharedCards', () => {
       this.sharedCards.consume(this.deck);
       this._refreshUI();
@@ -84,9 +81,9 @@ export default class UIScene extends Phaser.Scene {
   _createReadableTabs() {
     const y = PANEL_Y + 18;
     this._readableTabs = [
-      this._createReadableTab('card', 112, y, 184, '▱  카드패'),
-      this._createReadableTab('upgrade', 320, y, 184, '⇧  업그레이드'),
-      this._createReadableTab('roguelite', 528, y, 184, '✦  강화 목록'),
+      this._createReadableTab('card', 112, y, 184, '카드패'),
+      this._createReadableTab('upgrade', 320, y, 184, '업그레이드'),
+      this._createReadableTab('roguelite', 528, y, 184, '강화 목록'),
     ];
     this._updateReadableTabs();
   }
@@ -161,8 +158,8 @@ export default class UIScene extends Phaser.Scene {
     const eco = gameScene.economyManager;
     if (this.hand.cards.length < 3) return;
 
-    // 최고 족보: 패에서 3장 선택 × 공용패 조합 모두 시도
-    let bestRank = -1, bestSuit = null;
+    let bestRank = -1;
+    let bestSuit = null;
     const h = this.hand.cards;
     const shared = this.sharedCards.getCards();
     for (let a = 0; a < h.length - 2; a++) {
@@ -178,7 +175,6 @@ export default class UIScene extends Phaser.Scene {
     gameScene.magicManager.cast(bestRank, bestSuit);
     if (skill) gameScene.showMagicEffect(bestRank, skill.name, skill.description);
 
-    // Cards are burned (permanently removed from deck this session)
     const burnedHand = this.hand.consumeAll();
     const burnedShared = this.sharedCards.consume(this.deck);
     const burnedCount = burnedHand.length + burnedShared.length;
@@ -205,7 +201,6 @@ export default class UIScene extends Phaser.Scene {
     const cost = eco.getReplaceCost();
     if (eco.gold < cost) return;
 
-    // Enter replace mode — wait for card selection
     this.cardUI.enterReplaceMode(this.hand, (idx) => {
       if (!eco.spend(cost)) return;
       eco.recordReplace();
@@ -215,7 +210,6 @@ export default class UIScene extends Phaser.Scene {
       if (newCard) this.hand.addCard(newCard);
       this._refreshUI();
     }, () => {
-      // 패 밖 클릭 시 취소 → UI 갱신(힌트 제거)
       this._refreshUI();
     });
   }
@@ -237,12 +231,10 @@ export default class UIScene extends Phaser.Scene {
     const gameScene = this.scene.get('GameScene');
     const eco = gameScene.economyManager;
 
-    // Summon preview: current hand rank
     const summonPreview = this.hand.cards.length === 5
       ? HAND_NAMES[evaluateHand(this.hand.cards).rank]
       : null;
 
-    // Magic preview: best 3 from hand + 2 shared cards (try all C(5,3) combos)
     let magicPreview = null;
     const shared = this.sharedCards.getCards();
     if (this.hand.cards.length >= 3 && shared.length > 0) {
@@ -257,19 +249,17 @@ export default class UIScene extends Phaser.Scene {
         }
       }
       const skill = SKILLS[bestRank];
-      magicPreview = skill ? `${HAND_NAMES[bestRank]} · ${skill.name}` : null;
+      magicPreview = skill ? `${HAND_NAMES[bestRank]} / ${skill.name}` : null;
     }
 
-    gameScene.unitManager.showSummonPreview(); // 카드 탭에서 항상 미리보기
+    gameScene.unitManager.showSummonPreview();
     this.cardUI.render(this.hand, this.sharedCards, this.deck.burnCount);
     const buttons = this.cardUI.renderButtons(
       eco.getDrawCost(), eco.getReplaceCost(),
       summonPreview, magicPreview
     );
 
-    buttons.summonBtn.on('pointerdown', () => {
-      this._summon();
-    });
+    buttons.summonBtn.on('pointerdown', () => this._summon());
     buttons.magicBtn.on('pointerdown', () => this._castMagic());
     buttons.replaceBtn.on('pointerdown', () => this._replace());
   }
@@ -330,28 +320,25 @@ export default class UIScene extends Phaser.Scene {
     const upgrades = gameScene?.rogueliteManager?.upgrades ?? [];
     let y = PANEL_Y + 48;
 
-    const title = this.add.text(320, y, '— 획득한 로그라이트 강화 —', {
+    const title = this.add.text(320, y, '획득한 강화 목록', {
       fontSize: '11px', color: '#ffdd44'
     }).setOrigin(0.5).setDepth(12);
     this._upgradeObjs.push(title);
     y += 22;
 
     if (upgrades.length === 0) {
-      const icon = this.add.text(320, y + 8, '✦', {
-        fontSize: '20px', color: '#aaaaaa'
-      }).setOrigin(0.5).setDepth(12);
-      const emptyMain = this.add.text(320, y + 34, '아직 획득한 강화가 없습니다', {
+      const emptyMain = this.add.text(320, y + 22, '아직 획득한 강화가 없습니다', {
         fontSize: '11px', color: '#aaaaaa', align: 'center'
       }).setOrigin(0.5).setDepth(12);
-      const emptySub = this.add.text(320, y + 50, '스테이지를 클리어하면 강화를 선택할 수 있습니다', {
-        fontSize: '10px', color: '#888888', align: 'center', wordWrap: { width: 240 }
+      const emptySub = this.add.text(320, y + 42, '스테이지를 클리어하면 강화를 선택할 수 있습니다', {
+        fontSize: '10px', color: '#888888', align: 'center', wordWrap: { width: 260 }
       }).setOrigin(0.5).setDepth(12);
-      this._upgradeObjs.push(icon, emptyMain, emptySub);
+      this._upgradeObjs.push(emptyMain, emptySub);
       return;
     }
 
     for (const u of upgrades) {
-      const row = this.add.text(320, y, `· ${u.label}`, {
+      const row = this.add.text(320, y, `- ${u.label}`, {
         fontSize: '11px', color: '#aaddff'
       }).setOrigin(0.5).setDepth(12);
       this._upgradeObjs.push(row);
@@ -366,8 +353,7 @@ export default class UIScene extends Phaser.Scene {
     const eco = gameScene.economyManager;
     let y = PANEL_Y + 48;
 
-    // Permanent upgrade section (영구 강화, 젬 사용)
-    const permTitle = this.add.text(320, y, '◆ 전체 타워 강화', {
+    const permTitle = this.add.text(320, y, '전체 영구 강화', {
       fontSize: '11px', color: '#88eeff'
     }).setOrigin(0.5).setDepth(12);
     this._upgradeObjs.push(permTitle);
@@ -375,29 +361,30 @@ export default class UIScene extends Phaser.Scene {
 
     const permHpLv = gameScene.permHpLevel ?? 0;
     const permAtkLv = gameScene.permAtkLevel ?? 0;
-    const PERM_MAX = 10, PERM_COST = 1;
+    const PERM_MAX = 10;
+    const PERM_COST = 1;
 
     this._drawUpgradeButton(190, y, 190,
-      permHpLv >= PERM_MAX ? `HP +${permHpLv * 3}% MAX` : `HP +3%  ◆${PERM_COST}  Lv${permHpLv}`,
+      permHpLv >= PERM_MAX ? `HP +${permHpLv * 3}% MAX` : `HP +3%  ${PERM_COST}보석  Lv${permHpLv}`,
       0x17351f, 0x58d27c, () => {
-      if (permHpLv < PERM_MAX && gameScene.gems >= PERM_COST) {
-        gameScene.gems -= PERM_COST;
-        gameScene.permHpLevel = (gameScene.permHpLevel ?? 0) + 1;
-        gameScene.registry.set('gems', gameScene.gems);
-        this._renderUpgradeTab();
-      }
-    });
+        if (permHpLv < PERM_MAX && gameScene.gems >= PERM_COST) {
+          gameScene.gems -= PERM_COST;
+          gameScene.permHpLevel = (gameScene.permHpLevel ?? 0) + 1;
+          gameScene.registry.set('gems', gameScene.gems);
+          this._renderUpgradeTab();
+        }
+      });
 
     this._drawUpgradeButton(440, y, 190,
-      permAtkLv >= PERM_MAX ? `ATK +${permAtkLv * 3}% MAX` : `ATK +3%  ◆${PERM_COST}  Lv${permAtkLv}`,
+      permAtkLv >= PERM_MAX ? `ATK +${permAtkLv * 3}% MAX` : `ATK +3%  ${PERM_COST}보석  Lv${permAtkLv}`,
       0x3d2412, 0xffb65c, () => {
-      if (permAtkLv < PERM_MAX && gameScene.gems >= PERM_COST) {
-        gameScene.gems -= PERM_COST;
-        gameScene.permAtkLevel = (gameScene.permAtkLevel ?? 0) + 1;
-        gameScene.registry.set('gems', gameScene.gems);
-        this._renderUpgradeTab();
-      }
-    });
+        if (permAtkLv < PERM_MAX && gameScene.gems >= PERM_COST) {
+          gameScene.gems -= PERM_COST;
+          gameScene.permAtkLevel = (gameScene.permAtkLevel ?? 0) + 1;
+          gameScene.registry.set('gems', gameScene.gems);
+          this._renderUpgradeTab();
+        }
+      });
     y += 26;
 
     const suitTitle = this.add.text(320, y, 'G 문양별 공격 강화', {
@@ -419,7 +406,6 @@ export default class UIScene extends Phaser.Scene {
     });
     y += 26;
 
-    // Base HP recovery section
     const baseTitle = this.add.text(320, y, '본진 / 선택 유닛 강화', {
       fontSize: '11px', color: '#88ccff'
     }).setOrigin(0.5).setDepth(12);
@@ -537,25 +523,23 @@ export default class UIScene extends Phaser.Scene {
     const steps = [
       {
         title: '소환 (Summon)',
-        body: '패 5장의 족보를 판단해 타워를 소환합니다.\n높은 족보일수록 강한 타워가 나옵니다.\n교체를 하면 소환 비용이 할인됩니다.',
-        color: '#2244aa',
+        body: '내 카드 5장의 족보를 판단해 타워를 소환합니다.\n높은 족보일수록 강한 타워가 나옵니다.\n교체를 하면 소환 비용이 줄어듭니다.',
+        color: '#65d9ff',
       },
       {
         title: '교체 (Replace)',
-        body: '원하는 카드 1장을 덱에서 새 카드로 교체합니다.\n교체할수록 소환 비용이 저렴해집니다.\n소환하면 교체 비용이 초기화됩니다.',
-        color: '#226644',
+        body: '원하는 카드 1장을 덱의 새 카드로 교체합니다.\n교체할수록 소환 비용이 낮아집니다.\n소환하면 교체 비용은 초기화됩니다.',
+        color: '#9fd56c',
       },
       {
         title: '마법 (Magic)',
-        body: '패 3장 + 공용패 2장으로 족보를 만들어\n강력한 마법을 발동합니다.\n마법 사용 시 교체 비용이 초기화됩니다.',
-        color: '#883399',
+        body: '내 카드 3장과 공용 카드 2장으로 족보를 만들어 강력한 마법을 발동합니다.\n마법 사용 후 교체 비용은 초기화됩니다.',
+        color: '#c88cff',
       },
     ];
 
     let stepIdx = 0;
     const objs = [];
-
-    const uiScene = this.scene.get('UIScene') ?? this;
     const gs = this.scene.get('GameScene');
     if (gs) gs.input.enabled = false;
 
@@ -578,7 +562,7 @@ export default class UIScene extends Phaser.Scene {
       }).setOrigin(0.5).setDepth(31);
 
       const isLast = stepIdx >= steps.length - 1;
-      const btnLabel = isLast ? '시작하기' : '다음 ▶';
+      const btnLabel = isLast ? '시작하기' : '다음';
       const btn = this.add.text(320, 498, btnLabel, {
         fontSize: '15px', color: '#ffffff',
         backgroundColor: isLast ? '#1a5e2a' : '#1a3a6a', padding: { x: 20, y: 8 }

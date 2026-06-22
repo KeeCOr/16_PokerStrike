@@ -3,11 +3,13 @@ import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
 import { THEME } from '../theme.js';
 
 export const HUD_LAYOUT = {
-  RESOURCE_PANEL: { x: 536, y: 26, w: 176, h: 32, paddingX: 14 },
-  GOLD_ICON: { x: 472, y: 26, size: 22 },
-  GOLD_TEXT: { x: 522, y: 26, originX: 1, maxWidth: 42 },
-  GEM_ICON: { x: 552, y: 26, size: 22 },
-  GEM_TEXT: { x: 608, y: 26, originX: 1, maxWidth: 42 },
+  RESOURCE_PANEL: { x: 540, y: 26, w: 174, h: 32, paddingX: 12 },
+  GOLD_PANEL: { x: 494, y: 26, w: 82, h: 32 },
+  GEM_PANEL: { x: 586, y: 26, w: 82, h: 32 },
+  GOLD_ICON: { x: 470, y: 26, size: 22 },
+  GOLD_TEXT: { x: 512, y: 26, originX: 1, maxWidth: 38, color: '#ffd766' },
+  GEM_ICON: { x: 562, y: 26, size: 22 },
+  GEM_TEXT: { x: 604, y: 26, originX: 1, maxWidth: 38, color: '#55d6ff' },
   WAVE_PANEL: { x: 320, y: 26, w: 188, h: 32 },
   WAVE_BADGE_DISPLAY: { w: 192, h: 42 },
   WAVE_TEXT: { x: 320, y: 26, offsetY: 0 },
@@ -35,10 +37,10 @@ export default class HUD {
     this._drawResourceIcon(UI_TEXTURES.RESOURCE_GEM, HUD_LAYOUT.GEM_ICON, 0xc677ff);
 
     this.goldText = scene.add.text(HUD_LAYOUT.GOLD_TEXT.x, HUD_LAYOUT.GOLD_TEXT.y, '20', {
-      fontSize: '17px', color: '#ffd766', fontStyle: 'bold'
+      fontSize: '17px', color: HUD_LAYOUT.GOLD_TEXT.color, fontStyle: 'bold'
     }).setOrigin(HUD_LAYOUT.GOLD_TEXT.originX, 0.5).setDepth(11);
     this.gemText = scene.add.text(HUD_LAYOUT.GEM_TEXT.x, HUD_LAYOUT.GEM_TEXT.y, '0', {
-      fontSize: '16px', color: '#dca6ff', fontStyle: 'bold'
+      fontSize: '16px', color: HUD_LAYOUT.GEM_TEXT.color, fontStyle: 'bold'
     }).setOrigin(HUD_LAYOUT.GEM_TEXT.originX, 0.5).setDepth(11);
     this.waveText = scene.add.text(HUD_LAYOUT.WAVE_TEXT.x, HUD_LAYOUT.WAVE_TEXT.y, 'Wave 1', {
       fontSize: '15px', color: '#bceeff', fontStyle: 'bold'
@@ -66,18 +68,17 @@ export default class HUD {
   }
 
   _drawResourceCluster() {
-    const { x, y, w, h } = HUD_LAYOUT.RESOURCE_PANEL;
-    if (this.scene.textures?.exists?.(UI_TEXTURES.PANEL_RESOURCE) && this.scene.add.image) {
-      this.scene.add.image(x, y, UI_TEXTURES.PANEL_RESOURCE)
-        .setDepth(10)
-        .setDisplaySize(w + 12, h + 18)
-        .setAlpha(0.96);
-    } else {
-      this._drawHudShell(x, y, w, h, 0x1d1b21, THEME.text.gold);
-      this.scene.add.rectangle(x - 8, y, 2, h - 10, 0x6f5c35, 0.8).setDepth(11);
-    }
+    this._drawResourceFrame(HUD_LAYOUT.GOLD_PANEL, THEME.text.gold);
+    this._drawResourceFrame(HUD_LAYOUT.GEM_PANEL, THEME.economy.gem);
   }
 
+  _drawResourceFrame(panel, stroke) {
+    const { x, y, w, h } = panel;
+    this.scene.add.rectangle(x, y, w, h, 0x02070d, 0.72).setDepth(9);
+    this.scene.add.rectangle(x, y, w - 4, h - 4, 0x101f32, 0.9).setDepth(10)
+      .setStrokeStyle(1, stroke, 0.78);
+    this.scene.add.rectangle(x - w / 2 + 30, y, 1, h - 12, stroke, 0.32).setDepth(11);
+  }
   _drawWaveBadge() {
     const { x, y, w, h } = HUD_LAYOUT.WAVE_PANEL;
     const display = HUD_LAYOUT.WAVE_BADGE_DISPLAY;
@@ -112,6 +113,7 @@ export default class HUD {
       .setStrokeStyle(1, stroke, 0.75);
   }
 }
+
 
 
 
