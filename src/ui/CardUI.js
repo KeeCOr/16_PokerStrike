@@ -94,8 +94,8 @@ export default class CardUI {
     const sharedTotal = sharedCards.cards.length * (sharedCardW + sharedGap) - sharedGap;
     const sharedCenterX = SHARED_CENTER_X;
     const sharedStartX = Math.floor(sharedCenterX - sharedTotal / 2 + sharedCardW / 2);
-    this.sharedObjects.push(this._drawLabelPill(455, META_Y, 72, '怨듭슜??, '#9ee6ff'));
-    this.sharedObjects.push(this._drawLabelPill(540, META_Y, 76, `臾대뜡 ${burnCount}`, '#d8b6ff'));
+    this.sharedObjects.push(this._drawLabelPill(455, META_Y, 72, '공용패', '#9ee6ff'));
+    this.sharedObjects.push(this._drawLabelPill(540, META_Y, 76, `무덤 ${burnCount}`, '#d8b6ff'));
 
     sharedCards.cards.forEach((card, i) => {
       const x = sharedStartX + i * (sharedCardW + sharedGap);
@@ -129,7 +129,7 @@ export default class CardUI {
   enterReplaceMode(hand, onSelect, onCancel) {
     this.exitReplaceMode();
 
-    this._replaceModeHint = this._drawLabelPill(166, META_Y, 190, '援먯껜??移대뱶瑜??좏깮?섏꽭??, '#ffdd44', 15);
+    this._replaceModeHint = this._drawLabelPill(166, META_Y, 190, '교체할 카드를 선택하세요', '#ffdd44', 15);
 
     this.cardObjects.forEach((objs, i) => {
       const [bg] = objs;
@@ -183,7 +183,7 @@ export default class CardUI {
     let summonPreview = null;
     let summonPreviewBg = null;
     if (summonHandName) {
-      [summonPreviewBg, summonPreview] = this._drawPreviewStrip(320, 208, `議깅낫  ${summonHandName}`, '#ffdd88', 15);
+      [summonPreviewBg, summonPreview] = this._drawPreviewStrip(320, 208, `소환  ${summonHandName}`, '#ffdd88', 15);
     }
 
     let magicPreview = null;
@@ -192,9 +192,9 @@ export default class CardUI {
       [magicPreviewBg, magicPreview] = this._drawPreviewStrip(112, 184, magicSkillName, '#dca7ff', 10);
     }
 
-    const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '留덈쾿', 0x56308f, 0xb776ff, UI_TEXTURES.BUTTON_ACTION_PURPLE);
-    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `?뚰솚 ${drawCost}G`, THEME.ui.btnGold, THEME.text.gold, UI_TEXTURES.BUTTON_ACTION_GOLD);
-    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `援먯껜 ${replaceCost}G`, 0x0f5878, THEME.economy.gem, UI_TEXTURES.BUTTON_ACTION_CYAN);
+    const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '마법', 0x56308f, 0xb776ff, UI_TEXTURES.BUTTON_ACTION_PURPLE);
+    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `소환 ${drawCost}G`, THEME.ui.btnGold, THEME.text.gold, UI_TEXTURES.BUTTON_ACTION_GOLD);
+    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `교체 ${replaceCost}G`, 0x0f5878, THEME.economy.gem, UI_TEXTURES.BUTTON_ACTION_CYAN);
 
     this._buttons = { summonBtn, magicBtn, replaceBtn, summonPreviewBg, summonPreview, magicPreviewBg, magicPreview };
     return { summonBtn, magicBtn, replaceBtn };
