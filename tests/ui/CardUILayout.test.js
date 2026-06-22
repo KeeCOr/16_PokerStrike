@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import { CARD_LAYOUT } from '../../src/ui/CardUI.js';
 import { PANEL_Y } from '../../src/grid/Grid.js';
 
@@ -29,4 +29,20 @@ describe('CardUI layout', () => {
   it('keeps action button labels visually centered without leading icons', () => {
     expect(CARD_LAYOUT.ACTION_TEXT_Y_OFFSET).toBe(2);
   });
+  it('keeps hand cards, separator, and shared cards in distinct readable zones', () => {
+    const handRight = CARD_LAYOUT.HAND_START_X + 4 * (CARD_LAYOUT.CARD_W + CARD_LAYOUT.HAND_GAP) + CARD_LAYOUT.CARD_W / 2;
+    const sharedCardW = Math.floor(CARD_LAYOUT.CARD_W * CARD_LAYOUT.SHARED_SCALE);
+    const sharedTotal = 2 * sharedCardW + CARD_LAYOUT.SHARED_GAP;
+    const sharedLeft = CARD_LAYOUT.SHARED_CENTER_X - sharedTotal / 2;
+
+    expect(CARD_LAYOUT.HAND_GAP).toBeGreaterThanOrEqual(6);
+    expect(handRight).toBeLessThanOrEqual(CARD_LAYOUT.SEPARATOR_X - 24);
+    expect(sharedLeft).toBeGreaterThanOrEqual(CARD_LAYOUT.SEPARATOR_X + 48);
+  });
+
+  it('uses fixed preview text padding so long poker labels wrap inside strips', () => {
+    expect(CARD_LAYOUT.PREVIEW_TEXT_PAD).toBeGreaterThanOrEqual(14);
+    expect(CARD_LAYOUT.PREVIEW_TEXT_PAD).toBeLessThanOrEqual(24);
+  });
 });
+

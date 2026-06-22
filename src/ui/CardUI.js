@@ -1,4 +1,4 @@
-import { SUIT_COLORS, SUIT_ICONS } from '../cards/Card.js';
+﻿import { SUIT_COLORS, SUIT_ICONS } from '../cards/Card.js';
 import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
 import { THEME } from '../theme.js';
 
@@ -6,10 +6,16 @@ export const CARD_LAYOUT = {
   CARD_W: 50,
   CARD_H: 64,
   CARD_Y: 840,
+  HAND_START_X: 53,
+  HAND_GAP: 6,
+  SEPARATOR_X: 350,
+  SHARED_CENTER_X: 496,
+  SHARED_GAP: 8,
   META_Y: 798,
   META_H: 16,
   PREVIEW_Y: 887,
   PREVIEW_H: 22,
+  PREVIEW_TEXT_PAD: 14,
   ACTION_Y: 924,
   ACTION_H: 42,
   ACTION_TEXT_Y_OFFSET: 2,
@@ -24,10 +30,16 @@ const {
   CARD_W,
   CARD_H,
   CARD_Y,
+  HAND_START_X,
+  HAND_GAP,
+  SEPARATOR_X,
+  SHARED_CENTER_X,
+  SHARED_GAP,
   META_Y,
   META_H,
   PREVIEW_Y,
   PREVIEW_H,
+  PREVIEW_TEXT_PAD,
   ACTION_Y,
   ACTION_H,
   SHARED_SCALE,
@@ -63,27 +75,27 @@ export default class CardUI {
     this.cardObjects = [];
     this.sharedObjects = [];
 
-    const handGap = 6;
-    const startX = Math.floor(28 + CARD_W / 2);
+    const handGap = HAND_GAP;
+    const startX = HAND_START_X;
 
     hand.cards.forEach((card, i) => {
       const x = startX + i * (CARD_W + handGap);
       this.cardObjects.push(this._drawCard(x, CARD_Y, card));
     });
 
-    const sepX = 350;
+    const sepX = SEPARATOR_X;
     const sep = this.scene.add.graphics().setDepth(12);
     sep.lineStyle(1, 0x2d6688, 0.9);
     sep.lineBetween(sepX, META_Y - 8, sepX, CARD_Y + 34);
     this.sharedObjects.push([sep]);
 
     const sharedCardW = Math.floor(CARD_W * SHARED_SCALE);
-    const sharedGap = 8;
+    const sharedGap = SHARED_GAP;
     const sharedTotal = sharedCards.cards.length * (sharedCardW + sharedGap) - sharedGap;
-    const sharedCenterX = 496;
+    const sharedCenterX = SHARED_CENTER_X;
     const sharedStartX = Math.floor(sharedCenterX - sharedTotal / 2 + sharedCardW / 2);
-    this.sharedObjects.push(this._drawLabelPill(455, META_Y, 72, '공용패', '#9ee6ff'));
-    this.sharedObjects.push(this._drawLabelPill(540, META_Y, 76, `무덤 ${burnCount}`, '#d8b6ff'));
+    this.sharedObjects.push(this._drawLabelPill(455, META_Y, 72, '怨듭슜??, '#9ee6ff'));
+    this.sharedObjects.push(this._drawLabelPill(540, META_Y, 76, `臾대뜡 ${burnCount}`, '#d8b6ff'));
 
     sharedCards.cards.forEach((card, i) => {
       const x = sharedStartX + i * (sharedCardW + sharedGap);
@@ -117,7 +129,7 @@ export default class CardUI {
   enterReplaceMode(hand, onSelect, onCancel) {
     this.exitReplaceMode();
 
-    this._replaceModeHint = this._drawLabelPill(166, META_Y, 190, '교체할 카드를 선택하세요', '#ffdd44', 15);
+    this._replaceModeHint = this._drawLabelPill(166, META_Y, 190, '援먯껜??移대뱶瑜??좏깮?섏꽭??, '#ffdd44', 15);
 
     this.cardObjects.forEach((objs, i) => {
       const [bg] = objs;
@@ -171,7 +183,7 @@ export default class CardUI {
     let summonPreview = null;
     let summonPreviewBg = null;
     if (summonHandName) {
-      [summonPreviewBg, summonPreview] = this._drawPreviewStrip(320, 208, `족보  ${summonHandName}`, '#ffdd88', 15);
+      [summonPreviewBg, summonPreview] = this._drawPreviewStrip(320, 208, `議깅낫  ${summonHandName}`, '#ffdd88', 15);
     }
 
     let magicPreview = null;
@@ -180,9 +192,9 @@ export default class CardUI {
       [magicPreviewBg, magicPreview] = this._drawPreviewStrip(112, 184, magicSkillName, '#dca7ff', 10);
     }
 
-    const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '마법', 0x56308f, 0xb776ff, UI_TEXTURES.BUTTON_ACTION_PURPLE);
-    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `소환 ${drawCost}G`, THEME.ui.btnGold, THEME.text.gold, UI_TEXTURES.BUTTON_ACTION_GOLD);
-    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `교체 ${replaceCost}G`, 0x0f5878, THEME.economy.gem, UI_TEXTURES.BUTTON_ACTION_CYAN);
+    const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '留덈쾿', 0x56308f, 0xb776ff, UI_TEXTURES.BUTTON_ACTION_PURPLE);
+    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `?뚰솚 ${drawCost}G`, THEME.ui.btnGold, THEME.text.gold, UI_TEXTURES.BUTTON_ACTION_GOLD);
+    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `援먯껜 ${replaceCost}G`, 0x0f5878, THEME.economy.gem, UI_TEXTURES.BUTTON_ACTION_CYAN);
 
     this._buttons = { summonBtn, magicBtn, replaceBtn, summonPreviewBg, summonPreview, magicPreviewBg, magicPreview };
     return { summonBtn, magicBtn, replaceBtn };
@@ -221,7 +233,7 @@ export default class CardUI {
       stroke: '#000000',
       strokeThickness: 2,
       align: 'center',
-      wordWrap: { width: w - 14 },
+      wordWrap: { width: w - PREVIEW_TEXT_PAD },
     }).setOrigin(0.5).setDepth(13);
     return [bg, text];
   }
@@ -262,3 +274,4 @@ export default class CardUI {
     return bg;
   }
 }
+

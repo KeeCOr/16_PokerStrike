@@ -245,6 +245,85 @@ describe('CombatManager', () => {
 
     expect(target.lastSlow).toEqual({ amount: 0.4, duration: 3000 });
   });
+  it('emits attack feedback with damage and target position for a basic hit', () => {
+    const scene = createScene();
+    scene.events = { emitted: [], emit(type, payload) { this.emitted.push({ type, payload }); } };
+    const manager = new CombatManager(scene);
+
+    manager._applyAttack(scene.unit, scene.enemy, [scene.enemy]);
+
+    expect(scene.events.emitted).toContainEqual({
+      type: 'attack-feedback',
+      payload: expect.objectContaining({
+        kind: 'damage',
+        damage: 10,
+        x: 40,
+        y: 0,
+        role: ROLE.ATTACK,
+      }),
+    });
+  });
+
+  it('marks lethal attack feedback when the target dies', () => {
+    const scene = createScene();
+    scene.events = { emitted: [], emit(type, payload) { this.emitted.push({ type, payload }); } };
+    scene.enemy.takeDamage = function takeDamage(amount) {
+      this.lastDamage = amount;
+      return true;
+    };
+    const manager = new CombatManager(scene);
+
+    manager._applyAttack(scene.unit, scene.enemy, [scene.enemy]);
+
+    expect(scene.events.emitted).toContainEqual({
+      type: 'attack-feedback',
+      payload: expect.objectContaining({
+        kind: 'kill',
+        damage: 10,
+        x: 40,
+        y: 0,
+      }),
+    });
+  });
+
+  it('emits status feedback when slow is applied', () => {
+    const scene = createScene();
+    scene.events = { emitted: [], emit(type, payload) { this.emitted.push({ type, payload }); } };
+    const manager = new CombatManager(scene);
+    const waterUnit = {
+      ...scene.unit,
+      stats: {
+        ...scene.unit.stats,
+        role: ROLE.SUPPORT_SLOW,
+        atk: 8,
+        slowChance: 1,
+        slowAmount: 0.4,
+        slowRadius: 0,
+        slowDuration: 3000,
+      },
+    };
+    const target = {
+      ...scene.enemy,
+      slowImmune: false,
+      applySlow(amount, duration) {
+        this.lastSlow = { amount, duration };
+      },
+    };
+
+    manager._applyAttack(waterUnit, target, [target]);
+
+    expect(scene.events.emitted).toContainEqual({
+      type: 'attack-feedback',
+      payload: expect.objectContaining({
+        kind: 'status',
+        status: 'slow',
+        damage: 8,
+        x: 40,
+        y: 0,
+      }),
+    });
+  });
 });
+
 
 

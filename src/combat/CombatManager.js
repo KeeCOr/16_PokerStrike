@@ -216,18 +216,18 @@ export default class CombatManager {
           const dx = e.x - target.x;
           const dy = e.y - target.y;
           if (Math.sqrt(dx * dx + dy * dy) <= areaInPx) {
-            const dead = e.takeDamage(s.atk);
+            const dead = this._dealDamage(unit, e, s.atk);
             if (dead) this._onEnemyDied(e);
           }
         }
       } else {
-        const dead = target.takeDamage(s.atk);
+        const dead = this._dealDamage(unit, target, s.atk);
         if (dead) this._onEnemyDied(target);
       }
 
     } else if (role === ROLE.SUPPORT_SLOW) {
       // 臾? ?誘몄? ???뺣쪧 ?щ줈??(?깃툒???곕씪 踰붿쐞, slowImmune ???쒖쇅)
-      const dead = target.takeDamage(s.atk);
+      const dead = this._dealDamage(unit, target, s.atk);
       if (dead) { this._onEnemyDied(target); return; }
       if (s.slowChance > 0 && Math.random() < s.slowChance) {
         if (s.slowRadius > 0) {
@@ -237,11 +237,17 @@ export default class CombatManager {
             const dx = e.x - target.x;
             const dy = e.y - target.y;
             if (Math.sqrt(dx * dx + dy * dy) <= radiusPx) {
-              if (typeof e.applySlow === 'function') e.applySlow(s.slowAmount, s.slowDuration);
+              if (typeof e.applySlow === 'function') {
+                e.applySlow(s.slowAmount, s.slowDuration);
+                this._emitAttackFeedback(unit, e, s.atk, 'status', 'slow');
+              }
             }
           }
         } else if (!target.slowImmune) {
-          if (typeof target.applySlow === 'function') target.applySlow(s.slowAmount, s.slowDuration);
+          if (typeof target.applySlow === 'function') {
+            target.applySlow(s.slowAmount, s.slowDuration);
+            this._emitAttackFeedback(unit, target, s.atk, 'status', 'slow');
+          }
         }
       }
 
@@ -250,7 +256,7 @@ export default class CombatManager {
       if (s.armorBreakAmount > 0 && typeof target.applyArmorBreak === 'function') {
         target.applyArmorBreak(s.armorBreakAmount, s.armorBreakDuration);
       }
-      const dead = target.takeDamage(s.atk);
+      const dead = this._dealDamage(unit, target, s.atk);
       if (dead) { this._onEnemyDied(target); return; }
       if (s.stunChance > 0 && Math.random() < s.stunChance) {
         if (s.stunRadius > 0) {
@@ -260,26 +266,46 @@ export default class CombatManager {
             const dy = e.y - target.y;
             if (Math.sqrt(dx * dx + dy * dy) <= radiusPx) {
               e.applyFreeze(s.stunDuration);
+                this._emitAttackFeedback(unit, e, s.atk, 'status', 'stun');
             }
           }
         } else {
           target.applyFreeze(s.stunDuration);
+          this._emitAttackFeedback(unit, target, s.atk, 'status', 'stun');
         }
       }
 
     } else if (role === ROLE.SNIPER) {
       // 諛붾엺: 湲곕낯 ?誘몄? + ??理쒕?HP% 異붽? ?誘몄? (諛⑹뼱??愿?? ?⑥씪)
       const bonusDmg = s.hpPctDamage > 0 ? Math.floor(target.maxHp * s.hpPctDamage) : 0;
-      const dead = target.takeDamage(s.atk + bonusDmg);
+      const dead = this._dealDamage(unit, target, s.atk + bonusDmg);
       if (dead) this._onEnemyDied(target);
 
     } else {
       // 湲곕낯 ?⑥씪 怨듦꺽
-      const dead = target.takeDamage(s.atk);
+      const dead = this._dealDamage(unit, target, s.atk);
       if (dead) this._onEnemyDied(target);
     }
   }
 
+  _dealDamage(unit, target, damage) {
+    const dead = target.takeDamage(damage);
+    this._emitAttackFeedback(unit, target, damage, dead ? 'kill' : 'damage');
+    return dead;
+  }
+
+  _emitAttackFeedback(unit, target, damage, kind = 'damage', status = null) {
+    this.scene.events?.emit?.('attack-feedback', {
+      kind,
+      status,
+      damage,
+      role: unit?.stats?.role,
+      suit: unit?.suit,
+      enemyType: target?.type,
+      x: target?.x,
+      y: target?.y,
+    });
+  }
   _spawnProjectile(from, to, role) {
     const color = PROJ_COLOR[role] ?? 0xffffff;
     const size  = role === ROLE.SNIPER ? 5 : role === ROLE.AREA ? 6 : 4;
@@ -341,6 +367,8 @@ export default class CombatManager {
     }
   }
 }
+
+
 
 
 

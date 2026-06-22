@@ -17,6 +17,17 @@ export const READABLE_TAB_LAYOUT = {
   TEXT_Y_OFFSET: 2,
 };
 
+const ATTACK_FEEDBACK_COLORS = Object.freeze({
+  damage: '#fff2a6',
+  kill: '#8cffb4',
+  status: '#9fe8ff',
+});
+
+const STATUS_LABELS = Object.freeze({
+  slow: 'SLOW',
+  stun: 'STUN',
+});
+
 export default class UIScene extends Phaser.Scene {
   constructor() { super('UIScene'); }
 
@@ -48,14 +59,18 @@ export default class UIScene extends Phaser.Scene {
     }
 
     this._onBattleFeedback = payload => this._showBattleFeedback(payload);
+    this._onAttackFeedback = payload => this._showAttackFeedback(payload);
     gameScene.events.on('refreshSharedCards', () => {
       this.sharedCards.consume(this.deck);
       this._refreshUI();
     });
     gameScene.events.on('battle-feedback', this._onBattleFeedback);
+    gameScene.events.on('attack-feedback', this._onAttackFeedback);
     this.events.once('shutdown', () => {
       gameScene.events.off('battle-feedback', this._onBattleFeedback);
+      gameScene.events.off('attack-feedback', this._onAttackFeedback);
       this._clearBattleFeedback();
+      this._clearAttackFeedback();
     });
 
     gameScene.unitManager.onUnitSelected = () => {
@@ -269,6 +284,45 @@ export default class UIScene extends Phaser.Scene {
     this._upgradeObjs = [];
   }
 
+  _showAttackFeedback(payload = {}) {
+    if (!Number.isFinite(payload.x) || !Number.isFinite(payload.y)) return;
+    const damage = Number.isFinite(payload.damage) ? Math.max(0, Math.round(payload.damage)) : 0;
+    const status = STATUS_LABELS[payload.status] || String(payload.status || '').toUpperCase();
+    const label = payload.kind === 'kill'
+      ? `KO +${damage}`
+      : payload.kind === 'status' && status
+        ? `${status} -${damage}`
+        : `-${damage}`;
+    const color = ATTACK_FEEDBACK_COLORS[payload.kind] || ATTACK_FEEDBACK_COLORS.damage;
+    const text = this.add.text(payload.x, payload.y - 28, label, {
+      fontSize: '14px',
+      color,
+      fontStyle: 'bold',
+      align: 'center',
+    }).setOrigin(0.5).setDepth(32);
+    text.setStroke?.('#02070d', 3);
+    this._attackFeedbackObjects.push(text);
+    while (this._attackFeedbackObjects.length > 18) {
+      const stale = this._attackFeedbackObjects.shift();
+      if (stale?.active) stale.destroy();
+    }
+    this.tweens.add({
+      targets: text,
+      y: text.y - 22,
+      alpha: 0,
+      duration: 620,
+      ease: 'Quad.easeOut',
+      onComplete: () => {
+        if (text.active) text.destroy();
+        this._attackFeedbackObjects = this._attackFeedbackObjects.filter(obj => obj !== text);
+      },
+    });
+  }
+
+  _clearAttackFeedback() {
+    this._attackFeedbackObjects?.forEach(obj => { if (obj?.active) obj.destroy(); });
+    this._attackFeedbackObjects = [];
+  }
   _showBattleFeedback(payload) {
     this._clearBattleFeedback();
     const feedback = getBattleFeedback(payload);
@@ -586,3 +640,6 @@ export default class UIScene extends Phaser.Scene {
     show();
   }
 }
+
+
+
