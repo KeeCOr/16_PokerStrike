@@ -1,10 +1,10 @@
-﻿import { ROLE } from './UnitData.js';
+import { ROLE } from './UnitData.js';
 import { SUIT_COLORS } from '../cards/Card.js';
 import { CELL_SIZE } from '../grid/Grid.js';
 import { HAND_RANK } from '../cards/HandEvaluator.js';
 import { getTowerTextureKey } from '../assets/art/AssetKeys.js';
 
-// n媛곹삎 ??諛곗뿴 ({x,y} ?뺤떇, ?꾩そ 瑗?쭞??湲곗?, 濡쒖뺄 ?먯젏 以묒떖)
+// n각형 ??배열 ({x,y} ?�식, ?�쪽 �?��??기�?, 로컬 ?�점 중심)
 export function _ngon(n, r) {
   return Array.from({ length: n }, (_, i) => {
     const a = (i * 360 / n - 90) * Math.PI / 180;
@@ -12,7 +12,7 @@ export function _ngon(n, r) {
   });
 }
 
-// m媛?蹂???諛곗뿴
+// m�?�???배열
 function _star(m, r, innerRatio) {
   return Array.from({ length: m * 2 }, (_, i) => {
     const a = (i * 180 / m - 90) * Math.PI / 180;
@@ -34,27 +34,27 @@ export const SHAPE_DEF = {
 };
 
 export const HAND_RANK_VISUAL = {
-  [HAND_RANK.HIGH_CARD]:       { size: 0.29,  ring: 0,     glow: 0,     stroke: 0x5f6b78, label: 'I',   ornament: 'base',        ornamentTier: 0 },
-  [HAND_RANK.ONE_PAIR]:        { size: 0.31,  ring: 0,     glow: 0,     stroke: 0x77889a, label: 'II',  ornament: 'side-pips',   ornamentTier: 1 },
-  [HAND_RANK.TWO_PAIR]:        { size: 0.33,  ring: 0.09,  glow: 0.018, stroke: 0x8aa2b8, label: 'III', ornament: 'dual-guard',  ornamentTier: 2 },
-  [HAND_RANK.THREE_OF_A_KIND]: { size: 0.35, ring: 0.105, glow: 0.024, stroke: 0x9fd0ff, label: 'IV',  ornament: 'tri-spire',   ornamentTier: 3 },
-  [HAND_RANK.STRAIGHT]:        { size: 0.37,  ring: 0.13,  glow: 0.032, stroke: 0xffd166, label: 'V',   ornament: 'blade-crown', ornamentTier: 4 },
-  [HAND_RANK.FLUSH]:           { size: 0.39, ring: 0.15,  glow: 0.040, stroke: 0x7af6ff, label: 'VI',  ornament: 'halo-crown',  ornamentTier: 5 },
-  [HAND_RANK.FULL_HOUSE]:      { size: 0.42,  ring: 0.17,  glow: 0.048, stroke: 0xff9f43, label: 'VII', ornament: 'royal-core',  ornamentTier: 6 },
-  [HAND_RANK.FOUR_OF_A_KIND]:  { size: 0.45, ring: 0.19,  glow: 0.056, stroke: 0xffef7a, label: 'VIII', ornament: 'quad-spire', ornamentTier: 7 },
-  [HAND_RANK.STRAIGHT_FLUSH]:  { size: 0.48,  ring: 0.21,  glow: 0.064, stroke: 0xffffff, label: 'MAX', ornament: 'max-crown',   ornamentTier: 8 },
+  [HAND_RANK.HIGH_CARD]:       { size: 0.89,  ring: 0,     glow: 0,     stroke: 0x5f6b78, label: 'I',   ornament: 'base',        ornamentTier: 0 },
+  [HAND_RANK.ONE_PAIR]:        { size: 0.90,  ring: 0,     glow: 0,     stroke: 0x77889a, label: 'II',  ornament: 'side-pips',   ornamentTier: 1 },
+  [HAND_RANK.TWO_PAIR]:        { size: 0.92,  ring: 0.09,  glow: 0.018, stroke: 0x8aa2b8, label: 'III', ornament: 'dual-guard',  ornamentTier: 2 },
+  [HAND_RANK.THREE_OF_A_KIND]: { size: 0.94, ring: 0.105, glow: 0.024, stroke: 0x9fd0ff, label: 'IV',  ornament: 'tri-spire',   ornamentTier: 3 },
+  [HAND_RANK.STRAIGHT]:        { size: 0.95,  ring: 0.13,  glow: 0.032, stroke: 0xffd166, label: 'V',   ornament: 'blade-crown', ornamentTier: 4 },
+  [HAND_RANK.FLUSH]:           { size: 0.96, ring: 0.15,  glow: 0.040, stroke: 0x7af6ff, label: 'VI',  ornament: 'halo-crown',  ornamentTier: 5 },
+  [HAND_RANK.FULL_HOUSE]:      { size: 0.97,  ring: 0.17,  glow: 0.048, stroke: 0xff9f43, label: 'VII', ornament: 'royal-core',  ornamentTier: 6 },
+  [HAND_RANK.FOUR_OF_A_KIND]:  { size: 0.98, ring: 0.19,  glow: 0.056, stroke: 0xffef7a, label: 'VIII', ornament: 'quad-spire', ornamentTier: 7 },
+  [HAND_RANK.STRAIGHT_FLUSH]:  { size: 0.99,  ring: 0.21,  glow: 0.064, stroke: 0xffffff, label: 'MAX', ornament: 'max-crown',   ornamentTier: 8 },
 };
 
 export const TOWER_VISUAL_STYLE = {
   SPRITE_PADDING: 1,
-  MAX_DISPLAY_RATIO: 0.52,
+  MAX_DISPLAY_RATIO: 1.00,
 };
 
 export function getHandRankVisual(handRank) {
   return HAND_RANK_VISUAL[handRank] ?? HAND_RANK_VISUAL[HAND_RANK.HIGH_CARD];
 }
 
-// Graphics瑜??ъ슜??濡쒖뺄 (0,0) = ?붾뱶 (x,y)濡??뺥솗??以묒븰 諛곗튂
+// Graphics�??�용??로컬 (0,0) = ?�드 (x,y)�??�확??중앙 배치
 function _makeShape(scene, x, y, handRank, sz, color) {
   const r = Math.floor(sz / 2);
   const def = SHAPE_DEF[handRank] ?? SHAPE_DEF[HAND_RANK.ONE_PAIR];
@@ -63,14 +63,14 @@ function _makeShape(scene, x, y, handRank, sz, color) {
   const gfx = scene.add.graphics();
   gfx.setPosition(x, y);
 
-  // ?됱긽/?ㅽ듃濡쒗겕 ?뺣낫 蹂닿?
+  // ?�상/?�트로크 ?�보 보�?
   gfx._shapePts = pts;
   gfx._fillColor = color;
   gfx._sw = def.sw;
   gfx._sc = def.sc;
   gfx._sa = def.sa;
 
-  // Shape ?ㅻ툕?앺듃? ?숈씪???명꽣?섏씠???쒓났
+  // Shape ?�브?�트?� ?�일???�터?�이???�공
   gfx.setFillStyle = function (c) {
     this._fillColor = c;
     this._redraw();
@@ -248,7 +248,7 @@ export default class Unit {
 
   freeze(duration) {
     const newUntil = Date.now() + duration;
-    if (newUntil <= this.frozenUntil) return; // ?대? ??湲멸쾶 ?쇱뼱?덉쑝硫?臾댁떆
+    if (newUntil <= this.frozenUntil) return; // ?��? ??길게 ?�어?�으�?무시
     this.frozen = true;
     this.frozenUntil = newUntil;
     this.sprite.setFillStyle(0xaaddff);

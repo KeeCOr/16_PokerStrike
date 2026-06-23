@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -158,10 +158,10 @@ def main():
     draw.rectangle((bx - 38, by - 35, bx + 38, by - 29), fill="#333333")
     draw.rectangle((bx - 38, by - 35, bx + 16, by - 29), fill="#44ff44")
     for rel, c, r, size, glow in [
-        ("towers/H.png", 2, 5, 44, (255, 90, 50, 45)),
-        ("towers/D.png", 4, 4, 54, (80, 220, 255, 80)),
-        ("towers/C.png", 1, 6, 40, (80, 255, 130, 40)),
-        ("towers/S.png", 5, 6, 58, (255, 225, 90, 90)),
+        ("towers/H.png", 2, 5, 70, (255, 90, 50, 45)),
+        ("towers/D.png", 4, 4, 73, (80, 220, 255, 80)),
+        ("towers/C.png", 1, 6, 68, (80, 255, 130, 40)),
+        ("towers/S.png", 5, 6, 75, (255, 225, 90, 90)),
     ]:
         paste_asset(img, rel, cell_center(c, r), size, glow)
 

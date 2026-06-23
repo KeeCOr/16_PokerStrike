@@ -329,11 +329,13 @@ export default class CombatManager {
       .setDepth(7)
       .setAlpha(0.92)
       .setDisplaySize(vfx.impactSize, vfx.impactSize);
+    const targetScaleX = (Number.isFinite(impact.scaleX) ? impact.scaleX : 1) * COMBAT_VFX_STYLE.IMPACT_EXPAND_SCALE;
+    const targetScaleY = (Number.isFinite(impact.scaleY) ? impact.scaleY : targetScaleX) * COMBAT_VFX_STYLE.IMPACT_EXPAND_SCALE;
     this.scene.tweens.add({
       targets: impact,
       alpha: 0,
-      scaleX: COMBAT_VFX_STYLE.IMPACT_EXPAND_SCALE,
-      scaleY: COMBAT_VFX_STYLE.IMPACT_EXPAND_SCALE,
+      scaleX: targetScaleX,
+      scaleY: targetScaleY,
       duration: 260,
       ease: 'Quad.easeOut',
       onComplete: () => impact.destroy(),

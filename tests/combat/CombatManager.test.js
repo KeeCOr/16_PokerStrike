@@ -58,7 +58,7 @@ function createScene() {
           y,
           key,
           setDepth() { return this; },
-          setDisplaySize(width, height) { this.displayWidth = width; this.displayHeight = height; return this; },
+          setDisplaySize(width, height) { this.displayWidth = width; this.displayHeight = height; this.scaleX = width / 256; this.scaleY = height / 256; return this; },
           setRotation(angle) { this.rotation = angle; return this; },
           setPosition(nx, ny) { this.x = nx; this.y = ny; return this; },
           setAlpha(value) { this.alpha = value; return this; },
@@ -118,6 +118,19 @@ describe('CombatManager', () => {
     expect(COMBAT_VFX_STYLE.IMPACT_EXPAND_SCALE).toBeLessThanOrEqual(1.16);
   });
 
+
+  it('preserves impact image display scale while expanding attack VFX', () => {
+    const scene = createScene();
+    scene.textures = { exists: key => key === 'vfx-armor-break-impact' };
+    const manager = new CombatManager(scene);
+
+    manager._spawnImpact(40, 0, ROLE.ATTACK);
+
+    const impact = scene.tweens.lastConfig.targets;
+    expect(impact.displayWidth).toBe(ROLE_VFX[ROLE.ATTACK].impactSize);
+    expect(scene.tweens.lastConfig.scaleX).toBeCloseTo((ROLE_VFX[ROLE.ATTACK].impactSize / 256) * COMBAT_VFX_STYLE.IMPACT_EXPAND_SCALE, 5);
+    expect(scene.tweens.lastConfig.scaleY).toBeCloseTo((ROLE_VFX[ROLE.ATTACK].impactSize / 256) * COMBAT_VFX_STYLE.IMPACT_EXPAND_SCALE, 5);
+  });
   it('only applies straight flush aura to nearby allies with the same suit', () => {
     const scene = createScene();
     const auraUnit = {

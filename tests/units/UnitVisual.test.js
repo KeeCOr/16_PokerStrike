@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { HAND_RANK } from '../../src/cards/HandEvaluator.js';
 import { CELL_SIZE } from '../../src/grid/Grid.js';
 import Unit, { getHandRankVisual, TOWER_VISUAL_STYLE } from '../../src/units/Unit.js';
@@ -79,7 +79,7 @@ describe('Unit hand-rank visuals', () => {
     const high = getHandRankVisual(HAND_RANK.STRAIGHT_FLUSH);
     const displaySize = Math.floor(CELL_SIZE * high.size) + TOWER_VISUAL_STYLE.SPRITE_PADDING;
 
-    expect(TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO).toBeLessThanOrEqual(0.52);
+    expect(TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO).toBeLessThanOrEqual(1);
     expect(displaySize).toBeLessThanOrEqual(Math.floor(CELL_SIZE * TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO));
     expect(high.ring).toBeLessThanOrEqual(0.21);
   });
@@ -133,8 +133,8 @@ describe('Unit hand-rank visuals', () => {
     const lowDisplaySize = Math.floor(CELL_SIZE * low.size) + TOWER_VISUAL_STYLE.SPRITE_PADDING;
     const highDisplaySize = Math.floor(CELL_SIZE * high.size) + TOWER_VISUAL_STYLE.SPRITE_PADDING;
 
-    expect(lowDisplaySize).toBeGreaterThanOrEqual(22);
-    expect(highDisplaySize).toBeGreaterThanOrEqual(36);
+    expect(lowDisplaySize).toBeGreaterThanOrEqual(68);
+    expect(highDisplaySize).toBeGreaterThanOrEqual(74);
     expect(highDisplaySize).toBeLessThanOrEqual(Math.floor(CELL_SIZE * TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO));
   });
 
