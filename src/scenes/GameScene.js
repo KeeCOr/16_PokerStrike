@@ -407,14 +407,14 @@ export default class GameScene extends Phaser.Scene {
 
       bg.on('pointerover', () => {
         bg.setAlpha(1);
-        if (bg.setScale) bg.setScale(1.015);
+        if (bg.setScale && WAVE_CHOICE_LAYOUT.CARD_HOVER_SCALE !== 1) bg.setScale(WAVE_CHOICE_LAYOUT.CARD_HOVER_SCALE);
         this.unitManager.units.forEach(u => {
           if (this.rogueliteManager.matches(upgrade, u)) u.setHighlight(true);
         });
       });
       bg.on('pointerout', () => {
         bg.setAlpha(0.96);
-        if (bg.setScale) bg.setScale(1);
+        if (bg.setScale && WAVE_CHOICE_LAYOUT.CARD_HOVER_SCALE !== 1) bg.setScale(1);
         this.unitManager.units.forEach(u => u.setHighlight(false));
       });
       bg.on('pointerdown', () => {
@@ -764,6 +764,7 @@ export default class GameScene extends Phaser.Scene {
     if (this.selectedEnemy) this._renderEnemyInfo();
   }
 }
+
 
 
 

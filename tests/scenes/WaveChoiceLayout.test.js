@@ -26,5 +26,9 @@ describe('Wave choice layout', () => {
     expect(getWaveChoiceTextureKey({ type: 'unitAtk' })).toBe(UI_TEXTURES.BUTTON_UPGRADE_ORANGE);
     expect(getWaveChoiceTextureKey({ type: 'drawCost' })).toBe(UI_TEXTURES.BUTTON_UPGRADE_BLUE);
   });
+  it('does not resize textured upgrade cards on hover', () => {
+    expect(WAVE_CHOICE_LAYOUT.CARD_HOVER_SCALE).toBe(1);
+  });
 });
+
 

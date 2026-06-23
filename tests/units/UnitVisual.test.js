@@ -79,7 +79,7 @@ describe('Unit hand-rank visuals', () => {
     const high = getHandRankVisual(HAND_RANK.STRAIGHT_FLUSH);
     const displaySize = Math.floor(CELL_SIZE * high.size) + TOWER_VISUAL_STYLE.SPRITE_PADDING;
 
-    expect(TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO).toBeLessThanOrEqual(0.38);
+    expect(TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO).toBeLessThanOrEqual(0.52);
     expect(displaySize).toBeLessThanOrEqual(Math.floor(CELL_SIZE * TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO));
     expect(high.ring).toBeLessThanOrEqual(0.21);
   });
@@ -127,7 +127,95 @@ describe('Unit hand-rank visuals', () => {
     expect(spriteTween.scaleX).toBeCloseTo(0.094, 5);
     expect(spriteTween.scaleY).toBeCloseTo(0.094, 5);
   });
+  it('uses readable tower body sizes after summon scaling is fixed', () => {
+    const low = getHandRankVisual(HAND_RANK.HIGH_CARD);
+    const high = getHandRankVisual(HAND_RANK.STRAIGHT_FLUSH);
+    const lowDisplaySize = Math.floor(CELL_SIZE * low.size) + TOWER_VISUAL_STYLE.SPRITE_PADDING;
+    const highDisplaySize = Math.floor(CELL_SIZE * high.size) + TOWER_VISUAL_STYLE.SPRITE_PADDING;
+
+    expect(lowDisplaySize).toBeGreaterThanOrEqual(22);
+    expect(highDisplaySize).toBeGreaterThanOrEqual(36);
+    expect(highDisplaySize).toBeLessThanOrEqual(Math.floor(CELL_SIZE * TOWER_VISUAL_STYLE.MAX_DISPLAY_RATIO));
+  });
+
+  it('moves rank ornaments, rings, halo, and highlight with the unit', () => {
+    const scene = {
+      grid: {
+        cells: [[0, 0], [0, 0]],
+        setCell(col, row, value) { this.cells[row][col] = value; },
+        isWalkable() { return true; },
+        cellToWorld(col, row) { return { x: 100 + col * CELL_SIZE, y: 100 + row * CELL_SIZE }; },
+      },
+      enemyManager: { recalculateAllPaths() {}, isEnemyAt() { return false; } },
+    };
+    const manager = new UnitManager(scene);
+    const moved = [];
+    const movable = name => ({ name, setPosition(x, y) { moved.push({ name, x, y }); return this; } });
+    const unit = {
+      col: 0,
+      row: 0,
+      sprite: movable('sprite'),
+      gradeText: movable('gradeText'),
+      glowCircle: movable('glowCircle'),
+      rankHalo: movable('rankHalo'),
+      rankRing: movable('rankRing'),
+      rankOrnament: movable('rankOrnament'),
+      highlightCircle: movable('highlightCircle'),
+      _drawHpBar() {},
+      updateStatusPosition() {},
+      setSelected() {},
+    };
+
+    manager._moveUnit(unit, 1, 1);
+
+    const names = moved.map(item => item.name);
+    expect(names).toContain('rankHalo');
+    expect(names).toContain('rankRing');
+    expect(names).toContain('rankOrnament');
+    expect(names).toContain('highlightCircle');
+  });
+
+  it('destroys the drag range decal when pointerup finishes a drag', () => {
+    const destroyed = [];
+    const events = {};
+    const scene = {
+      grid: {
+        isWalkable() { return true; },
+        worldToCell() { return { col: 1, row: 1 }; },
+        setCell() {},
+        cellToWorld() { return { x: 100, y: 100 }; },
+      },
+      enemyManager: { isEnemyAt() { return false; }, recalculateAllPaths() {} },
+      input: { on(type, handler) { events[type] = handler; } },
+    };
+    const manager = new UnitManager(scene);
+    const unit = {
+      col: 0,
+      row: 0,
+      sprite: { setPosition() {} },
+      gradeText: { setPosition() {} },
+      _drawHpBar() {},
+      updateStatusPosition() {},
+      setSelected() {},
+      setDim() {},
+    };
+    manager.units = [unit];
+    manager.setupMergeInteraction();
+    manager._pointerDownActive = true;
+    manager._pointerDownUnit = unit;
+    manager._isDragging = true;
+    manager._dragIndicator = { destroy() { destroyed.push('indicator'); } };
+    manager._dragRangeDecal = { destroy() { destroyed.push('decal'); } };
+
+    events.pointerup({ x: 176, y: 176 });
+
+    expect(destroyed).toContain('indicator');
+    expect(destroyed).toContain('decal');
+    expect(manager._dragRangeDecal).toBe(null);
+  });
 });
+
+
 
 
 

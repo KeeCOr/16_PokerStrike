@@ -34,20 +34,20 @@ export const SHAPE_DEF = {
 };
 
 export const HAND_RANK_VISUAL = {
-  [HAND_RANK.HIGH_CARD]:       { size: 0.18,  ring: 0,     glow: 0,     stroke: 0x5f6b78, label: 'I',   ornament: 'base',        ornamentTier: 0 },
-  [HAND_RANK.ONE_PAIR]:        { size: 0.20,  ring: 0,     glow: 0,     stroke: 0x77889a, label: 'II',  ornament: 'side-pips',   ornamentTier: 1 },
-  [HAND_RANK.TWO_PAIR]:        { size: 0.22,  ring: 0.09,  glow: 0.018, stroke: 0x8aa2b8, label: 'III', ornament: 'dual-guard',  ornamentTier: 2 },
-  [HAND_RANK.THREE_OF_A_KIND]: { size: 0.235, ring: 0.105, glow: 0.024, stroke: 0x9fd0ff, label: 'IV',  ornament: 'tri-spire',   ornamentTier: 3 },
-  [HAND_RANK.STRAIGHT]:        { size: 0.25,  ring: 0.13,  glow: 0.032, stroke: 0xffd166, label: 'V',   ornament: 'blade-crown', ornamentTier: 4 },
-  [HAND_RANK.FLUSH]:           { size: 0.265, ring: 0.15,  glow: 0.040, stroke: 0x7af6ff, label: 'VI',  ornament: 'halo-crown',  ornamentTier: 5 },
-  [HAND_RANK.FULL_HOUSE]:      { size: 0.28,  ring: 0.17,  glow: 0.048, stroke: 0xff9f43, label: 'VII', ornament: 'royal-core',  ornamentTier: 6 },
-  [HAND_RANK.FOUR_OF_A_KIND]:  { size: 0.295, ring: 0.19,  glow: 0.056, stroke: 0xffef7a, label: 'VIII', ornament: 'quad-spire', ornamentTier: 7 },
-  [HAND_RANK.STRAIGHT_FLUSH]:  { size: 0.31,  ring: 0.21,  glow: 0.064, stroke: 0xffffff, label: 'MAX', ornament: 'max-crown',   ornamentTier: 8 },
+  [HAND_RANK.HIGH_CARD]:       { size: 0.29,  ring: 0,     glow: 0,     stroke: 0x5f6b78, label: 'I',   ornament: 'base',        ornamentTier: 0 },
+  [HAND_RANK.ONE_PAIR]:        { size: 0.31,  ring: 0,     glow: 0,     stroke: 0x77889a, label: 'II',  ornament: 'side-pips',   ornamentTier: 1 },
+  [HAND_RANK.TWO_PAIR]:        { size: 0.33,  ring: 0.09,  glow: 0.018, stroke: 0x8aa2b8, label: 'III', ornament: 'dual-guard',  ornamentTier: 2 },
+  [HAND_RANK.THREE_OF_A_KIND]: { size: 0.35, ring: 0.105, glow: 0.024, stroke: 0x9fd0ff, label: 'IV',  ornament: 'tri-spire',   ornamentTier: 3 },
+  [HAND_RANK.STRAIGHT]:        { size: 0.37,  ring: 0.13,  glow: 0.032, stroke: 0xffd166, label: 'V',   ornament: 'blade-crown', ornamentTier: 4 },
+  [HAND_RANK.FLUSH]:           { size: 0.39, ring: 0.15,  glow: 0.040, stroke: 0x7af6ff, label: 'VI',  ornament: 'halo-crown',  ornamentTier: 5 },
+  [HAND_RANK.FULL_HOUSE]:      { size: 0.42,  ring: 0.17,  glow: 0.048, stroke: 0xff9f43, label: 'VII', ornament: 'royal-core',  ornamentTier: 6 },
+  [HAND_RANK.FOUR_OF_A_KIND]:  { size: 0.45, ring: 0.19,  glow: 0.056, stroke: 0xffef7a, label: 'VIII', ornament: 'quad-spire', ornamentTier: 7 },
+  [HAND_RANK.STRAIGHT_FLUSH]:  { size: 0.48,  ring: 0.21,  glow: 0.064, stroke: 0xffffff, label: 'MAX', ornament: 'max-crown',   ornamentTier: 8 },
 };
 
 export const TOWER_VISUAL_STYLE = {
   SPRITE_PADDING: 1,
-  MAX_DISPLAY_RATIO: 0.38,
+  MAX_DISPLAY_RATIO: 0.52,
 };
 
 export function getHandRankVisual(handRank) {
@@ -178,6 +178,7 @@ export default class Unit {
     const color = SUIT_COLORS[suit] ?? 0xffffff;
     this._baseColor = color;
     const visual = getHandRankVisual(handRank);
+    this._visual = visual;
     if (visual.glow > 0) {
       this.rankHalo = scene.add.circle(pos.x, pos.y, Math.floor(CELL_SIZE * (visual.ring + 0.04)), color, visual.glow)
         .setDepth(1);
@@ -205,6 +206,23 @@ export default class Unit {
     this.statusTimer = null;
   }
 
+  updateBoardPosition() {
+    const pos = this.scene.grid.cellToWorld(this.col, this.row);
+    this.sprite.setPosition(pos.x, pos.y);
+    this.gradeText.setPosition(pos.x, pos.y - Math.floor(CELL_SIZE * 0.18));
+    if (this.glowCircle) this.glowCircle.setPosition(pos.x, pos.y);
+    if (this.highlightCircle) this.highlightCircle.setPosition(pos.x, pos.y);
+    if (this.selectCircle) this.selectCircle.setPosition(pos.x, pos.y);
+    if (this.rangeCircle) this.rangeCircle.setPosition(pos.x, pos.y);
+    if (this.rankHalo) this.rankHalo.setPosition(pos.x, pos.y);
+    if (this.rankRing) this.rankRing.setPosition(pos.x, pos.y);
+    if (this.rankOrnament) {
+      this.rankOrnament.destroy();
+      this.rankOrnament = _makeRankOrnament(this.scene, pos.x, pos.y, this._visual, this._baseColor);
+    }
+    this.updateStatusPosition?.();
+    this._drawHpBar();
+  }
   _drawHpBar() {
     const pos = this.scene.grid.cellToWorld(this.col, this.row);
     const hw = Math.floor(CELL_SIZE * 0.28); // half-width of bar
@@ -335,6 +353,7 @@ export default class Unit {
     if (this.dimOverlay) this.dimOverlay.destroy();
   }
 }
+
 
 
 

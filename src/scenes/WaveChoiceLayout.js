@@ -16,6 +16,7 @@ export const WAVE_CHOICE_LAYOUT = {
   CARD_H: 154,
   CARD_TEXTURE_PADDING_X: 28,
   CARD_TEXTURE_PADDING_Y: 22,
+  CARD_HOVER_SCALE: 1,
   START_Y: 246,
   ROW_GAP: 166,
   LABEL_Y_OFFSET: -31,
@@ -31,5 +32,6 @@ export function getWaveChoiceTextureKey(upgrade) {
   }
   return UI_TEXTURES.BUTTON_UPGRADE_BLUE;
 }
+
 
 

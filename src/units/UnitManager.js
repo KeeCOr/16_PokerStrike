@@ -347,7 +347,7 @@ export default class UnitManager {
         this._clearDim();
         this._dimApplied = false;
         this._dragIndicator?.destroy(); this._dragIndicator = null;
-        this._dragRangeCircle?.destroy(); this._dragRangeDecal = null;
+        this._dragRangeDecal?.destroy(); this._dragRangeDecal = null;
       } else if (!this._isDragging) {
         this._handleClick(ptr);
       }
@@ -407,18 +407,29 @@ export default class UnitManager {
     unit.row = row;
     this.scene.grid.setCell(col, row, CELL_UNIT);
     const pos = this.scene.grid.cellToWorld(col, row);
-    unit.sprite.setPosition(pos.x, pos.y);
-    unit.gradeText.setPosition(pos.x, pos.y - 14);
-    if (unit.glowCircle) unit.glowCircle.setPosition(pos.x, pos.y);
-    unit.updateStatusPosition?.();
+    if (typeof unit.updateBoardPosition === 'function') {
+      unit.updateBoardPosition();
+    } else {
+      unit.sprite.setPosition(pos.x, pos.y);
+      unit.gradeText.setPosition(pos.x, pos.y - Math.floor(CELL_SIZE * 0.18));
+      if (unit.glowCircle) unit.glowCircle.setPosition(pos.x, pos.y);
+      if (unit.rankHalo) unit.rankHalo.setPosition(pos.x, pos.y);
+      if (unit.rankRing) unit.rankRing.setPosition(pos.x, pos.y);
+      if (unit.rankOrnament) unit.rankOrnament.setPosition(pos.x, pos.y);
+      if (unit.highlightCircle) unit.highlightCircle.setPosition(pos.x, pos.y);
+      if (unit.selectCircle) unit.selectCircle.setPosition(pos.x, pos.y);
+      if (unit.rangeCircle) unit.rangeCircle.setPosition(pos.x, pos.y);
+      unit.updateStatusPosition?.();
+      unit._drawHpBar();
+    }
     unit.setSelected(false);
-    unit._drawHpBar();
   }
 
   update(time, delta) {
     this.units.forEach(u => u.update(time));
   }
 }
+
 
 
 
