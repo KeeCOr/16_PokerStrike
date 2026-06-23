@@ -91,10 +91,12 @@ export default class UnitManager {
       duration: 350, ease: 'Quad.easeOut',
       onComplete: () => flash.destroy(),
     });
-    // ?ㅽ봽?쇱씠???앹씤
-    unit.sprite.setAlpha(0).setScale(0.15);
+    // Preserve setDisplaySize() image scale; tweening to 1 would restore the 256px source size.
+    const targetScaleX = Number.isFinite(unit.sprite.scaleX) ? unit.sprite.scaleX : 1;
+    const targetScaleY = Number.isFinite(unit.sprite.scaleY) ? unit.sprite.scaleY : targetScaleX;
+    unit.sprite.setAlpha(0).setScale(targetScaleX * 0.15, targetScaleY * 0.15);
     this.scene.tweens.add({
-      targets: unit.sprite, alpha: 1, scaleX: 1, scaleY: 1,
+      targets: unit.sprite, alpha: 1, scaleX: targetScaleX, scaleY: targetScaleY,
       duration: 280, ease: 'Back.easeOut',
     });
   }
@@ -417,6 +419,7 @@ export default class UnitManager {
     this.units.forEach(u => u.update(time));
   }
 }
+
 
 
 

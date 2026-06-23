@@ -2,6 +2,7 @@
 import { HAND_RANK } from '../../src/cards/HandEvaluator.js';
 import { CELL_SIZE } from '../../src/grid/Grid.js';
 import Unit, { getHandRankVisual, TOWER_VISUAL_STYLE } from '../../src/units/Unit.js';
+import UnitManager from '../../src/units/UnitManager.js';
 
 function createUnitScene() {
   let graphicsCalls = 0;
@@ -98,6 +99,35 @@ describe('Unit hand-rank visuals', () => {
     unit.takeDamage(1);
     expect(scene.hpBar.visible).toBe(true);
   });
+  it('preserves image tower display scale during the summon animation', () => {
+    const tweenConfigs = [];
+    const scene = {
+      grid: { cellToWorld: () => ({ x: 100, y: 100 }) },
+      add: {
+        circle: () => ({
+          setDepth() { return this; },
+          destroy() {},
+        }),
+      },
+      tweens: { add(config) { tweenConfigs.push(config); } },
+    };
+    const manager = new UnitManager(scene);
+    const sprite = {
+      scaleX: 0.094,
+      scaleY: 0.094,
+      setAlpha(value) { this.alpha = value; return this; },
+      setScale(x, y = x) { this.scaleX = x; this.scaleY = y; return this; },
+    };
+
+    manager._playSpawnEffect(0, 0, { sprite });
+
+    const spriteTween = tweenConfigs.find(config => config.targets === sprite);
+    expect(sprite.scaleX).toBeCloseTo(0.094 * 0.15, 5);
+    expect(sprite.scaleY).toBeCloseTo(0.094 * 0.15, 5);
+    expect(spriteTween.scaleX).toBeCloseTo(0.094, 5);
+    expect(spriteTween.scaleY).toBeCloseTo(0.094, 5);
+  });
 });
+
 
 
