@@ -16,6 +16,8 @@ import { shouldShowUpgradeTutorialOnStageClear } from './GameSceneTutorial.js';
 import { getWaveChoiceTextureKey, WAVE_CHOICE_LAYOUT } from './WaveChoiceLayout.js';
 import { STAGE_INTRO_LAYOUT } from './StageIntroLayout.js';
 import { ENV_TEXTURES, UI_TEXTURES, preloadArtAssets } from '../assets/art/AssetKeys.js';
+import { preloadAudioAssets } from '../assets/audio/AudioAssetKeys.js';
+import { AUDIO_CUES, playAudioCue } from '../audio/AudioCuePlayer.js';
 
 const BASE_HP = 100;
 
@@ -45,6 +47,7 @@ export default class GameScene extends Phaser.Scene {
 
   preload() {
     preloadArtAssets(this);
+    preloadAudioAssets(this);
   }
 
   init(data) {
@@ -536,6 +539,7 @@ export default class GameScene extends Phaser.Scene {
   _gameOver() {
     if (this.gameOver) return;
     this.gameOver = true;
+    playAudioCue(this, AUDIO_CUES.GAME_OVER);
 
     const layout = GAME_OVER_LAYOUT;
     const panel = layout.panel;
@@ -660,6 +664,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   _renderStageCleared(stageIndex) {
+    playAudioCue(this, AUDIO_CUES.STAGE_CLEAR);
     const isLast = stageIndex >= STAGES.length - 1;
     const overlay = this.add.rectangle(320, 480, 640, 960, 0x000000, 0.6).setDepth(10);
 
@@ -764,6 +769,8 @@ export default class GameScene extends Phaser.Scene {
     if (this.selectedEnemy) this._renderEnemyInfo();
   }
 }
+
+
 
 
 

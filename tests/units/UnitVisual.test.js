@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import { HAND_RANK } from '../../src/cards/HandEvaluator.js';
 import { CELL_SIZE } from '../../src/grid/Grid.js';
 import Unit, { getHandRankVisual, TOWER_VISUAL_STYLE } from '../../src/units/Unit.js';
-import UnitManager from '../../src/units/UnitManager.js';
+import UnitManager, { SUMMON_EFFECT_STYLE } from '../../src/units/UnitManager.js';
 
 function createUnitScene() {
   let graphicsCalls = 0;
@@ -126,6 +126,41 @@ describe('Unit hand-rank visuals', () => {
     expect(sprite.scaleY).toBeCloseTo(0.094 * 0.15, 5);
     expect(spriteTween.scaleX).toBeCloseTo(0.094, 5);
     expect(spriteTween.scaleY).toBeCloseTo(0.094, 5);
+  });
+  it('creates a bounded card-gate summon effect without losing sprite scale', () => {
+    const tweenConfigs = [];
+    const circles = [];
+    const scene = {
+      grid: { cellToWorld: () => ({ x: 100, y: 100 }) },
+      add: {
+        circle(x, y, radius, color, alpha) {
+          const circle = {
+            x, y, radius, color, alpha,
+            setDepth(value) { this.depth = value; return this; },
+            setStrokeStyle(width, strokeColor, strokeAlpha) { this.stroke = { width, strokeColor, strokeAlpha }; return this; },
+            destroy() { this.destroyed = true; },
+          };
+          circles.push(circle);
+          return circle;
+        },
+      },
+      tweens: { add(config) { tweenConfigs.push(config); } },
+    };
+    const manager = new UnitManager(scene);
+    const sprite = {
+      scaleX: 0.28,
+      scaleY: 0.28,
+      setAlpha(value) { this.alpha = value; return this; },
+      setScale(x, y = x) { this.scaleX = x; this.scaleY = y; return this; },
+    };
+
+    manager._playSpawnEffect(0, 0, { sprite, _baseColor: 0xff3333 });
+
+    expect(SUMMON_EFFECT_STYLE.SPARK_COUNT).toBeLessThanOrEqual(10);
+    expect(SUMMON_EFFECT_STYLE.DURATION).toBeLessThanOrEqual(450);
+    expect(circles.length).toBeGreaterThanOrEqual(2 + SUMMON_EFFECT_STYLE.SPARK_COUNT);
+    expect(circles.filter(circle => circle.stroke).length).toBeGreaterThanOrEqual(2);
+    expect(tweenConfigs.filter(config => config.targets === sprite)[0].scaleX).toBeCloseTo(0.28, 5);
   });
   it('uses readable tower body sizes after summon scaling is fixed', () => {
     const low = getHandRankVisual(HAND_RANK.HIGH_CARD);

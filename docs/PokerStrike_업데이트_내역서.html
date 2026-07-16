@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PokerStrike 업데이트 내역서</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65;max-width:980px;margin:0 auto;padding:40px 24px;color:#20242a;background:#fafafa}
+    h1{font-size:34px;margin:0 0 20px} h2{font-size:24px;margin-top:34px;border-bottom:1px solid #ddd;padding-bottom:6px} h3{font-size:18px;margin-top:24px}
+    p,li,pre{font-size:15px} li{margin:5px 0} pre{white-space:pre-wrap;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 10px}
+  </style>
+</head>
+<body>
+<h1>PokerStrike 업데이트 내역서</h1>
+
+<h2>2026-06-24 문서 구조 정리</h2>
+<li>기획서와 업데이트 내역서를 분리했다.</li>
+<li>기획서는 게임 소개, 핵심 루프, MVP 가설, KPI, UX 원칙 중심으로 재작성했다.</li>
+<li>변경 이력, 구현 로그, 검증 기록은 이 문서에서 관리한다.</li>
+
+<h2>기존 문서에서 분리한 이력 후보</h2>
+<li>강화 선택 카드 hover는 이미지 버튼의 표시 크기를 바꾸지 않고 강조 상태만 변경한다.</li>
+<li>프로젝트 루트, release/, G:\내 드라이브\실행파일\에는 최신 버전 하나만 유지한다.</li>
+<li>프로젝트 루트, `release/`, `G:\내 드라이브\실행파일\`에는 최신 버전 하나만 유지한다.</li>
+
+<h2>작성 규칙</h2>
+<li>기능 추가, 밸런스 변경, UI/UX 수정, 리소스 교체, 빌드/배포 변경은 날짜와 버전을 함께 기록한다.</li>
+<li>기획서에는 최신 소개와 현재 설계 의도만 남기고, 과거 작업 로그는 이 문서로 이동한다.</li>
+<li>MD와 HTML은 항상 함께 갱신한다.</li>
+
+<h2>2026-06-26 v0.1.66 전투 피드백 배너 프레임 교체</h2>
+<ul>
+  <li><code>src/assets/art/environment/battle-label-frame.png</code>를 동일 런타임 경로에서 새 PNG 배너 프레임으로 교체했다.</li>
+  <li><code>ENV_TEXTURES.BATTLE_LABEL_FRAME</code>를 사용하는 전투 피드백/결과 배너가 새 골드 트림 카지노 판타지 프레임을 사용한다.</li>
+  <li>원본 파일은 <code>_temp/battle-label-frame_backup_20260626-163324.png</code>에 백업했다.</li>
+</ul>
+<h2>2026-06-30 v0.2.0 Hand-to-Strike Impact Feedback</h2>
+<ul>
+  <li><code>BattleFeedback</code> summon copy가 rankImpact, suitImpact, combatHint 필드를 지원하도록 확장됐다.</li>
+  <li><code>UIScene</code> 소환 이벤트가 핸드별 전투 역할과 슈트별 효과를 함께 전달한다.</li>
+  <li>Straight/Flush/Four Kind 3개 hand outcome의 전투 효과 테스트를 추가했다.</li>
+  <li>전투 피드백 배너 폭과 text fixedWidth를 확장했다.</li>
+  <li>검증: <code>npm exec vitest run tests/ui/BattleFeedback.test.js</code>, <code>npm test</code> 통과.</li>
+</ul>
+<h2>2026-07-15 v0.4.0 핸드 선택 보상 밀도</h2>
+<ul>
+  <li>소환 전투 피드백에 Payoff cue를 추가해 선택한 포커 족보가 이번 턴 어떤 공격 역할, 문양 효과, 보너스 골드로 이어지는지 한 줄로 읽히게 했다.</li>
+  <li>Straight/Flush/Four Kind/Full House 등 주요 족보가 전방 유지, 다중 타격, 관통, 고화력 같은 전장 의미와 직접 연결된다.</li>
+  <li>테스트 기준: BattleFeedback 및 SummonPayoffCue 단위 테스트로 핸드 선택 → 공격 결과 연결 문구를 검증한다.</li>
+</ul>
+</body>
+</html>
+
+

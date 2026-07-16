@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Defense — 게임 기획서</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --accent: #f0a500;
+    --accent2: #58a6ff;
+    --fire: #ff6b35;
+    --water: #4dabf7;
+    --earth: #74c476;
+    --wind: #b197fc;
+    --green: #3fb950;
+    --red: #f85149;
+    --yellow: #d29922;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .top-bar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .top-bar h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+  }
+
+  .badge {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  .badge.impl { border-color: var(--green); color: var(--green); }
+  .badge.plan { border-color: var(--yellow); color: var(--yellow); }
+
+  .layout {
+    display: flex;
+    min-height: calc(100vh - 57px);
+  }
+
+  nav {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 57px;
+    height: calc(100vh - 57px);
+    overflow-y: auto;
+  }
+
+  nav a {
+    display: block;
+    padding: 6px 20px;
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+  }
+
+  nav a:hover { color: var(--text); border-left-color: var(--border); }
+  nav a.active { color: var(--accent); border-left-color: var(--accent); }
+
+  nav .nav-section {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text2);
+    padding: 16px 20px 6px;
+  }
+
+  main {
+    flex: 1;
+    padding: 40px 60px;
+    max-width: 960px;
+  }
+
+  section {
+    margin-bottom: 56px;
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent2);
+    margin: 24px 0 12px;
+  }
+
+  p { color: var(--text2); margin-bottom: 12px; }
+
+  .overview-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .info-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .info-card .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text2);
+    margin-bottom: 6px;
+  }
+
+  .info-card .value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+
+  thead tr { background: var(--bg3); }
+
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    color: var(--text2);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  .tag {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+
+  .tag-fire   { background: rgba(255,107,53,0.15); color: var(--fire); border: 1px solid rgba(255,107,53,0.3); }
+  .tag-water  { background: rgba(77,171,247,0.15); color: var(--water); border: 1px solid rgba(77,171,247,0.3); }
+  .tag-earth  { background: rgba(116,196,118,0.15); color: var(--earth); border: 1px solid rgba(116,196,118,0.3); }
+  .tag-wind   { background: rgba(177,151,252,0.15); color: var(--wind); border: 1px solid rgba(177,151,252,0.3); }
+
+  .grade-0  { color: #8b949e; }
+  .grade-1  { color: #58a6ff; }
+  .grade-2  { color: #b197fc; }
+  .grade-3  { color: #ff9f43; }
+  .grade-4  { color: #00d2d3; }
+  .grade-5  { color: #ff6b81; }
+  .grade-6  { color: var(--accent); font-weight: 700; }
+
+  .role-attack       { color: #ff6b35; }
+  .role-area         { color: #ffd43b; }
+  .role-supportSpeed { color: #74c476; }
+  .role-supportSlow  { color: #4dabf7; }
+  .role-tank         { color: #cc5de8; }
+  .role-sniper       { color: #ff8787; }
+
+  .callout {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    color: var(--text2);
+    font-size: 13px;
+  }
+
+  .callout.warn { border-left-color: var(--yellow); }
+  .callout.success { border-left-color: var(--green); }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .box h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .box ul { padding-left: 16px; }
+  .box li { color: var(--text2); font-size: 13px; margin-bottom: 4px; }
+  .box li strong { color: var(--text); }
+
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+
+  .flow-step {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .flow-arrow { color: var(--text2); font-size: 18px; }
+
+  .skill-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .skill-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .skill-card .hand {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text2);
+    margin-bottom: 4px;
+  }
+
+  .skill-card .name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .skill-card .desc {
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  .wave-timeline {
+    position: relative;
+    padding-left: 24px;
+  }
+
+  .wave-timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .wave-item {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .wave-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent2);
+    border: 2px solid var(--bg);
+  }
+
+  .wave-item.boss::before { background: var(--red); }
+
+  .wave-item .wave-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 4px;
+  }
+
+  .wave-item .wave-enemies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .enemy-chip {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .enemy-chip.boss-chip {
+    border-color: var(--red);
+    color: var(--red);
+    background: rgba(248,81,73,0.1);
+  }
+
+  .stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg3);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 11px;
+    color: var(--text2);
+    margin-right: 4px;
+  }
+
+  .stat-pill .val { color: var(--text); font-weight: 600; }
+
+  .todo-list { list-style: none; }
+  .todo-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 13px;
+  }
+  .todo-list li:last-child { border-bottom: none; }
+  .todo-list .check {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .impl-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-left: 8px;
+  }
+
+  .impl-status.done { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+  .impl-status.pending { background: rgba(210,153,34,0.15); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+
+  .unit-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .unit-matrix th, .unit-matrix td {
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .unit-matrix th { background: var(--bg3); }
+  .unit-matrix .row-header { background: var(--bg3); font-weight: 600; text-align: left; }
+
+  code {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+    color: #ff7b72;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Card Defense GDD</h1>
+  <span class="badge">v1.0 MVP</span>
+  <span class="badge impl">구현 완료</span>
+  <span style="margin-left:auto; color:var(--text2); font-size:12px;">최종 업데이트: 2026-05-08</span>
+</div>
+
+<div class="layout">
+
+  <nav>
+    <div class="nav-section">개요</div>
+    <a href="#overview">개요 & 기술 스택</a>
+    <a href="#layout">레이아웃</a>
+
+    <div class="nav-section">카드 시스템</div>
+    <a href="#deck">덱 구성</a>
+    <a href="#hand">핸드 & 공용 패</a>
+    <a href="#economy">골드 경제</a>
+
+    <div class="nav-section">유닛</div>
+    <a href="#summon">유닛 소환</a>
+    <a href="#unit-roles">역할 & 스탯</a>
+    <a href="#unit-matrix">패 × 속성 배치표</a>
+    <a href="#merge">합성 시스템</a>
+    <a href="#upgrade">업그레이드</a>
+
+    <div class="nav-section">마법</div>
+    <a href="#magic">마법 스킬</a>
+
+    <div class="nav-section">적 & 맵</div>
+    <a href="#enemies">적 종류</a>
+    <a href="#grid">그리드 & AI</a>
+
+    <div class="nav-section">진행 구조</div>
+    <a href="#stages">스테이지 & 웨이브</a>
+    <a href="#winlose">승/패 조건</a>
+
+    <div class="nav-section">미결 사항</div>
+    <a href="#todo">Plan 2 항목</a>
+  </nav>
+
+  <main>
+
+    <!-- OVERVIEW -->
+    <section id="overview">
+      <h2>개요 & 기술 스택</h2>
+      <p>포커 패 기반 유닛 소환 + 타워 디펜스 하이브리드 게임. 카드 조합으로 유닛을 소환하고 그리드에 배치하여 본진을 방어한다. 로그라이트 요소(웨이브 클리어 시 패 강화 선택지)와 스테이지 진행 구조를 갖춘다.</p>
+
+      <div class="overview-cards">
+        <div class="info-card">
+          <div class="label">게임 엔진</div>
+          <div class="value">Phaser 3.60</div>
+        </div>
+        <div class="info-card">
+          <div class="label">빌드 도구</div>
+          <div class="value">Vite 5</div>
+        </div>
+        <div class="info-card">
+          <div class="label">테스트</div>
+          <div class="value">Vitest</div>
+        </div>
+        <div class="info-card">
+          <div class="label">1차 플랫폼</div>
+          <div class="value">웹 브라우저</div>
+        </div>
+        <div class="info-card">
+          <div class="label">추후 확장</div>
+          <div class="value">모바일 / Steam</div>
+        </div>
+        <div class="info-card">
+          <div class="label">렌더링</div>
+          <div class="value">Canvas (Phaser)</div>
+        </div>
+      </div>
+
+      <div class="callout success">
+        씬 구조: <code>BootScene</code> → <code>MenuScene</code> → <code>GameScene</code> + <code>UIScene</code> (병렬 실행). Phaser Registry로 씬 간 상태 공유.
+      </div>
+    </section>
+
+    <!-- LAYOUT -->
+    <section id="layout">
+      <h2>레이아웃</h2>
+      <div class="two-col">
+        <div class="box">
+          <h4>화면 구성</h4>
+          <ul>
+            <li>해상도: <strong>480 × 854</strong> (세로형 portrait)</li>
+            <li>스케일: FIT 모드 (모든 화면 대응)</li>
+            <li>그리드: 상단 20px 오프셋, 좌측 8px 오프셋</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>구역 배치</h4>
+          <ul>
+            <li>적 스폰: 맵 <strong>상단</strong></li>
+            <li>본진: 맵 <strong>하단</strong></li>
+            <li>유닛 배치: 그리드 전체 (적 경로 제외)</li>
+            <li>UI 패널: 화면 하단 오버레이</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- DECK -->
+    <section id="deck">
+      <h2>덱 구성</h2>
+      <div class="two-col">
+        <div class="box">
+          <h4>카드 구성</h4>
+          <ul>
+            <li>숫자: A K Q J 10 9 8 7 (8종)</li>
+            <li>무늬: 4종 × 8 = <strong>총 32장</strong></li>
+            <li>덱 소진 시 무덤 셔플 후 재드로우</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>무늬 = 속성</h4>
+          <ul>
+            <li><span class="tag tag-fire">♥ H</span> <strong>불 (Fire)</strong></li>
+            <li><span class="tag tag-water">♦ D</span> <strong>물 (Water)</strong></li>
+            <li><span class="tag tag-earth">♣ C</span> <strong>땅 (Earth)</strong></li>
+            <li><span class="tag tag-wind">♠ S</span> <strong>바람 (Wind)</strong></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- HAND -->
+    <section id="hand">
+      <h2>핸드 & 공용 패</h2>
+
+      <h3>핸드 패 (5장 슬롯)</h3>
+      <div class="callout">
+        소환 또는 마법 사용 시 핸드 <strong>전체 소모</strong> → 소액 비용으로 5장 새로 드로우. 패 교체는 1장씩 가능.
+      </div>
+
+      <h3>공용 패 (2장 슬롯) — 핸드와 완전 별개</h3>
+      <div class="callout">
+        게임 시작 시 덱에서 2장 자동 드로우, 항상 공개. <br>
+        마법 스킬 발동 시에만 사용: <strong>핸드 3장 + 공용 패 2장 = 5장</strong>으로 스킬 결정.<br>
+        마법 사용 후 공용 패 2장 소모 → 덱에서 2장 자동 재드로우. 별도 교체 불가.
+      </div>
+
+      <h3>패 교체</h3>
+      <table>
+        <thead><tr><th>항목</th><th>규칙</th></tr></thead>
+        <tbody>
+          <tr><td>교체 방식</td><td>핸드에서 1장 선택 교체 (현재: 첫 번째 카드)</td></tr>
+          <tr><td>초기 비용</td><td>10골드</td></tr>
+          <tr><td>누적 증가</td><td>교체할수록 +2골드씩 증가 (11번째: 10+2×10=30골드)</td></tr>
+          <tr><td>비용 초기화</td><td>새 핸드 드로우(소환/마법 사용) 시 초기화</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ECONOMY -->
+    <section id="economy">
+      <h2>골드 경제</h2>
+
+      <div class="two-col">
+        <div>
+          <h3>수입</h3>
+          <table>
+            <thead><tr><th>수입원</th><th>수치</th></tr></thead>
+            <tbody>
+              <tr><td>기본 수입</td><td><strong>1골드/초</strong> (웨이브 클리어마다 +0.5골드/초)</td></tr>
+              <tr><td>시작 골드</td><td><strong>20골드</strong></td></tr>
+              <tr><td>기본 보병</td><td>2골드</td></tr>
+              <tr><td>탱커</td><td>5골드</td></tr>
+              <tr><td>질주병</td><td>2골드</td></tr>
+              <tr><td>공중 유닛</td><td>3골드</td></tr>
+              <tr><td>마법면역</td><td>5골드</td></tr>
+              <tr><td>분열형</td><td>4골드</td></tr>
+              <tr><td>재생형</td><td>4골드</td></tr>
+              <tr><td>빙결형</td><td>5골드</td></tr>
+              <tr><td>보스</td><td><strong>20골드</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>지출</h3>
+          <table>
+            <thead><tr><th>항목</th><th>비용</th></tr></thead>
+            <tbody>
+              <tr><td>5장 드로우</td><td><strong>5골드</strong> (고정)</td></tr>
+              <tr><td>카드 교체 (1장)</td><td>10골드 시작, +2골드 누적</td></tr>
+              <tr><td>마법 사용 시 드로우</td><td>무료 드로우 마법 효과 시 0골드</td></tr>
+              <tr><td>유닛 업그레이드</td><td>20~40골드 <span class="impl-status pending">Plan 2</span></td></tr>
+              <tr><td>속성 전체 업그레이드</td><td>50골드 <span class="impl-status pending">Plan 2</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUMMON -->
+    <section id="summon">
+      <h2>유닛 소환</h2>
+
+      <div class="callout">
+        포커 패 조합 → <strong>유닛 등급 결정</strong>, 무늬 → <strong>속성 결정</strong>. 소환 후 그리드 클릭으로 배치.
+      </div>
+
+      <table>
+        <thead><tr><th>패 조합</th><th>등급</th><th>티어명</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td>탑 (노페어)</td><td class="grade-0">0등급</td><td class="grade-0">최하급</td><td>핸드에서 1장으로 즉시 소환 (가장 저렴)</td></tr>
+          <tr><td>원페어</td><td class="grade-1">1등급</td><td class="grade-1">일반</td><td></td></tr>
+          <tr><td>투페어</td><td class="grade-2">2등급</td><td class="grade-2">강화</td><td></td></tr>
+          <tr><td>트리플</td><td class="grade-3">3등급</td><td class="grade-3">희귀</td><td></td></tr>
+          <tr><td>스트레이트</td><td class="grade-4">4등급</td><td class="grade-4">고급</td><td></td></tr>
+          <tr><td>플러시</td><td class="grade-4">4등급</td><td class="grade-4">고급</td><td></td></tr>
+          <tr><td>풀하우스</td><td class="grade-5">5등급</td><td class="grade-5">영웅</td><td></td></tr>
+          <tr><td>포카인드</td><td class="grade-5">5등급</td><td class="grade-5">영웅</td><td></td></tr>
+          <tr><td>스트레이트 플러시</td><td class="grade-6">6등급</td><td class="grade-6">전설</td><td></td></tr>
+        </tbody>
+      </table>
+
+      <div class="flow">
+        <div class="flow-step">핸드 패 확인</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">소환 버튼 (5골드)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">핸드 전체 소모</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">패 평가 (등급+속성)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">그리드 클릭으로 배치</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">5장 재드로우</div>
+      </div>
+    </section>
+
+    <!-- UNIT ROLES -->
+    <section id="unit-roles">
+      <h2>역할 & 기본 스탯</h2>
+
+      <p>등급이 높을수록 같은 역할군 내에서 스탯 비례 증가. 등급 배율: 1등급 ×1.0 / 2등급 ×1.8 / 3등급 ×3.2</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>역할</th>
+            <th>HP</th>
+            <th>공격력</th>
+            <th>공격속도</th>
+            <th>사거리</th>
+            <th>특수 효과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="role-attack">공격형</span></td>
+            <td>120</td><td>25</td><td>1.2/초</td><td>2.5칸</td>
+            <td>단일 대상 집중 딜</td>
+          </tr>
+          <tr>
+            <td><span class="role-area">범위형</span></td>
+            <td>100</td><td>15</td><td>0.9/초</td><td>2.0칸</td>
+            <td>범위 1.5칸 내 모든 적 피해</td>
+          </tr>
+          <tr>
+            <td><span class="role-supportSpeed">지원형 (속도 버프)</span></td>
+            <td>80</td><td>10</td><td>1.0/초</td><td>1.5칸</td>
+            <td>주변 2칸 아군 공격속도 +0.4/초</td>
+          </tr>
+          <tr>
+            <td><span class="role-supportSlow">지원형 (감속)</span></td>
+            <td>90</td><td>12</td><td>1.0/초</td><td>2.0칸</td>
+            <td>공격 적 이동속도 40% 감소</td>
+          </tr>
+          <tr>
+            <td><span class="role-tank">탱커형</span></td>
+            <td>300</td><td>8</td><td>0.6/초</td><td>1.5칸</td>
+            <td>높은 HP로 적 어그로 유도</td>
+          </tr>
+          <tr>
+            <td><span class="role-sniper">저격형</span></td>
+            <td>70</td><td>40</td><td>0.4/초</td><td>5.0칸</td>
+            <td>긴 사거리, 낮은 공격속도</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- UNIT MATRIX -->
+    <section id="unit-matrix">
+      <h2>패 × 속성 역할 배치표</h2>
+      <p>각 패(등급) × 속성(무늬) 조합에 따라 배정되는 역할. 같은 역할이라도 등급에 따라 스탯 차이.</p>
+
+      <table class="unit-matrix">
+        <thead>
+          <tr>
+            <th class="row-header">패 조합</th>
+            <th><span class="tag tag-fire">♥ 불</span></th>
+            <th><span class="tag tag-water">♦ 물</span></th>
+            <th><span class="tag tag-earth">♣ 땅</span></th>
+            <th><span class="tag tag-wind">♠ 바람</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="row-header grade-0">탑 (0등급)</td>
+            <td class="role-attack">공격형</td>
+            <td class="role-attack">공격형</td>
+            <td class="role-tank">탱커형</td>
+            <td class="role-attack">공격형</td>
+          </tr>
+          <tr>
+            <td class="row-header grade-1">원페어 (1등급)</td>
+            <td class="role-attack">공격형</td>
+            <td class="role-supportSlow">감속 지원</td>
+            <td class="role-tank">탱커형</td>
+            <td class="role-supportSpeed">속도 지원</td>
+          </tr>
+          <tr>
+            <td class="row-header grade-2">투페어 (2등급)</td>
+            <td class="role-area">범위형</td>
+            <td class="role-supportSlow">감속 지원</td>
+            <td class="role-tank">탱커형</td>
+            <td class="role-supportSpeed">속도 지원</td>
+          </tr>
+          <tr>
+            <td class="row-header grade-3">트리플 (3등급)</td>
+            <td class="role-attack">공격형</td>
+            <td class="role-area">범위형</td>
+            <td class="role-tank">탱커형</td>
+            <td class="role-sniper">저격형</td>
+          </tr>
+          <tr>
+            <td class="row-header grade-4">스트레이트 (4등급)</td>
+            <td class="role-area">범위형</td>
+            <td class="role-supportSlow">감속 지원</td>
+            <td class="role-tank">탱커형</td>
+            <td class="role-sniper">저격형</td>
+          </tr>
+          <tr>
+            <td class="row-header grade-4">플러시 (4등급)</td>
+            <td class="role-attack">공격형</td>
+            <td class="role-area">범위형</td>
+            <td class="role-supportSpeed">속도 지원</td>
+            <td class="role-sniper">저격형</td>
+          </tr>
+          <tr>
+            <td class="row-header grade-5">풀하우스 (5등급)</td>
+            <td class="role-attack">공격형</td>
+            <td class="role-supportSlow">감속 지원</td>
+            <td class="role-tank">탱커형</td>
+            <td class="role-supportSpeed">속도 지원</td>
+          </tr>
+          <tr>
+            <td class="row-header grade-5">포카인드 (5등급)</td>
+            <td class="role-area">범위형</td>
+            <td class="role-area">범위형</td>
+            <td class="role-supportSpeed">속도 지원</td>
+            <td class="role-sniper">저격형</td>
+          </tr>
+          <tr>
+            <td class="row-header grade-6">스트레이트 플러시 (6등급)</td>
+            <td class="role-attack">공격형</td>
+            <td class="role-area">범위형</td>
+            <td class="role-tank">탱커형</td>
+            <td class="role-sniper">저격형</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- MERGE -->
+    <section id="merge">
+      <h2>유닛 합성 시스템 <span class="impl-status done">구현 완료</span></h2>
+
+      <div class="callout">
+        같은 패 + 같은 등급 유닛이 2마리 배치되면 <strong>글로우 이펙트</strong> 발생. 한 유닛을 드래그해 같은 유닛에 겹치면 해당 위치에서 합성 → 다음 등급 유닛 생성.
+      </div>
+
+      <div class="flow">
+        <div class="flow-step">같은 패+등급 2마리 → 글로우</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">드래그로 겹치기</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">합성 (드래그 대상 위치)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">다음 등급 유닛 생성</div>
+      </div>
+
+      <div class="two-col">
+        <div class="box">
+          <h4>합성 규칙</h4>
+          <ul>
+            <li>최대 3단계: 1등급 → 2등급 → 3등급</li>
+            <li>속성(무늬)이 달라도 합성 가능</li>
+            <li>합성 위치: 드래그 대상 유닛의 그리드 칸</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>등급 배율 (스탯)</h4>
+          <ul>
+            <li>1등급: ×<strong>1.0</strong> (기본)</li>
+            <li>2등급: ×<strong>1.8</strong></li>
+            <li>3등급: ×<strong>3.2</strong></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- UPGRADE -->
+    <section id="upgrade">
+      <h2>유닛 업그레이드 시스템 <span class="impl-status pending">Plan 2</span></h2>
+
+      <div class="callout warn">
+        현재 미구현. Plan 2에서 개발 예정.
+      </div>
+
+      <ul style="padding-left:20px; color:var(--text2);">
+        <li style="margin-bottom:8px;">비용을 소모하여 특정 유닛 또는 특정 속성 전체를 업그레이드</li>
+        <li style="margin-bottom:8px;">효과: 스탯 영구 증가 (HP, 공격력 등) + 특수 능력 해금 (범위 공격, 독 부여, 관통 등)</li>
+        <li style="margin-bottom:8px;">업그레이드는 해당 스테이지 판 내에서만 유효 (영구 누적 아님)</li>
+      </ul>
+    </section>
+
+    <!-- MAGIC -->
+    <section id="magic">
+      <h2>마법 스킬 시스템 <span class="impl-status done">구현 완료</span></h2>
+
+      <div class="callout">
+        <strong>핸드 3장 + 공용 패 2장 = 5장 조합</strong>으로 스킬 결정.<br>
+        마법 사용 후: 핸드 전체 소모 → 5장 재드로우 / 공용 패 소모 → 2장 재드로우.
+      </div>
+
+      <div class="skill-grid">
+        <div class="skill-card">
+          <div class="hand">스트레이트 플러시</div>
+          <div class="name">절멸</div>
+          <div class="desc">화면 내 <strong>모든 적 즉사</strong> (마법면역 제외)</div>
+        </div>
+        <div class="skill-card">
+          <div class="hand">포카인드</div>
+          <div class="name">대폭발</div>
+          <div class="desc">모든 적에게 <strong>500 대미지</strong> (마법면역 제외)</div>
+        </div>
+        <div class="skill-card">
+          <div class="hand">풀하우스</div>
+          <div class="name">회복</div>
+          <div class="desc">본진 HP <strong>30 회복</strong></div>
+        </div>
+        <div class="skill-card">
+          <div class="hand">플러시</div>
+          <div class="name">속성 강화</div>
+          <div class="desc">해당 <strong>속성 유닛 공격력 50% 증가</strong> (30초)</div>
+        </div>
+        <div class="skill-card">
+          <div class="hand">스트레이트</div>
+          <div class="name">대지진</div>
+          <div class="desc">모든 적 <strong>이동속도 50% 감소</strong> (15초, 마법면역 제외)</div>
+        </div>
+        <div class="skill-card">
+          <div class="hand">트리플</div>
+          <div class="name">소환 지원</div>
+          <div class="desc">무작위 위치에 <strong>트리플 유닛 1기</strong> 즉시 소환</div>
+        </div>
+        <div class="skill-card">
+          <div class="hand">투페어</div>
+          <div class="name">골드 획득</div>
+          <div class="desc"><strong>골드 30</strong> 즉시 획득</div>
+        </div>
+        <div class="skill-card">
+          <div class="hand">원페어</div>
+          <div class="name">무료 드로우</div>
+          <div class="desc">다음 소환/드로우 비용 <strong>0골드</strong></div>
+        </div>
+        <div class="skill-card">
+          <div class="hand">탑 (노페어)</div>
+          <div class="name">공용 패 교체</div>
+          <div class="desc">공용 패 2장 <strong>즉시 재드로우</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENEMIES -->
+    <section id="enemies">
+      <h2>적 종류 <span class="impl-status done">구현 완료</span></h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>적 이름</th>
+            <th>HP</th>
+            <th>공격력</th>
+            <th>이동속도</th>
+            <th>처치 보상</th>
+            <th>특성</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>기본 보병</td>
+            <td>100</td><td>10</td><td>60</td><td>2골드</td>
+            <td>표준 스탯</td>
+          </tr>
+          <tr>
+            <td>탱커</td>
+            <td>400</td><td>15</td><td>30</td><td>5골드</td>
+            <td>HP 4배, 이동속도 절반</td>
+          </tr>
+          <tr>
+            <td>질주병</td>
+            <td>50</td><td>8</td><td>120</td><td>2골드</td>
+            <td>HP 절반, 이동속도 2배</td>
+          </tr>
+          <tr>
+            <td>공중 유닛</td>
+            <td>80</td><td>12</td><td>80</td><td>3골드</td>
+            <td>지상 유닛 무시하고 직선 이동. 공중 공격 가능 유닛만 교전</td>
+          </tr>
+          <tr>
+            <td>마법면역</td>
+            <td>120</td><td>12</td><td>60</td><td>5골드</td>
+            <td>마법 스킬 효과 무효</td>
+          </tr>
+          <tr>
+            <td>분열형</td>
+            <td>150</td><td>10</td><td>50</td><td>4골드</td>
+            <td>사망 시 기본 보병 2마리로 분열</td>
+          </tr>
+          <tr>
+            <td>재생형</td>
+            <td>200</td><td>10</td><td>55</td><td>4골드</td>
+            <td>매 틱 HP 5 재생</td>
+          </tr>
+          <tr>
+            <td>빙결형</td>
+            <td>90</td><td>8</td><td>65</td><td>5골드</td>
+            <td>주변 2칸 아군 유닛 2초 동안 공격 불가 상태로 만듦</td>
+          </tr>
+          <tr>
+            <td>보스</td>
+            <td>2000</td><td>30</td><td>40</td><td>20골드</td>
+            <td>고유 능력 보유, 높은 HP/공격력</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- GRID -->
+    <section id="grid">
+      <h2>그리드 & 적 AI <span class="impl-status done">구현 완료</span></h2>
+
+      <div class="two-col">
+        <div class="box">
+          <h4>그리드 규격</h4>
+          <ul>
+            <li>크기: <strong>10 × 14</strong> (cols × rows)</li>
+            <li>셀 크기: <strong>44 × 44px</strong></li>
+            <li>화면 오프셋: 좌 8px, 상 20px</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>적 AI</h4>
+          <ul>
+            <li><strong>경로 있음:</strong> A* 알고리즘 (Manhattan, 4방향)</li>
+            <li><strong>경로 없음:</strong> 가장 가까운 유닛/장애물 공격 후 돌파</li>
+            <li>유닛 배치/제거 시 전체 경로 재계산</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>전투 시스템</h3>
+      <div class="callout">
+        유닛/적 모두 <strong>자동 공격</strong>. 사거리 내 적 탐지 → 공격 쿨다운마다 자동 타격. 속도 버프 유닛은 주변 아군에 공격속도 버프 지속 적용.
+      </div>
+    </section>
+
+    <!-- STAGES -->
+    <section id="stages">
+      <h2>스테이지 & 웨이브 구조</h2>
+
+      <div class="two-col" style="margin-bottom:24px;">
+        <div class="box">
+          <h4>플레이타임 목표</h4>
+          <ul>
+            <li>일반 스테이지: <strong>20~30분</strong></li>
+            <li>보스 스테이지: <strong>약 40분</strong></li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>진행 구조</h4>
+          <ul>
+            <li>스테이지 클리어 → 다음 스테이지 해금</li>
+            <li>최초 클리어 시 <strong>유료 재화</strong> 지급</li>
+            <li>일정 스테이지마다 <strong>보스 스테이지</strong> 등장</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>스테이지 1 (일반)</h3>
+      <div class="wave-timeline">
+        <div class="wave-item">
+          <div class="wave-label">Wave 1</div>
+          <div class="wave-enemies">
+            <span class="enemy-chip">기본 보병 ×5 (1.5초 간격)</span>
+          </div>
+        </div>
+        <div class="wave-item">
+          <div class="wave-label">Wave 2</div>
+          <div class="wave-enemies">
+            <span class="enemy-chip">기본 보병 ×8 (1.2초 간격)</span>
+          </div>
+        </div>
+        <div class="wave-item">
+          <div class="wave-label">Wave 3</div>
+          <div class="wave-enemies">
+            <span class="enemy-chip">질주병 ×4 (0.8초 간격)</span>
+            <span class="enemy-chip">기본 보병 ×3 (1.5초 간격)</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>스테이지 2 (보스)</h3>
+      <div class="wave-timeline">
+        <div class="wave-item">
+          <div class="wave-label">Wave 1</div>
+          <div class="wave-enemies">
+            <span class="enemy-chip">기본 보병 ×8 (1.2초 간격)</span>
+            <span class="enemy-chip">탱커 ×2 (3.0초 간격)</span>
+          </div>
+        </div>
+        <div class="wave-item">
+          <div class="wave-label">Wave 2</div>
+          <div class="wave-enemies">
+            <span class="enemy-chip">질주병 ×6 (0.7초 간격)</span>
+            <span class="enemy-chip">재생형 ×3 (2.0초 간격)</span>
+          </div>
+        </div>
+        <div class="wave-item">
+          <div class="wave-label">Wave 3</div>
+          <div class="wave-enemies">
+            <span class="enemy-chip">빙결형 ×2 (4.0초 간격)</span>
+            <span class="enemy-chip">기본 보병 ×10 (1.0초 간격)</span>
+          </div>
+        </div>
+        <div class="wave-item boss">
+          <div class="wave-label">Wave 4 — BOSS</div>
+          <div class="wave-enemies">
+            <span class="enemy-chip boss-chip">보스 ×1</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>웨이브 클리어 로그라이트 선택지 <span class="impl-status pending">Plan 2</span></h3>
+      <div class="callout warn">
+        현재 미구현. 웨이브 클리어마다 3가지 강화 선택지 중 1개 선택 예정.
+      </div>
+
+      <table>
+        <thead><tr><th>선택지 예시</th></tr></thead>
+        <tbody>
+          <tr><td>"투페어 유닛 공격력 +25%"</td></tr>
+          <tr><td>"불 속성 유닛 사거리 +1칸"</td></tr>
+          <tr><td>"스트레이트 패 소환 시 골드 +5 획득"</td></tr>
+          <tr><td>"카드 교체 비용 20% 감소"</td></tr>
+          <tr><td>"탑 유닛 HP +50%"</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- WIN/LOSE -->
+    <section id="winlose">
+      <h2>승/패 조건</h2>
+      <div class="two-col">
+        <div class="box">
+          <h4 style="color:var(--green)">승리 (스테이지 클리어)</h4>
+          <ul>
+            <li>스테이지 내 <strong>모든 웨이브 적 처치</strong></li>
+            <li>최초 클리어 시 유료 재화 지급</li>
+            <li>다음 스테이지 해금</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4 style="color:var(--red)">패배 (게임 오버)</h4>
+          <ul>
+            <li>본진 HP가 <strong>0</strong>이 되면 즉시 게임 오버</li>
+            <li>클릭 시 현재 스테이지 처음부터 재시작</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- TODO -->
+    <section id="todo">
+      <h2>미결 / Plan 2 항목</h2>
+
+      <div class="callout warn">
+        MVP(Plan 1)는 구현 완료. 아래 항목은 Plan 2에서 개발 예정.
+      </div>
+
+      <ul class="todo-list">
+        <li><div class="check"></div>웨이브 클리어 로그라이트 선택지 UI (3가지 중 1개 선택)</li>
+        <li><div class="check"></div>유닛 업그레이드 패널 (개별 유닛 / 속성 전체)</li>
+        <li><div class="check"></div>스테이지 선택 화면 & 진행 상황 표시</li>
+        <li><div class="check"></div>유료 재화 시스템 (최초 클리어 보상)</li>
+        <li><div class="check"></div>Steam 배포용 Electron 래핑</li>
+        <li><div class="check"></div>웨이브 수 및 스테이지 수 확정 (현재: 스테이지 2개, 총 7웨이브)</li>
+        <li><div class="check"></div>유닛별 구체적 스탯 수치 밸런싱</li>
+        <li><div class="check"></div>보스 고유 능력 설계</li>
+        <li><div class="check"></div>공중 유닛 공격 가능 유닛 종류 확정</li>
+        <li><div class="check"></div>메인 메뉴 및 전체 UI/UX 폴리싱</li>
+        <li><div class="check"></div>이펙트 & 사운드 추가</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

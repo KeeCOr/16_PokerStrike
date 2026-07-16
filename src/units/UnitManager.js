@@ -25,6 +25,14 @@ export const RANGE_DECAL_STYLE = {
   TICK_LENGTH: 8,
   DEPTH: 0.65,
 };
+export const SUMMON_EFFECT_STYLE = {
+  DURATION: 420,
+  SPARK_COUNT: 8,
+  OUTER_RING_COLOR: 0xffd36a,
+  INNER_RING_COLOR: 0x72e9ff,
+  RING_DEPTH: 5,
+  SPARK_DEPTH: 6,
+};
 
 export default class UnitManager {
   constructor(scene) {
@@ -85,19 +93,50 @@ export default class UnitManager {
 
   _playSpawnEffect(col, row, unit) {
     const pos = this.scene.grid.cellToWorld(col, row);
-    const flash = this.scene.add.circle(pos.x, pos.y, CELL_SIZE * 0.34, 0xffffff, 0.48).setDepth(5);
+    const style = SUMMON_EFFECT_STYLE;
+    const suitColor = unit?._baseColor ?? 0xffffff;
+
+    const outerRing = this.scene.add.circle(pos.x, pos.y, CELL_SIZE * 0.24, style.OUTER_RING_COLOR, 0.05).setDepth(style.RING_DEPTH);
+    outerRing.setStrokeStyle?.(2, style.OUTER_RING_COLOR, 0.78);
     this.scene.tweens.add({
-      targets: flash, alpha: 0, scaleX: 2.0, scaleY: 2.0,
-      duration: 350, ease: 'Quad.easeOut',
-      onComplete: () => flash.destroy(),
+      targets: outerRing, alpha: 0, scaleX: 1.85, scaleY: 1.85,
+      duration: style.DURATION, ease: 'Quad.easeOut',
+      onComplete: () => outerRing.destroy(),
     });
+
+    const innerRing = this.scene.add.circle(pos.x, pos.y, CELL_SIZE * 0.15, style.INNER_RING_COLOR, 0.08).setDepth(style.RING_DEPTH + 0.1);
+    innerRing.setStrokeStyle?.(2, style.INNER_RING_COLOR, 0.9);
+    this.scene.tweens.add({
+      targets: innerRing, alpha: 0, scaleX: 1.35, scaleY: 1.35,
+      duration: Math.floor(style.DURATION * 0.75), ease: 'Quad.easeOut',
+      onComplete: () => innerRing.destroy(),
+    });
+
+    for (let i = 0; i < style.SPARK_COUNT; i++) {
+      const angle = (i / style.SPARK_COUNT) * Math.PI * 2 - Math.PI / 2;
+      const distance = CELL_SIZE * (0.24 + (i % 3) * 0.035);
+      const spark = this.scene.add.circle(pos.x, pos.y, i % 2 === 0 ? 2.4 : 1.8, suitColor, 0.72).setDepth(style.SPARK_DEPTH);
+      this.scene.tweens.add({
+        targets: spark,
+        x: pos.x + Math.cos(angle) * distance,
+        y: pos.y + Math.sin(angle) * distance - CELL_SIZE * 0.08,
+        alpha: 0,
+        scaleX: 0.28,
+        scaleY: 0.28,
+        delay: i * 12,
+        duration: Math.floor(style.DURATION * 0.72),
+        ease: 'Quad.easeOut',
+        onComplete: () => spark.destroy(),
+      });
+    }
+
     // Preserve setDisplaySize() image scale; tweening to 1 would restore the 256px source size.
     const targetScaleX = Number.isFinite(unit.sprite.scaleX) ? unit.sprite.scaleX : 1;
     const targetScaleY = Number.isFinite(unit.sprite.scaleY) ? unit.sprite.scaleY : targetScaleX;
     unit.sprite.setAlpha(0).setScale(targetScaleX * 0.15, targetScaleY * 0.15);
     this.scene.tweens.add({
       targets: unit.sprite, alpha: 1, scaleX: targetScaleX, scaleY: targetScaleY,
-      duration: 280, ease: 'Back.easeOut',
+      duration: Math.floor(style.DURATION * 0.72), ease: 'Back.easeOut',
     });
   }
 

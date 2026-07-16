@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Defense — 게임 기획서</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --gold: #e3b341;
+    --green: #3fb950;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -apple-system, sans-serif; font-size: 14px; line-height: 1.6; }
+
+  header { background: linear-gradient(135deg, #1a2a4a 0%, #0d1117 60%); border-bottom: 2px solid var(--accent); padding: 40px 0 32px; text-align: center; }
+  header h1 { font-size: 36px; color: #fff; letter-spacing: 2px; margin-bottom: 8px; }
+  header h1 span { color: var(--gold); }
+  header p { color: var(--muted); font-size: 13px; }
+
+  nav { position: sticky; top: 0; background: rgba(13,17,23,0.95); border-bottom: 1px solid var(--border); padding: 10px 0; z-index: 100; backdrop-filter: blur(8px); }
+  nav ul { display: flex; flex-wrap: wrap; gap: 4px 16px; justify-content: center; list-style: none; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 12px; padding: 4px 8px; border-radius: 4px; transition: color .15s, background .15s; }
+  nav a:hover { color: var(--accent); background: rgba(88,166,255,.08); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+  section { margin-bottom: 48px; }
+  section[id] { scroll-margin-top: 60px; }
+
+  h2 { font-size: 20px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  h2 .icon { font-size: 18px; }
+  h3 { font-size: 15px; color: var(--gold); margin: 20px 0 10px; }
+  p { margin-bottom: 10px; }
+
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
+  th { background: #1c2733; color: var(--accent); padding: 8px 12px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 7px 12px; border-bottom: 1px solid rgba(48,54,61,.5); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(88,166,255,.04); }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .badge-fire  { background: rgba(248,81,73,.2);  color: #ff6b6b; }
+  .badge-water { background: rgba(68,221,255,.15); color: #44ddff; }
+  .badge-earth { background: rgba(136,187,0,.15);  color: #8bc34a; }
+  .badge-wind  { background: rgba(188,140,255,.2); color: #bc8cff; }
+  .badge-gold  { background: rgba(227,179,65,.15); color: var(--gold); }
+
+  .stat-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .stat { background: rgba(88,166,255,.1); border: 1px solid rgba(88,166,255,.25); border-radius: 4px; padding: 2px 8px; font-size: 11px; color: var(--accent); }
+
+  .power-bar-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .power-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .power-label { width: 160px; color: var(--muted); flex-shrink: 0; }
+  .power-track { flex: 1; background: rgba(255,255,255,.05); border-radius: 5px; height: 10px; }
+  .power-bar { height: 10px; border-radius: 5px; background: linear-gradient(90deg, #1a4a8a, var(--accent)); }
+  .power-num { color: var(--gold); font-weight: 600; width: 40px; text-align: right; }
+
+  .grade-row { display: flex; gap: 12px; }
+  .grade-card { flex: 1; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; }
+  .grade-card .gnum { font-size: 28px; font-weight: 700; color: var(--gold); display: block; line-height: 1; }
+  .grade-card .gmult { font-size: 18px; color: var(--green); font-weight: 600; }
+  .grade-card .gdesc { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+  .skill-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 6px; }
+  .skill-rank { flex-shrink: 0; width: 140px; font-size: 11px; font-weight: 700; color: var(--gold); padding-top: 1px; }
+  .skill-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+  .skill-desc { font-size: 12px; color: var(--muted); }
+
+  .enemy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .enemy-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .enemy-card .ename { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .enemy-card .estat { font-size: 11px; color: var(--muted); }
+  .enemy-card .etrait { font-size: 11px; color: #ffaa55; margin-top: 5px; }
+
+  .stage-block { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+  .stage-title { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
+  .wave-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; font-size: 12px; }
+  .wave-num { background: rgba(88,166,255,.15); color: var(--accent); border-radius: 4px; padding: 1px 7px; font-weight: 700; flex-shrink: 0; }
+  .wave-content { color: var(--muted); }
+
+  .callout { background: rgba(88,166,255,.07); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 10px 14px; margin: 12px 0; font-size: 13px; color: var(--muted); }
+
+  footer { text-align: center; padding: 24px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); }
+
+  @media (max-width: 600px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .enemy-grid { grid-template-columns: 1fr 1fr; }
+    .grade-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>♠ Card <span>Defense</span></h1>
+  <p>포커 패 기반 유닛 소환 타워 디펜스 &nbsp;|&nbsp; 게임 기획서 v2.0 &nbsp;|&nbsp; 2026-05-08</p>
+</header>
+
+<nav>
+  <ul>
+    <li><a href="#overview">개요</a></li>
+    <li><a href="#layout">화면/그리드</a></li>
+    <li><a href="#cards">카드 시스템</a></li>
+    <li><a href="#economy">골드/비용</a></li>
+    <li><a href="#units">유닛</a></li>
+    <li><a href="#magic">마법 스킬</a></li>
+    <li><a href="#enemies">적</a></li>
+    <li><a href="#stages">스테이지</a></li>
+    <li><a href="#roguelite">로그라이트</a></li>
+    <li><a href="#ui">UI 레이아웃</a></li>
+    <li><a href="#winlose">승/패</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <h2><span class="icon">🃏</span> 게임 개요</h2>
+  <div class="card">
+    <p>포커 패 기반 유닛 소환 + 타워 디펜스 하이브리드 게임.<br>
+    카드 조합으로 유닛을 소환하고 그리드에 배치하여 본진을 방어한다.<br>
+    로그라이트 요소(웨이브 클리어 시 강화 선택지)와 4스테이지 진행 구조를 갖춘다.</p>
+    <div class="stat-row" style="margin-top:12px">
+      <span class="stat">Phaser 3 Canvas</span>
+      <span class="stat">Electron 포터블 실행파일</span>
+      <span class="stat">GameScene + UIScene 병렬</span>
+      <span class="stat">JavaScript ES Module</span>
+    </div>
+  </div>
+</section>
+
+<!-- LAYOUT -->
+<section id="layout">
+  <h2><span class="icon">🗺️</span> 화면 &amp; 그리드</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>화면 사양</h3>
+      <table>
+        <tr><th>항목</th><th>수치</th></tr>
+        <tr><td>화면 크기</td><td>640 × 960 px</td></tr>
+        <tr><td>셀 크기</td><td>80 px</td></tr>
+        <tr><td>그리드 열</td><td>7 열</td></tr>
+        <tr><td>그리드 행</td><td>9 행</td></tr>
+        <tr><td>UI 패널 시작</td><td>y = 744</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>구역 배치</h3>
+      <table>
+        <tr><th>구역</th><th>위치</th></tr>
+        <tr><td>스폰 구역</td><td>row 0, col 3</td></tr>
+        <tr><td>본진 구역</td><td>row 8 (전체 열)</td></tr>
+        <tr><td>유닛 배치</td><td>row 1~7 (장애물 제외)</td></tr>
+        <tr><td>장애물</td><td>10개 블록셀 고정 배치</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="callout">적은 row 0 중앙에서 스폰되어 A*로 경로를 찾아 본진(row 8)까지 이동한다. 유닛 배치가 경로를 막으면 적은 우회로를 탐색한다. 각 적이 독립적으로 경로 계산.</div>
+</section>
+
+<!-- CARDS -->
+<section id="cards">
+  <h2><span class="icon">🎴</span> 카드 시스템</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>덱 구성 (32장)</h3>
+      <p>A K Q J 10 9 8 7 × 4가지 무늬</p>
+      <div class="stat-row" style="margin-top:8px">
+        <span class="badge badge-fire">♥ 불</span>
+        <span class="badge badge-water">♦ 물</span>
+        <span class="badge badge-earth">♣ 땅</span>
+        <span class="badge badge-wind">♠ 바람</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>핸드 패 (5장)</h3>
+      <p>항상 5장 유지. 소환/마법 사용 시 핸드 전체 소모 → 덱에서 5장 새로 드로우. 덱 소진 시 무덤 셔플.</p>
+    </div>
+  </div>
+
+  <h3>공용 패 (2장)</h3>
+  <div class="card">
+    <p>게임 시작 시 덱에서 2장 자동 드로우, 항상 공개 표시.</p>
+    <p><strong>마법 스킬 전용:</strong> 핸드 3장 + 공용 패 2장 = 5장 조합으로 스킬 결정.</p>
+    <p>마법 사용 후 공용 패 2장 소모 → 덱에서 2장 새로 드로우. HIGH_CARD 마법으로도 갱신 가능.</p>
+  </div>
+
+  <h3>패 교체</h3>
+  <div class="card">
+    <p><strong>교체 버튼 클릭</strong> → 교체할 카드 선택 (녹색 하이라이트) → 클릭 시 교체 실행</p>
+    <p>비용: 10G 시작, 교체마다 +2G 누적. <strong>소환 시 초기화.</strong></p>
+  </div>
+</section>
+
+<!-- ECONOMY -->
+<section id="economy">
+  <h2><span class="icon">💰</span> 골드 &amp; 비용 시스템</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>수입</h3>
+      <table>
+        <tr><th>수입원</th><th>수치</th></tr>
+        <tr><td>초기 골드</td><td><span class="badge badge-gold">15 G</span></td></tr>
+        <tr><td>기본 수입</td><td>0.5 G / 초</td></tr>
+        <tr><td>웨이브 클리어</td><td>+0.25 G/초 누적 증가</td></tr>
+        <tr><td>기본병 처치</td><td>2 G</td></tr>
+        <tr><td>탱커 / 마법면역 / 빙결</td><td>5 G</td></tr>
+        <tr><td>공중 / 분열 / 재생</td><td>3~4 G</td></tr>
+        <tr><td>보스 처치</td><td>20 G</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>지출</h3>
+      <table>
+        <tr><th>항목</th><th>비용</th></tr>
+        <tr><td>소환 (핸드 5장)</td><td>5G + 소환횟수×2G</td></tr>
+        <tr><td>카드 교체 (1장)</td><td>10G + 교체횟수×2G</td></tr>
+        <tr><td>본진 HP 회복</td><td>30G (+20 HP, 최대 100)</td></tr>
+        <tr><td>유닛 HP 업그레이드</td><td>25G (+50%, 1회)</td></tr>
+        <tr><td>유닛 ATK 업그레이드</td><td>20G (+30%, 1회)</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- UNITS -->
+<section id="units">
+  <h2><span class="icon">⚔️</span> 유닛 시스템</h2>
+
+  <h3>아키타입 — 패 조합 → 기본 스탯 성격</h3>
+  <table>
+    <tr><th>패 조합</th><th>아키타입</th><th>사거리</th><th>특징</th></tr>
+    <tr><td>HIGH_CARD</td><td>잡병</td><td>2.0</td><td>평범한 만능형</td></tr>
+    <tr><td>ONE_PAIR</td><td>탑</td><td>4.0</td><td>사거리 길고 느린 공격</td></tr>
+    <tr><td>TWO_PAIR</td><td>전사</td><td>1.5</td><td>근접 강타형</td></tr>
+    <tr><td>THREE_OF_A_KIND</td><td>마법사</td><td>3.0</td><td>중거리 마법 공격</td></tr>
+    <tr><td>STRAIGHT</td><td>기사</td><td>2.2</td><td>균형잡힌 전투형</td></tr>
+    <tr><td>FLUSH</td><td>민첩형</td><td>2.5</td><td>빠른 공격속도</td></tr>
+    <tr><td>FULL_HOUSE</td><td>정예</td><td>2.5</td><td>높은 스탯의 강력한 유닛</td></tr>
+    <tr><td>FOUR_OF_A_KIND</td><td>저격수</td><td>5.5</td><td>초장거리 느린 강타</td></tr>
+    <tr><td>STRAIGHT_FLUSH</td><td>신화</td><td>4.0</td><td>모든 스탯 최상위</td></tr>
+  </table>
+
+  <h3>파워 배율 — 조합이 높을수록 압도적으로 강함</h3>
+  <div class="card">
+    <div class="power-bar-wrap">
+      <div class="power-row"><span class="power-label">HIGH_CARD (잡병)</span><div class="power-track"><div class="power-bar" style="width:7.5%"></div></div><span class="power-num">×0.45</span></div>
+      <div class="power-row"><span class="power-label">ONE_PAIR (탑)</span><div class="power-track"><div class="power-bar" style="width:12.5%"></div></div><span class="power-num">×0.75</span></div>
+      <div class="power-row"><span class="power-label">TWO_PAIR (전사)</span><div class="power-track"><div class="power-bar" style="width:16.7%"></div></div><span class="power-num">×1.0</span></div>
+      <div class="power-row"><span class="power-label">THREE_OF_A_KIND (마법사)</span><div class="power-track"><div class="power-bar" style="width:25%"></div></div><span class="power-num">×1.5</span></div>
+      <div class="power-row"><span class="power-label">STRAIGHT (기사)</span><div class="power-track"><div class="power-bar" style="width:33.3%"></div></div><span class="power-num">×2.0</span></div>
+      <div class="power-row"><span class="power-label">FLUSH (민첩형)</span><div class="power-track"><div class="power-bar" style="width:43.3%"></div></div><span class="power-num">×2.6</span></div>
+      <div class="power-row"><span class="power-label">FULL_HOUSE (정예)</span><div class="power-track"><div class="power-bar" style="width:56.7%"></div></div><span class="power-num">×3.4</span></div>
+      <div class="power-row"><span class="power-label">FOUR_OF_A_KIND (저격수)</span><div class="power-track"><div class="power-bar" style="width:75%"></div></div><span class="power-num">×4.5</span></div>
+      <div class="power-row"><span class="power-label">STRAIGHT_FLUSH (신화)</span><div class="power-track"><div class="power-bar" style="width:100%"></div></div><span class="power-num">×6.0</span></div>
+    </div>
+  </div>
+
+  <h3>속성별 전투 메카닉 (등급에 따라 강화)</h3>
+  <div class="callout">속성별 공격력/체력 수치 차이 없음 — 파워 배율과 아키타입으로만 결정됨. ♥불 / ♠바람은 공중 유닛 공격 가능.</div>
+
+  <div class="card" style="border-left:3px solid #ff6b6b">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span class="badge badge-fire" style="font-size:13px">♥ 불 — 범위 공격 (확률 스플래시)</span></div>
+    <table>
+      <tr><th>등급</th><th>스플래시 확률</th><th>스플래시 반경</th><th>비고</th></tr>
+      <tr><td>1등급</td><td>25%</td><td>1.2 셀</td><td>발동 실패 시 단일 공격</td></tr>
+      <tr><td>2등급</td><td>50%</td><td>1.2 셀</td><td>발동 실패 시 단일 공격</td></tr>
+      <tr><td>3등급</td><td>80%</td><td>1.2 셀</td><td>발동 실패 시 단일 공격</td></tr>
+    </table>
+  </div>
+
+  <div class="card" style="border-left:3px solid #44ddff">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span class="badge badge-water" style="font-size:13px">♦ 물 — 슬로우 지원</span></div>
+    <table>
+      <tr><th>등급</th><th>슬로우 확률</th><th>슬로우 강도</th><th>적용 범위</th></tr>
+      <tr><td>1등급</td><td>60%</td><td>이동속도 30% 감속</td><td>단일 대상</td></tr>
+      <tr><td>2등급</td><td>80%</td><td>이동속도 45% 감속</td><td>반경 1 셀</td></tr>
+      <tr><td>3등급</td><td>100%</td><td>이동속도 60% 감속</td><td>반경 1.8 셀</td></tr>
+    </table>
+  </div>
+
+  <div class="card" style="border-left:3px solid #8bc34a">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span class="badge badge-earth" style="font-size:13px">♣ 땅 — 스턴</span></div>
+    <table>
+      <tr><th>등급</th><th>스턴 확률</th><th>스턴 지속시간</th><th>적용 범위</th></tr>
+      <tr><td>1등급</td><td>40%</td><td>0.6 초</td><td>단일 대상</td></tr>
+      <tr><td>2등급</td><td>60%</td><td>1.2 초</td><td>반경 1 셀</td></tr>
+      <tr><td>3등급</td><td>90%</td><td>2.2 초</td><td>반경 1.8 셀</td></tr>
+    </table>
+  </div>
+
+  <div class="card" style="border-left:3px solid #bc8cff">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span class="badge badge-wind" style="font-size:13px">♠ 바람 — 저격 (HP% 대미지, 단일 공격)</span></div>
+    <table>
+      <tr><th>등급</th><th>기본 대미지</th><th>추가 대미지</th></tr>
+      <tr><td>1등급</td><td>기본 ATK</td><td>+ 적 최대HP × 5%</td></tr>
+      <tr><td>2등급</td><td>기본 ATK</td><td>+ 적 최대HP × 10%</td></tr>
+      <tr><td>3등급</td><td>기본 ATK</td><td>+ 적 최대HP × 18%</td></tr>
+    </table>
+  </div>
+
+  <h3>등급 시스템 (합성)</h3>
+  <div class="grade-row">
+    <div class="grade-card"><span class="gnum">1</span><div class="gmult">×1.0</div><div class="gdesc">소환으로 획득</div></div>
+    <div class="grade-card"><span class="gnum">2</span><div class="gmult">×1.8</div><div class="gdesc">같은 조합 1등급 2마리 합성</div></div>
+    <div class="grade-card"><span class="gnum">3</span><div class="gmult">×3.2</div><div class="gdesc">같은 조합 2등급 2마리 합성</div></div>
+  </div>
+  <div class="callout" style="margin-top:12px">합성: 같은 패 + 같은 등급 2마리 시 글로우 이펙트 발생. 드래그하여 겹치거나 클릭 선택 후 다른 유닛 클릭. 합성 결과는 드래그 대상 위치에 생성.</div>
+</section>
+
+<!-- MAGIC -->
+<section id="magic">
+  <h2><span class="icon">✨</span> 마법 스킬 시스템</h2>
+  <p style="margin-bottom:14px">핸드 3장 + 공용 패 2장 조합 기준. 마법 사용 후 핸드 전체 소모 → 5장 새로 드로우.</p>
+
+  <div class="skill-item"><div class="skill-rank">STRAIGHT_FLUSH</div><div><div class="skill-name">절멸</div><div class="skill-desc">화면 내 모든 적 즉사 (마법면역 제외)</div></div></div>
+  <div class="skill-item"><div class="skill-rank">FOUR_OF_A_KIND</div><div><div class="skill-name">대폭발</div><div class="skill-desc">모든 적에게 500 대미지 (마법면역 제외)</div></div></div>
+  <div class="skill-item"><div class="skill-rank">FULL_HOUSE</div><div><div class="skill-name">회복</div><div class="skill-desc">본진 HP +30 회복</div></div></div>
+  <div class="skill-item"><div class="skill-rank">FLUSH</div><div><div class="skill-name">속성 강화</div><div class="skill-desc">해당 속성 아군 유닛 공격력 ×1.5 (30초)</div></div></div>
+  <div class="skill-item"><div class="skill-rank">STRAIGHT</div><div><div class="skill-name">대지진</div><div class="skill-desc">모든 적 이동속도 50% 감소 (15초, 마법면역 제외)</div></div></div>
+  <div class="skill-item"><div class="skill-rank">THREE_OF_A_KIND</div><div><div class="skill-name">소환 지원</div><div class="skill-desc">무작위 위치에 THREE_OF_A_KIND 유닛 1기 즉시 소환</div></div></div>
+  <div class="skill-item"><div class="skill-rank">TWO_PAIR</div><div><div class="skill-name">골드 획득</div><div class="skill-desc">골드 +30 즉시 획득</div></div></div>
+  <div class="skill-item"><div class="skill-rank">ONE_PAIR</div><div><div class="skill-name">교체 비용 초기화</div><div class="skill-desc">누적된 교체 비용을 초기값으로 복구</div></div></div>
+  <div class="skill-item"><div class="skill-rank">HIGH_CARD</div><div><div class="skill-name">공용 패 교체</div><div class="skill-desc">공용 패 2장 즉시 재드로우</div></div></div>
+</section>
+
+<!-- ENEMIES -->
+<section id="enemies">
+  <h2><span class="icon">👾</span> 적 종류</h2>
+  <div class="enemy-grid">
+    <div class="enemy-card"><div class="ename">기본병</div><div class="estat">HP 100 · ATK 10 · SPD 60 · 보상 2G</div><div class="etrait">표준형</div></div>
+    <div class="enemy-card"><div class="ename">탱커</div><div class="estat">HP 400 · ATK 15 · SPD 30 · 보상 5G</div><div class="etrait">느리고 내구력 높음</div></div>
+    <div class="enemy-card"><div class="ename">질주병</div><div class="estat">HP 50 · ATK 8 · SPD 120 · 보상 2G</div><div class="etrait">매우 빠름</div></div>
+    <div class="enemy-card"><div class="ename">공중 유닛</div><div class="estat">HP 80 · ATK 12 · SPD 80 · 보상 3G</div><div class="etrait">지상 무시, 직선 이동. 불/바람 유닛만 공격 가능</div></div>
+    <div class="enemy-card"><div class="ename">마법면역</div><div class="estat">HP 120 · ATK 12 · SPD 60 · 보상 5G</div><div class="etrait">마법 스킬 효과 완전 무효</div></div>
+    <div class="enemy-card"><div class="ename">분열형</div><div class="estat">HP 150 · ATK 10 · SPD 50 · 보상 4G</div><div class="etrait">사망 시 기본병 2마리로 분열</div></div>
+    <div class="enemy-card"><div class="ename">재생형</div><div class="estat">HP 200 · ATK 10 · SPD 55 · 보상 4G</div><div class="etrait">HP 5/초 재생</div></div>
+    <div class="enemy-card"><div class="ename">빙결형</div><div class="estat">HP 90 · ATK 8 · SPD 65 · 보상 5G</div><div class="etrait">반경 2셀 유닛을 2초 빙결(공격 불가)</div></div>
+    <div class="enemy-card"><div class="ename">보스</div><div class="estat">HP 2000 · ATK 30 · SPD 40 · 보상 20G</div><div class="etrait">높은 HP / 강한 공격력</div></div>
+  </div>
+
+  <h3>적 AI</h3>
+  <div class="card">
+    <p>• A* 경로탐색으로 본진(row 8의 임의 열)까지 최단경로 이동</p>
+    <p>• 각 적이 독립적으로 경로 계산 — 같은 방향으로 몰리지 않음</p>
+    <p>• 유닛 배치로 경로 차단 시 가장 가까운 유닛을 목표로 직접 공격</p>
+    <p>• 본진 row 도달 시 1.5초마다 본진에 지속 공격</p>
+  </div>
+</section>
+
+<!-- STAGES -->
+<section id="stages">
+  <h2><span class="icon">🏰</span> 스테이지 &amp; 웨이브 구조</h2>
+
+  <div class="stage-block">
+    <div class="stage-title">Stage 1 — 입문 (3 웨이브)</div>
+    <div class="wave-row"><span class="wave-num">W1</span><span class="wave-content">기본병 ×5 (1.5초 간격)</span></div>
+    <div class="wave-row"><span class="wave-num">W2</span><span class="wave-content">기본병 ×8 (1.2초 간격)</span></div>
+    <div class="wave-row"><span class="wave-num">W3</span><span class="wave-content">질주병 ×4 + 기본병 ×3</span></div>
+  </div>
+
+  <div class="stage-block">
+    <div class="stage-title">Stage 2 — 중급 (4 웨이브)</div>
+    <div class="wave-row"><span class="wave-num">W1</span><span class="wave-content">기본병 ×8 + 탱커 ×2</span></div>
+    <div class="wave-row"><span class="wave-num">W2</span><span class="wave-content">질주병 ×6 + 재생형 ×3</span></div>
+    <div class="wave-row"><span class="wave-num">W3</span><span class="wave-content">빙결형 ×2 + 기본병 ×10</span></div>
+    <div class="wave-row"><span class="wave-num">W4</span><span class="wave-content">보스 ×1</span></div>
+  </div>
+
+  <div class="stage-block">
+    <div class="stage-title">Stage 3 — 고급 (4 웨이브)</div>
+    <div class="wave-row"><span class="wave-num">W1</span><span class="wave-content">마법면역 ×4 + 질주병 ×6</span></div>
+    <div class="wave-row"><span class="wave-num">W2</span><span class="wave-content">분열형 ×5 + 재생형 ×4</span></div>
+    <div class="wave-row"><span class="wave-num">W3</span><span class="wave-content">공중 ×4 + 탱커 ×3</span></div>
+    <div class="wave-row"><span class="wave-num">W4</span><span class="wave-content">빙결형 ×3 + 마법면역 ×5</span></div>
+  </div>
+
+  <div class="stage-block">
+    <div class="stage-title">Stage 4 — 최종 (5 웨이브)</div>
+    <div class="wave-row"><span class="wave-num">W1</span><span class="wave-content">질주병 ×10 + 마법면역 ×6</span></div>
+    <div class="wave-row"><span class="wave-num">W2</span><span class="wave-content">분열형 ×6 + 빙결형 ×4 + 공중 ×4</span></div>
+    <div class="wave-row"><span class="wave-num">W3</span><span class="wave-content">탱커 ×5 + 재생형 ×5</span></div>
+    <div class="wave-row"><span class="wave-num">W4</span><span class="wave-content">보스 ×1</span></div>
+    <div class="wave-row"><span class="wave-num">W5</span><span class="wave-content">보스 ×2 (5초 간격)</span></div>
+  </div>
+</section>
+
+<!-- ROGUELITE -->
+<section id="roguelite">
+  <h2><span class="icon">🎲</span> 로그라이트 강화 시스템</h2>
+  <p style="margin-bottom:14px">웨이브 클리어마다 <strong>3가지 선택지 중 1개</strong> 선택. 해당 강화의 영향을 받는 유닛이 하이라이트로 미리보기 표시됨.</p>
+  <table>
+    <tr><th>선택지</th><th>대상</th><th>효과</th></tr>
+    <tr><td>탑 유닛 공격력 +35%</td><td>HIGH_CARD 전체</td><td>ATK ×1.35</td></tr>
+    <tr><td>원페어 유닛 공격력 +30%</td><td>ONE_PAIR 전체</td><td>ATK ×1.30</td></tr>
+    <tr><td>투페어 유닛 공격력 +30%</td><td>TWO_PAIR 전체</td><td>ATK ×1.30</td></tr>
+    <tr><td>트리플 유닛 공격력 +25%</td><td>THREE_OF_A_KIND 전체</td><td>ATK ×1.25</td></tr>
+    <tr><td>범위형 공격력 +30%</td><td>불 속성(AREA) 전체</td><td>ATK ×1.30</td></tr>
+    <tr><td>저격형 공격력 +40%</td><td>바람 속성(SNIPER) 전체</td><td>ATK ×1.40</td></tr>
+    <tr><td>탱커 HP +50%</td><td>땅 속성(TANK) 전체</td><td>MaxHP ×1.50</td></tr>
+    <tr><td>저격형 HP +60%</td><td>바람 속성(SNIPER) 전체</td><td>MaxHP ×1.60</td></tr>
+    <tr><td>불 속성 사거리 +1칸</td><td>불 속성 전체</td><td>Range +1.0</td></tr>
+    <tr><td>바람 속성 사거리 +1칸</td><td>바람 속성 전체</td><td>Range +1.0</td></tr>
+    <tr><td>물 속성 사거리 +0.5칸</td><td>물 속성 전체</td><td>Range +0.5</td></tr>
+    <tr><td>감속형 감속량 +20%</td><td>물 속성(SUPPORT_SLOW) 전체</td><td>slowAmount +0.2</td></tr>
+    <tr><td>드로우 비용 -2G</td><td>전체</td><td>소환 기본 비용 -2G</td></tr>
+    <tr><td>교체 기본 비용 -3G</td><td>전체</td><td>교체 기본 비용 -3G</td></tr>
+    <tr><td>원페어 소환 시 +5G</td><td>ONE_PAIR</td><td>소환마다 골드 +5</td></tr>
+    <tr><td>스트레이트 소환 시 +8G</td><td>STRAIGHT</td><td>소환마다 골드 +8</td></tr>
+  </table>
+</section>
+
+<!-- UI -->
+<section id="ui">
+  <h2><span class="icon">🖥️</span> UI 레이아웃</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>상단 HUD</h3>
+      <p>• Wave 번호 — 화면 최상단 중앙</p>
+      <p>• HP / 골드 — 우상단</p>
+      <p>• 본진 HP 바 — 본진 구역 바로 위</p>
+    </div>
+    <div class="card">
+      <h3>하단 패널 (y ≥ 744)</h3>
+      <p>• <strong>카드 패 탭</strong> (좌측 버튼): 핸드 5장 (좌) / 공용 패 2장 (우), 구분선 분리</p>
+      <p>• 소환 버튼: 현재 패 조합 미리보기 표시</p>
+      <p>• 마법 버튼: 3+2 조합 스킬 미리보기 표시</p>
+      <p>• 교체 버튼: 클릭 후 카드 선택 방식</p>
+      <p>• <strong>업그레이드 탭</strong> (좌측 버튼): 본진 회복 / 유닛 HP·ATK 업그레이드</p>
+    </div>
+  </div>
+</section>
+
+<!-- WIN/LOSE -->
+<section id="winlose">
+  <h2><span class="icon">🏆</span> 승/패 조건</h2>
+  <div class="grid-2">
+    <div class="card" style="border-color:var(--green)">
+      <h3 style="color:var(--green)">✅ 스테이지 클리어</h3>
+      <p>스테이지 내 모든 웨이브 적 처치 시 클리어.<br>다음 스테이지 진행 버튼 표시.</p>
+    </div>
+    <div class="card" style="border-color:var(--red)">
+      <h3 style="color:var(--red)">💀 게임 오버</h3>
+      <p>본진 HP 0 도달 시 게임 오버.<br>클릭으로 재시작 가능.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>Card Defense GDD v2.0 &nbsp;|&nbsp; 2026-05-08</footer>
+
+</body>
+</html>

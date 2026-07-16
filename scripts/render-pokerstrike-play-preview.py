@@ -1,4 +1,5 @@
-﻿from pathlib import Path
+﻿import math
+from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -164,6 +165,14 @@ def main():
         ("towers/S.png", 5, 6, 75, (255, 225, 90, 90)),
     ]:
         paste_asset(img, rel, cell_center(c, r), size, glow)
+    sx, sy = cell_center(2, 5)
+    draw.ellipse((sx - 34, sy - 34, sx + 34, sy + 34), outline=(255, 211, 106, 210), width=3)
+    draw.ellipse((sx - 24, sy - 24, sx + 24, sy + 24), outline=(114, 233, 255, 220), width=2)
+    for i in range(8):
+        a = (i / 8) * math.pi * 2 - math.pi / 2
+        px = sx + math.cos(a) * 27
+        py = sy + math.sin(a) * 27 - 6
+        draw.ellipse((px - 2, py - 2, px + 2, py + 2), fill=(255, 96, 80, 190))
 
     for rel, c, r, size in [
         ("monsters/basic.png", 3, 1, 48), ("monsters/runner.png", 4, 2, 48),

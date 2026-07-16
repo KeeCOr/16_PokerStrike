@@ -4,14 +4,40 @@ export const BATTLE_FEEDBACK_COLORS = Object.freeze({
   reward: '#8cffb4',
   info: '#d7f4ff',
 });
-
+export function getSummonPayoffCue(payload = {}) {
+  const parts = [
+    payload.rankName || null,
+    payload.rankImpact || null,
+    payload.suitEffect || payload.suitImpact || null,
+    Number(payload.bonusGold) > 0 ? `+${payload.bonusGold}G` : null,
+  ].filter(Boolean);
+  return parts.length > 0 ? `Payoff: ${parts.join(' / ')}` : null;
+}
 export function getBattleFeedback(payload = {}) {
   if (payload.type === 'summon') {
+    const hasImpactCopy = Boolean(
+      payload.roleLabel || payload.suitEffect || payload.payoffCue || payload.rankImpact || payload.suitImpact ||
+      payload.combatHint || Number(payload.bonusGold) > 0
+    );
+    const useEnglish = Boolean(
+      (payload.payoffCue || payload.rankImpact || payload.suitImpact || payload.combatHint) &&
+      [payload.rankName, payload.roleLabel, payload.suitLabel, payload.suitEffect, payload.payoffCue, payload.rankImpact, payload.suitImpact, payload.combatHint]
+        .filter(Boolean)
+        .every(value => isAsciiText(value))
+    );
     return {
       text: joinParts([
-        `${payload.rankName || '조합'} 소환`,
-        payload.suitLabel ? `${payload.suitLabel} 전선 배치` : '전선 배치',
-        Number.isFinite(payload.cost) ? `${payload.cost}G 사용` : null,
+        useEnglish ? `${payload.rankName || 'Combo'} summon` : `${payload.rankName || '조합'} 소환`,
+        payload.payoffCue || null,
+        hasImpactCopy
+          ? (useEnglish ? `${payload.roleLabel || 'Frontline'} placed` : `${payload.roleLabel || '전선'} 배치`)
+          : (payload.suitLabel ? `${payload.suitLabel} 전선 배치` : '전선 배치'),
+        payload.rankImpact || null,
+        hasImpactCopy && payload.suitLabel && payload.suitEffect ? `${payload.suitLabel} ${payload.suitEffect}` : null,
+        payload.suitImpact || null,
+        payload.combatHint || null,
+        Number.isFinite(payload.cost) ? (useEnglish ? `${payload.cost}G spent` : `${payload.cost}G 사용`) : null,
+        Number(payload.bonusGold) > 0 ? (useEnglish ? `bonus +${payload.bonusGold}G` : `보너스 +${payload.bonusGold}G`) : null,
       ]),
       tone: 'summon',
     };
@@ -42,6 +68,9 @@ export function getBattleFeedback(payload = {}) {
   return { text: String(payload.text || '전투 진행 중'), tone: 'info' };
 }
 
+function isAsciiText(value) {
+  return /^[\x20-\x7e]+$/.test(String(value));
+}
 function joinParts(parts) {
   return parts.filter(Boolean).join(' · ');
 }

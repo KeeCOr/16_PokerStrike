@@ -1,6 +1,7 @@
 ﻿# PokerStrike 아트 리소스 목록
 
 - v0.1.57: 전투 피드백 배너는 기존 `battle-label-frame.png`를 재사용해 소환/마법/처치 결과를 하단 패널 위에 표시한다.
+- v0.1.66: `battle-label-frame.png`를 어두운 카지노 판타지 UI 톤의 골드 트림 배너 프레임으로 교체했다. 중앙 텍스트 영역은 어둡고 단순하게 유지해 520x34 전투 피드백 배너에서도 한 줄 메시지가 읽히도록 했다.
 
 ## 생성 방식
 
@@ -18,7 +19,7 @@
 - `src/assets/art/environment/spawn-gate.png` - 적 스폰 포털
 - `src/assets/art/environment/base-core.png` - 플레이어 본진 코어
 - `src/assets/art/environment/base-shield.png` - 본진 방어판 보조 리소스
-- `src/assets/art/environment/battle-label-frame.png` - 전투 메시지 프레임
+- `src/assets/art/environment/battle-label-frame.png` - 전투 메시지/결과 배너 프레임, `ENV_TEXTURES.BATTLE_LABEL_FRAME` 런타임 키로 로드
 
 ## 몬스터 PNG
 
@@ -71,4 +72,5 @@
 
 - `src/assets/art/environment/board-tile-move.png` - 이동 가능 구역용 저채도/저명도 기본 타일
 - `src/assets/art/environment/board-tile-alt-move.png` - 이동 가능 구역용 저채도/저명도 교차 타일
+
 

@@ -18,6 +18,8 @@ export const CARD_LAYOUT = {
   PREVIEW_TEXT_PAD: 14,
   ACTION_Y: 924,
   ACTION_H: 42,
+  ACTION_GROUP_GAP: 2,
+  ACTION_TEXTURE_PAD_X: 22,
   ACTION_TEXT_Y_OFFSET: 2,
   SHARED_SCALE: 0.86,
   SUIT_LABEL_FONT: 9,
@@ -25,6 +27,17 @@ export const CARD_LAYOUT = {
   SUIT_MARK_FONT: 19,
   SUIT_LABEL_USES_ICON_ONLY: true,
 };
+
+export const ACTION_GROUP_SPECS = Object.freeze({
+  magic: { x: 104, w: 200, label: 'MAGIC', fill: 0x120f24, stroke: 0x8e62d7 },
+  hand: { x: 421, w: 430, label: 'HAND ACTIONS', fill: 0x161b16, stroke: 0xf2c96b },
+});
+
+export const ACTION_BUTTON_SPECS = Object.freeze({
+  magic: { x: 104, w: 172, group: 'magic', intent: 'utility', fill: 0x56308f, stroke: 0xb776ff, textureKey: UI_TEXTURES.BUTTON_ACTION_PURPLE },
+  summon: { x: 318, w: 204, group: 'hand', intent: 'primary', fill: THEME.ui.btnGold, stroke: THEME.text.gold, textureKey: UI_TEXTURES.BUTTON_ACTION_GOLD },
+  replace: { x: 528, w: 168, group: 'hand', intent: 'utility', fill: 0x0f5878, stroke: THEME.economy.gem, textureKey: UI_TEXTURES.BUTTON_ACTION_CYAN },
+});
 
 const {
   CARD_W,
@@ -192,11 +205,13 @@ export default class CardUI {
       [magicPreviewBg, magicPreview] = this._drawPreviewStrip(112, 184, magicSkillName, '#dca7ff', 10);
     }
 
-    const magicBtn = this._drawActionButton(112, ACTION_Y, 184, '마법', 0x56308f, 0xb776ff, UI_TEXTURES.BUTTON_ACTION_PURPLE);
-    const summonBtn = this._drawActionButton(320, ACTION_Y, 196, `소환 ${drawCost}G`, THEME.ui.btnGold, THEME.text.gold, UI_TEXTURES.BUTTON_ACTION_GOLD);
-    const replaceBtn = this._drawActionButton(528, ACTION_Y, 184, `교체 ${replaceCost}G`, 0x0f5878, THEME.economy.gem, UI_TEXTURES.BUTTON_ACTION_CYAN);
+    const magicGroup = this._drawActionGroupBackplate(ACTION_GROUP_SPECS.magic);
+    const handGroup = this._drawActionGroupBackplate(ACTION_GROUP_SPECS.hand);
+    const magicBtn = this._drawActionButton(ACTION_BUTTON_SPECS.magic, '마법 발동');
+    const summonBtn = this._drawActionButton(ACTION_BUTTON_SPECS.summon, `유닛 소환 ${drawCost}G`);
+    const replaceBtn = this._drawActionButton(ACTION_BUTTON_SPECS.replace, `카드 교체 ${replaceCost}G`);
 
-    this._buttons = { summonBtn, magicBtn, replaceBtn, summonPreviewBg, summonPreview, magicPreviewBg, magicPreview };
+    this._buttons = { summonBtn, magicBtn, replaceBtn, magicGroup, handGroup, summonPreviewBg, summonPreview, magicPreviewBg, magicPreview };
     return { summonBtn, magicBtn, replaceBtn };
   }
 
@@ -238,20 +253,27 @@ export default class CardUI {
     return [bg, text];
   }
 
-  _drawActionButton(x, y, w, label, fill, stroke, textureKey = null) {
+  _drawActionGroupBackplate(group) {
+    return this.scene.add.rectangle(group.x, ACTION_Y, group.w, ACTION_H + 12, group.fill, 0.42)
+      .setDepth(11)
+      .setStrokeStyle(1, group.stroke, 0.38);
+  }
+
+  _drawActionButton(spec, label) {
+    const { x, w, fill, stroke, textureKey } = spec;
     const hasTexture = textureKey && this.scene.textures?.exists?.(textureKey) && this.scene.add.image;
     const bg = hasTexture
-      ? this.scene.add.image(x, y, textureKey)
+      ? this.scene.add.image(x, ACTION_Y, textureKey)
         .setDepth(12)
-        .setDisplaySize(w + 34, ACTION_H + 18)
+        .setDisplaySize(w + CARD_LAYOUT.ACTION_TEXTURE_PAD_X, ACTION_H + 16)
         .setInteractive({ useHandCursor: true })
         .setAlpha(0.98)
-      : this.scene.add.rectangle(x, y, w, ACTION_H, fill, 0.95)
+      : this.scene.add.rectangle(x, ACTION_Y, w, ACTION_H, fill, 0.95)
         .setDepth(12)
         .setStrokeStyle(2, stroke, 0.9)
         .setInteractive({ useHandCursor: true });
-    const text = this.scene.add.text(x, y, label, {
-      fontSize: '15px',
+    const text = this.scene.add.text(x, ACTION_Y + CARD_LAYOUT.ACTION_TEXT_Y_OFFSET, label, {
+      fontSize: spec.intent === 'primary' ? '14px' : '13px',
       color: '#ffffff',
       fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(13);
@@ -274,4 +296,6 @@ export default class CardUI {
     return bg;
   }
 }
+
+
 

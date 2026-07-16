@@ -1,17 +1,18 @@
-﻿import Phaser from 'phaser';
+import Phaser from 'phaser';
 import HUD from '../ui/HUD.js';
 import CardUI from '../ui/CardUI.js';
 import { THEME } from '../theme.js';
 import { ENV_TEXTURES, UI_TEXTURES } from '../assets/art/AssetKeys.js';
-import { BATTLE_FEEDBACK_COLORS, getBattleFeedback } from '../ui/BattleFeedback.js';
+import { BATTLE_FEEDBACK_COLORS, getBattleFeedback, getSummonPayoffCue } from '../ui/BattleFeedback.js';
 import Deck from '../cards/Deck.js';
 import Hand from '../cards/Hand.js';
 import SharedCards from '../cards/SharedCards.js';
-import { evaluateHand, HAND_NAMES } from '../cards/HandEvaluator.js';
+import { evaluateHand, HAND_NAMES, HAND_RANK } from '../cards/HandEvaluator.js';
 import { SKILLS } from '../data/skills.js';
 import { PANEL_Y } from '../grid/Grid.js';
 import { SUIT_ICONS } from '../cards/Card.js';
 import { applyGoldSuitUpgradeToUnits, createGoldSuitUpgrade, GOLD_SUIT_UPGRADE_COST } from '../roguelite/GoldSuitUpgrade.js';
+import { AUDIO_CUES, playAudioCue } from '../audio/AudioCuePlayer.js';
 
 export const READABLE_TAB_LAYOUT = {
   TEXT_Y_OFFSET: 2,
@@ -28,6 +29,43 @@ const STATUS_LABELS = Object.freeze({
   stun: 'STUN',
 });
 
+const SUMMON_ROLE_LABELS = Object.freeze({
+  [HAND_RANK.HIGH_CARD]: '신병',
+  [HAND_RANK.ONE_PAIR]: '포탑',
+  [HAND_RANK.TWO_PAIR]: '전사',
+  [HAND_RANK.THREE_OF_A_KIND]: '마법사',
+  [HAND_RANK.STRAIGHT]: '기사',
+  [HAND_RANK.FLUSH]: '연사수',
+  [HAND_RANK.FULL_HOUSE]: '수호자',
+  [HAND_RANK.FOUR_OF_A_KIND]: '관통포',
+  [HAND_RANK.STRAIGHT_FLUSH]: '오라 지휘관',
+});
+
+const SUIT_EFFECT_LABELS = Object.freeze({
+  H: '불 광역',
+  D: '물 감속',
+  C: '땅 파쇄',
+  S: '바람 저격',
+});
+
+const SUMMON_RANK_IMPACT_LABELS = Object.freeze({
+  [HAND_RANK.HIGH_CARD]: '기본 단일 타격',
+  [HAND_RANK.ONE_PAIR]: '긴 사거리 포탑',
+  [HAND_RANK.TWO_PAIR]: '전방 방어 강화',
+  [HAND_RANK.THREE_OF_A_KIND]: '마법 화력 집중',
+  [HAND_RANK.STRAIGHT]: '전방 라인 유지',
+  [HAND_RANK.FLUSH]: '최대 3명 동시 타격',
+  [HAND_RANK.FULL_HOUSE]: '근접 초고화력',
+  [HAND_RANK.FOUR_OF_A_KIND]: '직선 관통 활성',
+  [HAND_RANK.STRAIGHT_FLUSH]: '동일 문양 오라 강화',
+});
+
+const SUIT_COMBAT_IMPACT_LABELS = Object.freeze({
+  H: '스플래시 확률 증가',
+  D: '감속으로 진입 지연',
+  C: '방어 파쇄 후 피해',
+  S: '후열 우선 저격',
+});
 export default class UIScene extends Phaser.Scene {
   constructor() { super('UIScene'); }
 
@@ -86,6 +124,7 @@ export default class UIScene extends Phaser.Scene {
   }
 
   _switchTab(tab) {
+    playAudioCue(this, AUDIO_CUES.UI_CLICK);
     const gs = this.scene.get('GameScene');
     if (gs?.unitManager) gs.unitManager.hideSummonPreview();
     this._activeTab = tab;
@@ -142,6 +181,7 @@ export default class UIScene extends Phaser.Scene {
     const eco = gameScene.economyManager;
     const cost = eco.getDrawCost();
     if (!eco.spend(cost)) return;
+    playAudioCue(this, AUDIO_CUES.SUMMON_CONFIRM);
     eco.recordSummon();
 
     const { rank, dominantSuit } = evaluateHand(this.hand.cards);
@@ -155,16 +195,25 @@ export default class UIScene extends Phaser.Scene {
     }
 
     gameScene.unitManager.placeUnitRandom(rank, dominantSuit, 1);
+    const bonusGold = gameScene.rogueliteManager?.getGoldOnSummon(rank) ?? 0;
+    if (bonusGold > 0) eco.addGold(bonusGold);
     gameScene.events.emit('battle-feedback', {
       type: 'summon',
       rankName,
       suitLabel,
+      roleLabel: SUMMON_ROLE_LABELS[rank],
+      suitEffect: SUIT_EFFECT_LABELS[dominantSuit],
+      payoffCue: getSummonPayoffCue({
+        rankName,
+        rankImpact: SUMMON_RANK_IMPACT_LABELS[rank],
+        suitEffect: SUIT_EFFECT_LABELS[dominantSuit],
+        bonusGold,
+      }),
+      rankImpact: SUMMON_RANK_IMPACT_LABELS[rank],
+      suitImpact: SUIT_COMBAT_IMPACT_LABELS[dominantSuit],
       cost,
+      bonusGold,
     });
-    if (gameScene.rogueliteManager) {
-      const bonus = gameScene.rogueliteManager.getGoldOnSummon(rank);
-      if (bonus > 0) eco.addGold(bonus);
-    }
     this._refreshUI();
   }
 
@@ -187,6 +236,7 @@ export default class UIScene extends Phaser.Scene {
     }
 
     const skill = SKILLS[bestRank];
+    playAudioCue(this, AUDIO_CUES.MAGIC_CAST);
     gameScene.magicManager.cast(bestRank, bestSuit);
     if (skill) gameScene.showMagicEffect(bestRank, skill.name, skill.description);
 
@@ -211,6 +261,7 @@ export default class UIScene extends Phaser.Scene {
   }
 
   _replace() {
+    playAudioCue(this, AUDIO_CUES.UI_CLICK);
     const gameScene = this.scene.get('GameScene');
     const eco = gameScene.economyManager;
     const cost = eco.getReplaceCost();
@@ -223,6 +274,7 @@ export default class UIScene extends Phaser.Scene {
       if (old) this.deck.discard(old);
       const newCard = this.deck.draw();
       if (newCard) this.hand.addCard(newCard);
+      playAudioCue(this, AUDIO_CUES.CARD_SELECT);
       this._refreshUI();
     }, () => {
       this._refreshUI();
@@ -294,6 +346,11 @@ export default class UIScene extends Phaser.Scene {
         ? `${status} -${damage}`
         : `-${damage}`;
     const color = ATTACK_FEEDBACK_COLORS[payload.kind] || ATTACK_FEEDBACK_COLORS.damage;
+    if (payload.kind === 'kill') {
+      playAudioCue(this, AUDIO_CUES.ENEMY_KO);
+    } else {
+      playAudioCue(this, AUDIO_CUES.ATTACK_HIT);
+    }
     const text = this.add.text(payload.x, payload.y - 28, label, {
       fontSize: '14px',
       color,
@@ -331,11 +388,11 @@ export default class UIScene extends Phaser.Scene {
     let bg;
     if (this.textures?.exists?.(ENV_TEXTURES.BATTLE_LABEL_FRAME) && this.add.image) {
       bg = this.add.image(x, y, ENV_TEXTURES.BATTLE_LABEL_FRAME)
-        .setDisplaySize(420, 34)
+        .setDisplaySize(596, 34)
         .setAlpha(0.96)
         .setDepth(30);
     } else {
-      bg = this.add.rectangle(x, y, 420, 28, 0x08131f, 0.94)
+      bg = this.add.rectangle(x, y, 596, 28, 0x08131f, 0.94)
         .setStrokeStyle(1, 0xf2c96b, 0.85)
         .setDepth(30);
     }
@@ -344,7 +401,7 @@ export default class UIScene extends Phaser.Scene {
       color: BATTLE_FEEDBACK_COLORS[feedback.tone] || BATTLE_FEEDBACK_COLORS.info,
       fontStyle: 'bold',
       align: 'center',
-      fixedWidth: 388,
+      fixedWidth: 560,
     }).setOrigin(0.5).setDepth(31);
     text.setStroke?.('#02070d', 3);
     this._battleFeedbackObjects = [bg, text];
@@ -384,7 +441,7 @@ export default class UIScene extends Phaser.Scene {
       const emptyMain = this.add.text(320, y + 22, '아직 획득한 강화가 없습니다', {
         fontSize: '11px', color: '#aaaaaa', align: 'center'
       }).setOrigin(0.5).setDepth(12);
-      const emptySub = this.add.text(320, y + 42, '스테이지를 클리어하면 강화를 선택할 수 있습니다', {
+      const emptySub = this.add.text(320, y + 42, '스테이지를 클리어하면 강화 선택지가 표시됩니다', {
         fontSize: '10px', color: '#888888', align: 'center', wordWrap: { width: 260 }
       }).setOrigin(0.5).setDepth(12);
       this._upgradeObjs.push(emptyMain, emptySub);
@@ -407,7 +464,7 @@ export default class UIScene extends Phaser.Scene {
     const eco = gameScene.economyManager;
     let y = PANEL_Y + 48;
 
-    const permTitle = this.add.text(320, y, '전체 영구 강화', {
+    const permTitle = this.add.text(320, y, '영구 강화', {
       fontSize: '11px', color: '#88eeff'
     }).setOrigin(0.5).setDepth(12);
     this._upgradeObjs.push(permTitle);
@@ -419,7 +476,7 @@ export default class UIScene extends Phaser.Scene {
     const PERM_COST = 1;
 
     this._drawUpgradeButton(190, y, 190,
-      permHpLv >= PERM_MAX ? `HP +${permHpLv * 3}% MAX` : `HP +3%  ${PERM_COST}보석  Lv${permHpLv}`,
+      permHpLv >= PERM_MAX ? `HP +${permHpLv * 3}% MAX` : `HP +3%  ${PERM_COST}癰귣똻苑? Lv${permHpLv}`,
       0x17351f, 0x58d27c, () => {
         if (permHpLv < PERM_MAX && gameScene.gems >= PERM_COST) {
           gameScene.gems -= PERM_COST;
@@ -430,7 +487,7 @@ export default class UIScene extends Phaser.Scene {
       });
 
     this._drawUpgradeButton(440, y, 190,
-      permAtkLv >= PERM_MAX ? `ATK +${permAtkLv * 3}% MAX` : `ATK +3%  ${PERM_COST}보석  Lv${permAtkLv}`,
+      permAtkLv >= PERM_MAX ? `ATK +${permAtkLv * 3}% MAX` : `ATK +3%  ${PERM_COST}癰귣똻苑? Lv${permAtkLv}`,
       0x3d2412, 0xffb65c, () => {
         if (permAtkLv < PERM_MAX && gameScene.gems >= PERM_COST) {
           gameScene.gems -= PERM_COST;
@@ -577,17 +634,17 @@ export default class UIScene extends Phaser.Scene {
     const steps = [
       {
         title: '소환 (Summon)',
-        body: '내 카드 5장의 족보를 판단해 타워를 소환합니다.\n높은 족보일수록 강한 타워가 나옵니다.\n교체를 하면 소환 비용이 줄어듭니다.',
+        body: '내 카드 5장의 족보로 타워를 소환합니다.\\n높은 족보일수록 강한 타워가 등장합니다.\\n교체를 많이 하면 소환 비용이 올라갑니다.',
         color: '#65d9ff',
       },
       {
         title: '교체 (Replace)',
-        body: '원하는 카드 1장을 덱의 새 카드로 교체합니다.\n교체할수록 소환 비용이 낮아집니다.\n소환하면 교체 비용은 초기화됩니다.',
+        body: '원하는 카드 1장을 새 카드로 교체합니다.\\n교체할수록 소환 비용이 높아집니다.\\n소환하면 교체 비용은 초기화됩니다.',
         color: '#9fd56c',
       },
       {
         title: '마법 (Magic)',
-        body: '내 카드 3장과 공용 카드 2장으로 족보를 만들어 강력한 마법을 발동합니다.\n마법 사용 후 교체 비용은 초기화됩니다.',
+        body: '내 카드 3장과 공용 카드 2장으로 족보를 만들면 강력한 마법을 발동합니다.\\n마법 사용 후 교체 비용은 초기화됩니다.',
         color: '#c88cff',
       },
     ];
@@ -640,6 +697,9 @@ export default class UIScene extends Phaser.Scene {
     show();
   }
 }
+
+
+
 
 
 

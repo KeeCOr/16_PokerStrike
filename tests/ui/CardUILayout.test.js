@@ -1,5 +1,5 @@
 ﻿import { describe, expect, it } from 'vitest';
-import { CARD_LAYOUT } from '../../src/ui/CardUI.js';
+import { ACTION_BUTTON_SPECS, ACTION_GROUP_SPECS, CARD_LAYOUT } from '../../src/ui/CardUI.js';
 import { PANEL_Y } from '../../src/grid/Grid.js';
 
 describe('CardUI layout', () => {
@@ -29,6 +29,29 @@ describe('CardUI layout', () => {
   it('keeps action button labels visually centered without leading icons', () => {
     expect(CARD_LAYOUT.ACTION_TEXT_Y_OFFSET).toBe(2);
   });
+
+  it('groups magic separately from hand actions with non-overlapping backplates', () => {
+    const magicGroup = ACTION_GROUP_SPECS.magic;
+    const handGroup = ACTION_GROUP_SPECS.hand;
+    const magicRight = magicGroup.x + magicGroup.w / 2;
+    const handLeft = handGroup.x - handGroup.w / 2;
+
+    expect(magicGroup.label).toBe('MAGIC');
+    expect(handGroup.label).toBe('HAND ACTIONS');
+    expect(magicRight).toBeLessThanOrEqual(handLeft - CARD_LAYOUT.ACTION_GROUP_GAP);
+    expect(ACTION_BUTTON_SPECS.magic.group).toBe('magic');
+    expect(ACTION_BUTTON_SPECS.summon.group).toBe('hand');
+    expect(ACTION_BUTTON_SPECS.replace.group).toBe('hand');
+  });
+
+  it('keeps the summon CTA visually primary over utility actions', () => {
+    expect(ACTION_BUTTON_SPECS.summon.intent).toBe('primary');
+    expect(ACTION_BUTTON_SPECS.magic.intent).toBe('utility');
+    expect(ACTION_BUTTON_SPECS.replace.intent).toBe('utility');
+    expect(ACTION_BUTTON_SPECS.summon.w).toBeGreaterThan(ACTION_BUTTON_SPECS.magic.w);
+    expect(ACTION_BUTTON_SPECS.summon.w).toBeGreaterThan(ACTION_BUTTON_SPECS.replace.w);
+  });
+
   it('keeps hand cards, separator, and shared cards in distinct readable zones', () => {
     const handRight = CARD_LAYOUT.HAND_START_X + 4 * (CARD_LAYOUT.CARD_W + CARD_LAYOUT.HAND_GAP) + CARD_LAYOUT.CARD_W / 2;
     const sharedCardW = Math.floor(CARD_LAYOUT.CARD_W * CARD_LAYOUT.SHARED_SCALE);
@@ -45,4 +68,3 @@ describe('CardUI layout', () => {
     expect(CARD_LAYOUT.PREVIEW_TEXT_PAD).toBeLessThanOrEqual(24);
   });
 });
-
