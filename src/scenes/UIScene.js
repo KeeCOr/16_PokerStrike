@@ -298,8 +298,14 @@ export default class UIScene extends Phaser.Scene {
     const gameScene = this.scene.get('GameScene');
     const eco = gameScene.economyManager;
 
-    const summonPreview = this.hand.cards.length === 5
-      ? HAND_NAMES[evaluateHand(this.hand.cards).rank]
+    const summonEvaluation = this.hand.cards.length === 5
+      ? evaluateHand(this.hand.cards)
+      : null;
+    const summonPreview = summonEvaluation
+      ? HAND_NAMES[summonEvaluation.rank]
+      : null;
+    const summonImpact = summonEvaluation
+      ? `ATTACK ${summonEvaluation.dominantSuit} -> ${SUIT_EFFECT_LABELS[summonEvaluation.dominantSuit]}`
       : null;
 
     let magicPreview = null;
@@ -323,7 +329,7 @@ export default class UIScene extends Phaser.Scene {
     this.cardUI.render(this.hand, this.sharedCards, this.deck.burnCount);
     const buttons = this.cardUI.renderButtons(
       eco.getDrawCost(), eco.getReplaceCost(),
-      summonPreview, magicPreview
+      summonPreview, magicPreview, summonImpact,
     );
 
     buttons.summonBtn.on('pointerdown', () => this._summon());

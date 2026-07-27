@@ -189,14 +189,15 @@ export default class CardUI {
     });
   }
 
-  renderButtons(drawCost, replaceCost, summonHandName = null, magicSkillName = null) {
+  renderButtons(drawCost, replaceCost, summonHandName = null, magicSkillName = null, summonImpact = null) {
     Object.values(this._buttons).forEach(obj => { if (obj?.active) obj.destroy(); });
     this._buttons = {};
 
     let summonPreview = null;
     let summonPreviewBg = null;
     if (summonHandName) {
-      [summonPreviewBg, summonPreview] = this._drawPreviewStrip(320, 208, `소환  ${summonHandName}`, '#ffdd88', 15);
+      const previewLabel = summonImpact ? `SUMMON ${summonHandName} / ${summonImpact}` : `SUMMON ${summonHandName}`;
+      [summonPreviewBg, summonPreview] = this._drawPreviewStrip(320, 208, previewLabel, '#ffdd88', summonImpact ? 10 : 15);
     }
 
     let magicPreview = null;
