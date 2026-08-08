@@ -1,63 +1,137 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PokerStrike 湲고쉷??/title>
+  <title>PokerStrike 기획서</title>
   <style>
-    body { font-family: "Malgun Gothic", Arial, sans-serif; margin: 32px; line-height: 1.65; color: #1f2937; background: #ffffff; }
-    h1, h2, h3 { color: #111827; }
-    h1 { border-bottom: 3px solid #c59a35; padding-bottom: 8px; }
-    h2 { margin-top: 32px; border-bottom: 1px solid #d1d5db; padding-bottom: 4px; }
-    table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; }
-    th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
-    th { background: #f3f4f6; }
-    code { background: #f3f4f6; padding: 2px 5px; border-radius: 4px; }
-    blockquote { border-left: 4px solid #c59a35; margin: 0 0 16px; padding-left: 12px; color: #4b5563; }
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65;max-width:980px;margin:0 auto;padding:40px 24px;color:#20242a;background:#fafafa}
+    h1{font-size:34px;margin:0 0 8px} h2{font-size:24px;margin-top:34px;border-bottom:1px solid #ddd;padding-bottom:6px} h3{font-size:18px;margin-top:24px}
+    p,li,pre{font-size:15px} li{margin:5px 0} pre{white-space:pre-wrap;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 10px}
+    table{border-collapse:collapse;width:100%;margin:12px 0} th,td{border:1px solid #ddd;padding:8px 12px;text-align:left} th{background:#f5f5f5;font-weight:600}
+    .meta{color:#666;font-size:14px;margin-bottom:32px}
+    .loop-box{background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px 20px;font-size:15px;white-space:pre-wrap;line-height:1.8}
+    .checklist{list-style:none;padding-left:0}
+    .checklist li::before{content:"☐ ";font-size:16px}
+    hr{border:none;border-top:1px solid #ddd;margin:28px 0}
+    blockquote{border-left:4px solid #ddd;margin:0;padding:8px 16px;color:#555;background:#f9f9f9;border-radius:0 8px 8px 0}
+    code{background:#f0f0f0;border-radius:4px;padding:2px 5px;font-size:13px}
   </style>
 </head>
 <body>
-<h1>PokerStrike 湲고쉷??/h1>
-<blockquote>v0.4.0 | 理쒖쥌 ?섏젙: 2026-07-15</blockquote>
-<h2>臾몄젣 ?뺤쓽</h2>
-<p>?꾨왂 移대뱶 寃뚯엫??醫뗭븘?섏?留?湲??쒗넗由ъ뼹怨?蹂듭옟????鍮뚮뵫??吏移?PC ?뚮젅?댁뼱媛, 吏㏃? ?몄뀡 ?덉뿉??諛붾줈 ?먮떒?섍퀬 寃곌낵瑜??뺤씤?????덈뒗 ?꾩닠??寃뚯엫???먰븳?? PokerStrike???듭닕???ъ빱 議깅낫瑜?????뷀렂?ㅼ떇 ?뚰솚怨??꾪닾 寃곌낵濡??곌껐??吏꾩엯 ?λ꼍????텣??</p>
-<h2>二??섎Ⅴ?뚮굹</h2>
-<table><tr><th>??ぉ</th><th>?댁슜</th></tr><tr><td>?대쫫</td><td>源?꾪쁽</td></tr><tr><td>?섏씠</td><td>33??/td></tr><tr><td>吏곸뾽</td><td>?쒖“???ㅺ퀎吏?/td></tr><tr><td>?꾩옱 ?됰룞</td><td>?닿렐 ??PC?먯꽌 30遺??덊뙉???꾨왂 寃뚯엫??李얜뒗?? Balatro? ????뷀렂?ㅻ쪟瑜?利먭꼈??</td></tr><tr><td>?ъ슜 留λ씫</td><td>蹂듭옟???ㅻ챸蹂대떎 移대뱶 ?좏깮, 諛곗튂, ?꾪닾 寃곌낵媛 鍮좊Ⅴ寃??댁뼱吏??寃뚯엫???좏샇?쒕떎.</td></tr></table>
-<h2>?듭떖 猷⑦봽</h2>
-<p>?뚮젅?댁뼱媛 移대뱶?⑤? ?뺤씤?쒕떎 -> ?뚰솚, 援먯껜, 留덈쾿 以??섎굹瑜??좏깮?쒕떎 -> ?ъ빱 議깅낫媛 ?좊떅 ?깅뒫怨??꾪닾 ?④낵濡?蹂?섎맂??-> ?⑥씠釉뚮? 留됯퀬 蹂댁긽???좏깮?쒕떎 -> ?ㅼ떆 ?ㅼ쓬 移대뱶?⑤? ?뺤씤?쒕떎.</p>
-<h2>MVP 媛??/h2>
-<ol><li>?ъ빱 議깅낫瑜??뚰솚 ?깅뒫??吏곸젒 ?곌껐?섎㈃ 蹂꾨룄 ?쒗넗由ъ뼹 ?놁씠??1遺??덉뿉 湲곕낯 ?꾩닠???댄빐?쒕떎.</li><li>?⑥씠釉?蹂댁긽??3媛??좏깮吏濡??쒗븳?섎㈃ 留??몄뀡??鍮뚮뱶 諛⑺뼢???щ씪吏怨??щ룄???섏?媛 ?앷릿??</li><li>?꾪닾 寃곌낵? ?ㅻ뵒???쇰뱶諛깆씠 利됱떆 諛섏쓳?섎㈃ 移대뱶 ?좏깮???먮쭧怨??꾩닠 ?먮떒??紐낇솗?깆씠 ?щ씪媛꾨떎.</li></ol>
-<h2>?덊띁?곗뒪 遺꾩꽍</h2>
-<table><tr><th>?덊띁?곗뒪</th><th>?듭떖 ?됰룞源뚯? ?④퀎 ??/th><th>?곸슜 援먰썕</th></tr><tr><td>Balatro</td><td>3</td><td>?듭닕???ъ빱 洹쒖튃?????쒖뒪?쒖뿉 遺숈씠硫??ㅻ챸 遺?댁씠 以꾩뼱?좊떎.</td></tr><tr><td>Kingdom Rush</td><td>4</td><td>諛곗튂 媛??援ъ뿭怨??꾪닾 寃곌낵瑜?紐낇솗??蹂댁뿬???꾨왂 ?먮떒??鍮⑤씪吏꾨떎.</td></tr><tr><td>Slay the Spire</td><td>4</td><td>3媛?蹂댁긽 ?좏깮吏???뚮젅?댁뼱?먭쾶 鍮뚮뱶 ?뚯쑀媛먯쓣 以??</td></tr></table>
-<h2>?깃났 KPI</h2>
-<table><tr><th>吏??/th><th>紐⑺몴</th><th>痢≪젙 諛⑸쾿</th></tr><tr><td>1?⑥씠釉??꾩＜??/td><td>泥??ㅽ뻾 ?뚮젅?댁뼱 40% ?댁긽</td><td>寃뚯엫 ?쒖옉 ?鍮?泥??대━???대깽??鍮꾩쑉</td></tr><tr><td>?됯퇏 ?몄뀡 湲몄씠</td><td>25遺??댁긽</td><td>?쒖옉遺??醫낅즺源뚯? ??꾩뒪?ы봽</td></tr><tr><td>?ъ떎?됰쪧</td><td>?ㅼ쓬 ???ъ떎??30% ?댁긽</td><td>?ㅽ뻾 ?좎쭨 濡쒓렇</td></tr><tr><td>諛섎났 ?뚮젅??/td><td>7???숈븞 1???됯퇏 5???댁긽</td><td>?몄뀡 移댁슫??/td></tr></table>
-<h2>援ы쁽 ?곹깭</h2>
-<table><tr><th>?곸뿭</th><th>?곹깭</th><th>硫붾え</th></tr><tr><td>移대뱶 ?됯?</td><td>援ы쁽??/td><td>?ъ빱 議깅낫 ?먯젙 ?뚯뒪??蹂댁쑀</td></tr><tr><td>?꾪닾 ?쒖뒪??/td><td>援ы쁽??/td><td>?꾪닾, ?? ?ㅽ뀒?댁? ?뚯뒪??蹂댁쑀</td></tr><tr><td>UI? HUD</td><td>援ы쁽??/td><td>移대뱶?? ?? ?꾪닾 寃곌낵, ?ы솕 ?쒖떆 ?뚯뒪??蹂댁쑀</td></tr><tr><td>蹂댁긽 ?좏깮</td><td>援ы쁽??/td><td>?⑥씠釉??대━??蹂댁긽 ?좏깮 援ъ“ ?곸슜</td></tr><tr><td>?ㅻ뵒???쇰뱶諛?/td><td>援ы쁽??/td><td>Kenney ?④낵??8媛????곸슜</td></tr><tr><td>諛고룷</td><td>吏꾪뻾 以?/td><td>Electron portable 鍮뚮뱶 湲곗?</td></tr></table>
-<h2>UI, HUD, 而⑦듃濡?洹쒖튃</h2>
-<ul><li>?섎떒 ??? 移대뱶?? ?낃렇?덉씠?? 媛뺥솕 紐⑸줉???띿뒪??以묒떖 援ъ“瑜??좎??쒕떎.</li><li>怨⑤뱶? 蹂댁꽍? 遺꾨━???꾨젅?꾩쑝濡??쒖떆?섍퀬 ?꾩씠肄섍낵 ?섏튂 媛꾧꺽???묎쾶 ?좎??쒕떎.</li><li>寃뚯엫 ?ㅻ쾭? ?ㅽ뀒?댁? ?대━?대뒗 ?대?吏 湲곕컲 踰꾪듉怨??꾨젅??UI瑜??ъ슜?쒕떎.</li><li>HUD 媛숈? ?덉씠?댁쓽 ?붿냼??寃뱀튂吏 ?딄쾶 諛곗튂?쒕떎.</li></ul>
-<h2>VFX, ?ㅻ뵒?? ?쇰뱶諛?/h2>
-<ul><li>怨듦꺽 寃곌낵???꾪닾 濡쒓렇, ?寃??쇰뱶諛? ?곹깭 蹂?붾줈 利됱떆 ?꾨떖?쒕떎.</li><li>?뚰솚, 留덈쾿, ?좏깮, 泥섏튂, ?대━?? ?ㅽ뙣 ?대깽?몃뒗 吏㏃? ?④낵?뚯쑝濡?諛섏쓳?쒕떎.</li><li>?ㅻ뵒?ㅻ뒗 寃뚯엫 ?먮떒??諛⑺빐?섏? ?딅룄濡?吏㏐퀬 紐낇솗????以묒떖?쇰줈 ?ъ슜?쒕떎.</li></ul>
-<h2>?곸슜 由ъ냼??/h2>
-<table><tr><th>?뚯씪</th><th>?먮낯 ??/th><th>?먮낯 ?뚯씪</th><th>?⑸룄</th></tr><tr><td><code>ui-click.ogg</code></td><td>Kenney Interface Sounds</td><td><code>Audio/click_001.ogg</code></td><td>??낵 援먯껜 ?대┃</td></tr><tr><td><code>card-select.ogg</code></td><td>Kenney Interface Sounds</td><td><code>Audio/pluck_001.ogg</code></td><td>移대뱶 ?좏깮</td></tr><tr><td><code>summon-confirm.ogg</code></td><td>Kenney Interface Sounds</td><td><code>Audio/confirmation_001.ogg</code></td><td>?뚰솚 ?뺤젙</td></tr><tr><td><code>magic-cast.ogg</code></td><td>Kenney Digital Audio</td><td><code>Audio/phaseJump1.ogg</code></td><td>留덈쾿 ?쒖쟾</td></tr><tr><td><code>hit.ogg</code></td><td>Kenney Digital Audio</td><td><code>Audio/zap1.ogg</code></td><td>怨듦꺽 ?곸쨷</td></tr><tr><td><code>ko.ogg</code></td><td>Kenney Digital Audio</td><td><code>Audio/lowDown.ogg</code></td><td>??泥섏튂</td></tr><tr><td><code>stage-clear.ogg</code></td><td>Kenney Digital Audio</td><td><code>Audio/powerUp1.ogg</code></td><td>?ㅽ뀒?댁? ?대━??/td></tr><tr><td><code>failure.ogg</code></td><td>Kenney Interface Sounds</td><td><code>Audio/error_001.ogg</code></td><td>寃뚯엫 ?ㅻ쾭</td></tr></table>
-<p>?쇱씠?좎뒪: Kenney 怨듭떇 ?섏씠吏 湲곗? Creative Commons CC0. ?곸꽭 留ㅽ븨? <code>src/assets/audio/kenney/README.md</code>??湲곕줉?쒕떎.</p>
-<h2>怨듭쑀???대?吏</h2>
-<ul><li><code>docs/PokerStrike_gameplay_preview.png</code></li><li><code>docs/PokerStrike_01_?뚮젅?댁삁??png</code></li></ul>
-<h2>鍮뚮뱶, ?뚯뒪?? 由대━??/h2>
-<table><tr><th>紐⑹쟻</th><th>紐낅졊</th></tr><tr><td>?꾩껜 ?뚯뒪??/td><td><code>npm test</code></td></tr><tr><td>??鍮뚮뱶</td><td><code>npm run build</code></td></tr><tr><td>portable ?⑦궎吏?/td><td><code>npm run dist</code></td></tr></table>
-<h2>?낅뜲?댄듃 ?댁뿭</h2>
-<h3>2026-07-15 v0.4.0 Kenney SFX ?곸슜</h3>
-<ul><li>Kenney Interface Sounds? Digital Audio??CC0 ?④낵?뚯쓣 <code>src/assets/audio/kenney/</code>???꾨줈?앺듃 ??븷紐낆쑝濡?諛곗튂?덈떎.</li><li>?곸슜 ?먮뒗 UI ?대┃, 移대뱶 ?좏깮, ?뚰솚 ?뺤씤, 留덈쾿 ?쒖쟾, 怨듦꺽 ?곸쨷, ??泥섏튂, ?ㅽ뀒?댁? ?대━?? 寃뚯엫 ?ㅻ쾭??</li><li><code>GameScene.preload()</code>?먯꽌 ?ㅻ뵒???먯뀑???좊줈?⑺븯怨? <code>UIScene</code>怨?<code>GameScene</code>??二쇱슂 ?낅젰, ?꾪닾, 寃곌낵 ?대깽?몄뿉??<code>playAudioCue()</code>瑜??몄텧?쒕떎.</li><li><code>tests/assets/AudioAssetKeys.test.js</code>, <code>tests/audio/AudioCuePlayer.test.js</code>, <code>tests/audio/AudioIntegration.test.js</code>濡???留ㅽ븨, ?ъ깮 媛?? ???곌껐??寃利앺븳??</li></ul>
-<h3>2026-07-15 v0.3.0 ?몃뱶 ?좏깮 蹂댁긽 諛섏쓳</h3>
-<ul><li>?뚰솚 ?꾪닾 ?쇰뱶諛깆뿉 ?ъ빱 議깅낫??怨듦꺽 ??븷, 臾몄뼇 ?④낵, 蹂대꼫??怨⑤뱶 ?곌껐 臾멸뎄瑜?異붽??덈떎.</li><li>BattleFeedback怨?SummonPayoffCue ?뚯뒪?몃줈 移대뱶 ?좏깮怨??꾪닾 寃곌낵 ?곌껐??寃利앺뻽??</li></ul>
-<h3>2026-06-30 v0.2.0 Hand-to-Strike Impact Feedback</h3>
-<ul><li>?좏깮???몃뱶媛 ?꾪닾?먯꽌 媛뺥븳吏 寃곌낵 諛곕꼫?먯꽌 利됱떆 ?쏀엳?꾨줉 媛쒖꽑?덈떎.</li><li>?꾪닾 ?쇰뱶諛?諛곕꼫 ??낵 臾멸뎄 諛곗튂瑜?議곗젙?덈떎.</li></ul>
-<h2>?ㅼ쓬 ?곗꽑?쒖쐞</h2>
-<ol><li>?ㅼ젣 ?뚮젅?댁뿉???④낵??蹂쇰ⅷ 洹좏삎???뺤씤?섍퀬 怨쇳븳 ?먮? 援먯껜?쒕떎.</li><li>BGM? AI ?앹꽦 ?꾨낫? CC0 猷⑦봽 ?꾨낫瑜??섎???鍮꾧탳????怨〓쭔 ?꾩떆 ?곸슜?쒕떎.</li><li>?ㅽ뀒?댁?蹂??⑥씠釉??섏? 蹂댁긽 ?좏깮吏瑜??섎젮 20遺??몄뀡 諛?꾨? ?믪씤??</li></ol>
+<h1>PokerStrike 기획서</h1>
+<p class="meta">v0.4.0 | 최종 수정: 2026-08-08</p>
+<blockquote>
+<p>v0.4.0 | 최종 수정: 2026-08-08</p>
+</blockquote>
+<h2>문제 정의</h2>
+<p>PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 결과를 즉시 확인하고 싶은 PC 전략 카드 게임 플레이어를 위한 게임이다. 복잡한 튜토리얼보다 카드 선택, 패 교체, 소환 확정, 타격 결과가 빠르게 읽히는 전투 피드백을 우선한다.</p>
+<h2>주 페르소나</h2>
+<table>
+  <thead><tr><th>항목</th><th>내용</th></tr></thead>
+  <tbody>
+    <tr><td>이름</td><td>김도현</td></tr>
+    <tr><td>나이</td><td>33세</td></tr>
+    <tr><td>직업</td><td>제조업 설계직</td></tr>
+    <tr><td>현재 행동</td><td>퇴근 후 PC에서 20-30분짜리 전략 카드 게임을 찾는다.</td></tr>
+    <tr><td>사용 맥락</td><td>Balatro식 조합 판단은 좋아하지만, 결과가 늦게 보이거나 효과가 불명확하면 금방 이탈한다.</td></tr>
+  </tbody>
+</table>
+<h2>핵심 루프</h2>
+<p>플레이어가 카드 패를 확인한다 -> 소환, 교체, 마법 중 하나를 선택한다 -> 포커 조합이 유닛 성능과 전투 효과로 변환된다 -> 웨이브를 막고 보상을 고른다 -> 다시 다음 카드 패를 확인한다.</p>
+<h2>MVP 가설</h2>
+<ol>
+  <li>포커 조합이 소환 성능과 직접 연결되면 별도 설명 없이도 1분 안에 기본 전략을 이해한다.</li>
+  <li>웨이브 보상을 3개 선택지로 제한하면 매 세션의 빌드 방향이 달라지고 재도전 의지가 생긴다.</li>
+  <li>전투 결과를 이미지 VFX와 짧은 SFX로 즉시 전달하면 카드 선택의 손맛과 전술 판단이 명확해진다.</li>
+</ol>
+<h2>레퍼런스 분석</h2>
+<table>
+  <thead><tr><th>레퍼런스</th><th>핵심 행동 단계 수</th><th>적용 교훈</th></tr></thead>
+  <tbody>
+    <tr><td>Balatro</td><td>3</td><td>익숙한 포커 규칙을 전투 시스템에 붙이면 설명 부담이 줄어든다.</td></tr>
+    <tr><td>Kingdom Rush</td><td>4</td><td>배치 가능 구역과 전투 결과를 명확히 보여줘야 전략 판단이 빨라진다.</td></tr>
+    <tr><td>Slay the Spire</td><td>4</td><td>3개 보상 선택지는 빌드 소유감을 주면서도 선택 피로를 낮춘다.</td></tr>
+  </tbody>
+</table>
+<h2>성공 KPI</h2>
+<table>
+  <thead><tr><th>지표</th><th>목표</th><th>측정 방법</th></tr></thead>
+  <tbody>
+    <tr><td>1웨이브 완주율</td><td>첫 실행 플레이어 40% 이상</td><td>게임 시작 대비 첫 클리어 이벤트 비율</td></tr>
+    <tr><td>평균 세션 길이</td><td>20분 이상</td><td>시작부터 종료까지 타임스탬프</td></tr>
+    <tr><td>재시도율</td><td>다음 날 재실행 30% 이상</td><td>실행 날짜 로그</td></tr>
+    <tr><td>반복 플레이</td><td>7일 동안 1인 평균 5회 이상</td><td>세션 카운트</td></tr>
+  </tbody>
+</table>
+<h2>구현 상태</h2>
+<table>
+  <thead><tr><th>영역</th><th>상태</th><th>메모</th></tr></thead>
+  <tbody>
+    <tr><td>카드 평가</td><td>구현됨</td><td>포커 조합 판정 테스트 보유</td></tr>
+    <tr><td>전투 시스템</td><td>구현됨</td><td>전투, 적, 스테이지 테스트 보유</td></tr>
+    <tr><td>UI/HUD</td><td>구현됨</td><td>카드패, 업그레이드, 강화 목록, 결과 UI 테스트 보유</td></tr>
+    <tr><td>보상 선택</td><td>구현됨</td><td>웨이브 클리어 보상 구조 적용</td></tr>
+    <tr><td>SFX/VFX</td><td>구현됨</td><td>Kenney SFX 8개와 전투 VFX 텍스처 12개를 런타임 매핑</td></tr>
+    <tr><td>배포</td><td>진행 중</td><td>Electron portable 빌드 기준</td></tr>
+  </tbody>
+</table>
+<h2>UI, HUD, 컨트롤 규칙</h2>
+<ul>
+  <li>하단 탭은 카드패, 업그레이드, 강화 목록의 텍스트 중심 구조를 유지한다.</li>
+  <li>골드와 보석은 분리된 프레임으로 표시하고 아이콘과 수치 간격을 좁게 유지한다.</li>
+  <li>게임 오버와 스테이지 클리어는 이미지 기반 버튼과 프레임 UI를 사용한다.</li>
+  <li>HUD 같은 레이어의 요소는 겹치지 않도록 배치한다.</li>
+</ul>
+<h2>SFX/VFX 적용</h2>
+<table>
+  <thead><tr><th>종류</th><th>파일</th><th>용도</th></tr></thead>
+  <tbody>
+    <tr><td>SFX</td><td><code>ui-click.ogg</code></td><td>탭과 교체 UI 클릭</td></tr>
+    <tr><td>SFX</td><td><code>card-select.ogg</code></td><td>카드 선택</td></tr>
+    <tr><td>SFX</td><td><code>summon-confirm.ogg</code></td><td>소환 확정</td></tr>
+    <tr><td>SFX</td><td><code>magic-cast.ogg</code></td><td>마법 시전</td></tr>
+    <tr><td>SFX</td><td><code>hit.ogg</code></td><td>공격 적중</td></tr>
+    <tr><td>SFX</td><td><code>ko.ogg</code></td><td>적 처치</td></tr>
+    <tr><td>SFX</td><td><code>stage-clear.ogg</code></td><td>스테이지 클리어</td></tr>
+    <tr><td>SFX</td><td><code>failure.ogg</code></td><td>게임 오버</td></tr>
+    <tr><td>VFX</td><td><code>fire-projectile.png</code>, <code>fire-impact.png</code></td><td>화염 공격 투사체와 충돌</td></tr>
+    <tr><td>VFX</td><td><code>ice-projectile.png</code>, <code>ice-impact.png</code></td><td>빙결 공격 투사체와 충돌</td></tr>
+    <tr><td>VFX</td><td><code>hit-spark.png</code>, <code>magic-burst.png</code></td><td>일반 타격과 마법 폭발</td></tr>
+    <tr><td>VFX</td><td><code>shield-ripple.png</code>, <code>aura-ring.png</code></td><td>방어와 오라 표시</td></tr>
+  </tbody>
+</table>
+<p>라이선스: Kenney 공식 에셋 기준 Creative Commons CC0. 상세 매핑은 <code>src/assets/audio/kenney/README.md</code>, <code>src/assets/audio/AudioAssetKeys.js</code>, <code>src/assets/art/AssetKeys.js</code>, <code>docs/sfx-vfx-candidates-20260808.md</code>에 기록한다.</p>
+<h2>공유용 이미지</h2>
+<ul>
+  <li><code>docs/PokerStrike_gameplay_preview.png</code></li>
+  <li><code>docs/PokerStrike_01_플레이예시.png</code></li>
+</ul>
+<h2>빌드와 테스트</h2>
+<table>
+  <thead><tr><th>목적</th><th>명령</th></tr></thead>
+  <tbody>
+    <tr><td>전체 테스트</td><td><code>npm test</code></td></tr>
+    <tr><td>웹 빌드</td><td><code>npm run build</code></td></tr>
+    <tr><td>portable 패키지</td><td><code>npm run dist</code></td></tr>
+  </tbody>
+</table>
+<h2>업데이트 이력</h2>
+<h3>2026-08-08 SFX/VFX 공용 리소스 반영</h3>
+<ul>
+  <li>워크스페이스 공용 SFX/VFX 카탈로그에 PokerStrike 리소스를 등록했다.</li>
+  <li>프로젝트 문서 <code>docs/sfx-vfx-candidates-20260808.md</code>에 SFX 8개, VFX 13개 후보와 런타임 매핑 상태를 기록했다.</li>
+  <li>깨진 인코딩의 기획서를 정상 UTF-8 문서로 정리하고, 현재 SFX/VFX 적용 상태를 반영했다.</li>
+</ul>
+<h3>2026-07-27 UX 개선 반영</h3>
+<ul>
+  <li>패 조합 선택 전에 공격 타입과 전장 효과를 한 줄로 연결해 선택 전 예측과 결과 연출의 거리를 줄였다.</li>
+</ul>
+<h3>2026-07-15 v0.4.0 Kenney SFX 적용</h3>
+<ul>
+  <li>Kenney Interface Sounds와 Digital Audio의 CC0 효과음을 <code>src/assets/audio/kenney/</code>에 프로젝트용 파일명으로 배치했다.</li>
+  <li><code>GameScene.preload()</code>에서 오디오 에셋을 로드하고, <code>UIScene</code>과 <code>GameScene</code>의 주요 입력, 전투, 결과 이벤트에 <code>playAudioCue()</code>를 연결했다.</li>
+</ul>
 
-<section>
-<h2>2026-07-27 UX 개선 반영</h2>
-<ul><li>패 조합 선택 전에 공격 타입과 전장 효과를 한 줄로 연결해 선택 전 예측과 결과 연출의 거리를 줄였다.</li></ul>
-</section>
 </body>
 </html>
-
