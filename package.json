@@ -9,7 +9,12 @@
         "test": "vitest run",
         "electron": "npm run build && npx electron .",
         "pack": "npm run build && npx electron-builder --dir",
-        "dist": "npm run build && npx electron-builder"
+        "dist": "npm run build && npx electron-builder",
+        "build:steam": "npm run build && npx electron-builder --win portable --config.win.signAndEditExecutable=false",
+        "dist:steam": "npm run build && npx electron-builder --win portable --config.win.signAndEditExecutable=false"
+    },
+    "optionalDependencies": {
+        "steamworks.js": "^0.3.1"
     },
     "dependencies": {
         "phaser": "^3.60.0"
@@ -28,7 +33,9 @@
         },
         "files": [
             "dist/**/*",
-            "electron/main.cjs"
+            "electron/main.cjs",
+            "electron/preload.cjs",
+            "steam_appid.txt"
         ],
         "win": {
             "icon": "icon.ico",
