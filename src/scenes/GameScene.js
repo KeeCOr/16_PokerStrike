@@ -81,6 +81,7 @@ export default class GameScene extends Phaser.Scene {
     this.enemyManager.onEnemyReachBase = (dmg) => {
       this.baseHp = Math.max(0, this.baseHp - dmg);
       this.registry.set('baseHp', this.baseHp);
+      if (dmg > 0) playAudioCue(this, AUDIO_CUES.BASE_HIT);
       if (this.baseHp <= 0) this._gameOver();
     };
 

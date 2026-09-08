@@ -112,8 +112,10 @@ PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 �
 
 ## 오디오 레이어
 
-- **BGM**: 첫 사용자 인터랙션 이후 안전하게 시작되는 루프 배경음
-- **SFX**: 입력, 액션, 위험, 전환, 결과에 대응하는 개별 효과음
-- **볼륨 분리**: BGM과 SFX 음량을 독립적으로 조절하며 위험·결과 신호에서는 BGM을 일시적으로 낮춘다.
-- **음원 출처**: Kenney Music Loops(CC0)와 프로젝트 생성 스크립트로 결정론적으로 만든 독창적 PCM WAV 큐를 사용한다.
-- **런타임 원칙**: 핵심 오디오 레이어는 사전 생성된 음원을 사용하며 런타임 합성음에 의존하지 않는다.
+- <span style="color:#ff0000">단일 `GameAudioDirector`가 BGM과 모든 효과음을 총괄한다.</span>
+- <span style="color:#ff0000">BGM은 첫 포인터 또는 키 입력 후에만 시작하며, 화면 가시성에 따라 일시정지·재개한다.</span>
+- <span style="color:#ff0000">BGM·SFX 음량과 음소거 상태를 로컬 저장소에 보존한다.</span>
+- <span style="color:#ff0000">UI·카드·소환·마법·타격·기지 피해·KO·스테이지 클리어·게임 오버의 실제 의미 이벤트가 모두 Director를 경유한다.</span>
+- <span style="color:#ff0000">Kenney CC0 OGG 효과음과 Music Loops OGG만 사용하며 생성 PCM, 런타임 합성음, Phaser 직접 재생은 사용하지 않는다.</span>
+- <span style="color:#ff0000">위험·결과 큐는 디코딩된 전체 꼬리 구간 동안 BGM을 0.55배로 낮추고 최소 지속시간과 중첩 최대 데드라인을 보장한다.</span>
+- <span style="color:#ff0000">동시 효과음은 최대 8개로 제한하며 생성·재생 오류를 안전하게 복구한다.</span>

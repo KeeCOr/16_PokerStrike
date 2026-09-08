@@ -22,6 +22,7 @@ describe('PokerStrike audio integration', () => {
     expect(source).toContain("import { AUDIO_CUES, playAudioCue } from '../audio/AudioCuePlayer.js';");
     expect(source).toContain('playAudioCue(this, AUDIO_CUES.STAGE_CLEAR);');
     expect(source).toContain('playAudioCue(this, AUDIO_CUES.GAME_OVER);');
+    expect(source).toContain('playAudioCue(this, AUDIO_CUES.BASE_HIT);');
   });
 
   it('plays action and combat cues in UIScene', () => {

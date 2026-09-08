@@ -33,21 +33,23 @@ describe('AudioCuePlayer', () => {
     expect(CUE_TO_AUDIO_KEY[AUDIO_CUES.GAME_OVER]).toBe(AUDIO_KEYS.FAILURE);
   });
 
-  it('plays a cue through Phaser sound with cue volume defaults', () => {
-    const scene = createSceneStub();
+  it('plays a cue through the shared director with semantic category and one gain', () => {
+    const previous = globalThis.__gameAudioRuntime;
+    const played = [];
+    globalThis.__gameAudioRuntime = { playCue: (cue) => { played.push(cue); return true; } };
 
-    const played = playAudioCue(scene, AUDIO_CUES.SUMMON_CONFIRM);
+    const result = playAudioCue(createSceneStub(), AUDIO_CUES.SUMMON_CONFIRM);
 
-    expect(played).toBe(true);
-    expect(scene.played).toEqual([
-      { key: AUDIO_KEYS.SUMMON_CONFIRM, config: { volume: 0.7 } },
-    ]);
+    expect(result).toBe(true);
+    expect(played).toEqual([expect.objectContaining({ category: 'transition', gain: 0.7 })]);
+    globalThis.__gameAudioRuntime = previous;
   });
 
-  it('does not throw or play when the audio key is not loaded', () => {
-    const scene = createSceneStub([]);
+  it('does not throw or play when the shared director is unavailable', () => {
+    const previous = globalThis.__gameAudioRuntime;
+    delete globalThis.__gameAudioRuntime;
 
-    expect(playAudioCue(scene, AUDIO_CUES.STAGE_CLEAR)).toBe(false);
-    expect(scene.played).toEqual([]);
+    expect(playAudioCue(createSceneStub([]), AUDIO_CUES.STAGE_CLEAR)).toBe(false);
+    globalThis.__gameAudioRuntime = previous;
   });
 });
