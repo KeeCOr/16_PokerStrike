@@ -3,6 +3,9 @@ import BootScene from './scenes/BootScene.js';
 import MenuScene from './scenes/MenuScene.js';
 import GameScene from './scenes/GameScene.js';
 import UIScene from './scenes/UIScene.js';
+import { installGameAudioRuntime } from './audio/GameAudioRuntime.js';
+
+installGameAudioRuntime('/assets/audio/original');
 
 const config = {
   type: Phaser.AUTO,
