@@ -1,7 +1,38 @@
-﻿const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
+
+// TODO: Replace 480 with actual Steam App ID before release
+const STEAM_APP_ID = 480;
+let steam = null;
+try {
+  steam = require('steamworks.js');
+  steam.init(STEAM_APP_ID);
+  console.log('[Steam] Initialized, user:', steam.localplayer.getName());
+} catch (e) {
+  console.warn('[Steam] Not available:', e.message);
+}
+
+// ── Steam IPC ──────────────────────────────────────────────────────────────
+ipcMain.on('steam:available',   e => { e.returnValue = steam !== null; });
+ipcMain.on('steam:getUserName', e => { e.returnValue = steam ? steam.localplayer.getName() : null; });
+ipcMain.handle('achievement:unlock', async (_, id) => {
+  if (!steam) return false;
+  try { steam.achievement.activate(id); return true; } catch { return false; }
+});
+ipcMain.on('achievement:isUnlocked', (e, id) => {
+  e.returnValue = steam ? steam.achievement.isActivated(id) : false;
+});
+ipcMain.handle('steamCloud:save', async (_, key, data) => {
+  if (!steam) return false;
+  try { steam.cloud.writeFile(key, Buffer.from(JSON.stringify(data), 'utf-8')); return true; } catch { return false; }
+});
+ipcMain.handle('steamCloud:load', async (_, key) => {
+  if (!steam) return null;
+  try { return JSON.parse(steam.cloud.readFile(key).toString('utf-8')); } catch { return null; }
+});
+// ──────────────────────────────────────────────────────────────────────────
 
 let staticServer = null;
 
@@ -58,6 +89,7 @@ async function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      preload: path.join(__dirname, 'preload.cjs'),
     },
   });
 
