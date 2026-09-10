@@ -1,6 +1,6 @@
 # PokerStrike 기획서
 
-> v0.6.0 | 최종 수정: 2026-09-09
+> v0.6.0 | 최종 수정: 2026-09-10
 
 ## 문제 정의
 
@@ -98,7 +98,7 @@ PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 �
 
 ## 업데이트 이력
 
-### 2026-09-09 v0.6.0 UI/HUD 래스터 파이프라인과 패키징 정리
+### 2026-09-10 v0.6.0 UI/HUD 래스터 파이프라인과 패키징 정리
 
 - HUD와 패널 UI를 `src/assets/ui/generated/` 생성 PNG 키트와 `src/ui/NineSlice.js` 9-slice 프레임으로 교체했다.
 - 화면 대응은 Phaser Scale.FIT과 autoCenter로 고정 해상도(640x960) 기준을 유지한다.
