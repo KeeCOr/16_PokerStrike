@@ -18,6 +18,7 @@ import { STAGE_INTRO_LAYOUT } from './StageIntroLayout.js';
 import { ENV_TEXTURES, UI_TEXTURES, preloadArtAssets } from '../assets/art/AssetKeys.js';
 import { preloadAudioAssets } from '../assets/audio/AudioAssetKeys.js';
 import { AUDIO_CUES, playAudioCue } from '../audio/AudioCuePlayer.js';
+import { createNineSlice, NINE_SLICE_MARGIN } from '../ui/NineSlice.js';
 
 const BASE_HP = 100;
 
@@ -545,9 +546,11 @@ export default class GameScene extends Phaser.Scene {
     const layout = GAME_OVER_LAYOUT;
     const panel = layout.panel;
     this.add.rectangle(320, 480, 640, 960, 0x000000, 0.82).setDepth(20);
-    this.add.rectangle(panel.x, panel.y, panel.w, panel.h, 0x02070d, 0.94).setDepth(21)
+    const panelFrame = createNineSlice(this, panel.x, panel.y, panel.w, panel.h, UI_TEXTURES.PANEL_FRAME_9S, NINE_SLICE_MARGIN.PANEL, 21);
+    if (!panelFrame) this.add.rectangle(panel.x, panel.y, panel.w, panel.h, 0x02070d, 0.94).setDepth(21)
       .setStrokeStyle(2, 0xf2c96b, 0.86);
-    this.add.rectangle(panel.x, panel.y - 36, panel.w - 28, 82, 0x0b1725, 0.96).setDepth(22)
+    const headerFrame = createNineSlice(this, panel.x, panel.y - 36, panel.w - 28, 82, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 22);
+    if (!headerFrame) this.add.rectangle(panel.x, panel.y - 36, panel.w - 28, 82, 0x0b1725, 0.96).setDepth(22)
       .setStrokeStyle(1, 0x65d9ff, 0.55);
 
     this.add.text(320, layout.titleY, 'GAME OVER', {
@@ -588,16 +591,14 @@ export default class GameScene extends Phaser.Scene {
 
   _drawGameOverButton(x, y, label, textureKey, onClick, options = {}) {
     const { buttonW, buttonH } = GAME_OVER_LAYOUT;
-    const hasTexture = this.textures?.exists?.(textureKey) && this.add.image;
-    const bg = hasTexture
-      ? this.add.image(x, y, textureKey)
-        .setDepth(23)
-        .setDisplaySize(buttonW, buttonH)
-        .setAlpha(options.secondary ? 0.9 : 0.98)
-        .setInteractive({ useHandCursor: true })
+    const tint = options.secondary ? 0xff6f65 : 0xffd766;
+    const baseAlpha = options.secondary ? 0.9 : 0.98;
+    const ns = createNineSlice(this, x, y, buttonW, buttonH, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 23);
+    const bg = ns
+      ? ns.setTint(tint).setAlpha(baseAlpha).setInteractive({ useHandCursor: true })
       : this.add.rectangle(x, y, buttonW, buttonH, options.secondary ? 0x401719 : 0x7a5420, 0.96)
         .setDepth(23)
-        .setStrokeStyle(2, options.secondary ? 0xff6f65 : 0xffd766, 0.88)
+        .setStrokeStyle(2, tint, 0.88)
         .setInteractive({ useHandCursor: true });
     const text = this.add.text(x, y, label, {
       fontSize: options.secondary ? '16px' : '17px',
@@ -617,7 +618,7 @@ export default class GameScene extends Phaser.Scene {
       text.setStyle({ color: '#ffe08a' });
     });
     bg.on('pointerout', () => {
-      bg.setAlpha(options.secondary ? 0.9 : 0.98);
+      bg.setAlpha(baseAlpha);
       text.setStyle({ color: '#ffffff' });
     });
     bg.on('pointerdown', press);
@@ -635,9 +636,10 @@ export default class GameScene extends Phaser.Scene {
 
   _showUpgradeTutorial(onDone) {
     const overlay = this.add.rectangle(320, 480, 640, 960, 0x000000, 0.78).setDepth(30);
-    const box = this.add.rectangle(320, 420, 520, 300, THEME.bg.panel, 1)
-      .setDepth(31)
-      .setStrokeStyle(2, 0x8cd3ff, 0.95);
+    const box = createNineSlice(this, 320, 420, 520, 300, UI_TEXTURES.PANEL_FRAME_9S, NINE_SLICE_MARGIN.PANEL, 31)
+      || this.add.rectangle(320, 420, 520, 300, THEME.bg.panel, 1)
+        .setDepth(31)
+        .setStrokeStyle(2, 0x8cd3ff, 0.95);
     const title = this.add.text(320, 315, '업그레이드 안내', {
       fontSize: '24px', color: '#ffdd44', fontStyle: 'bold',
       stroke: '#000000', strokeThickness: 4,

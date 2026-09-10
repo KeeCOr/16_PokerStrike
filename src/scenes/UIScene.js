@@ -4,6 +4,7 @@ import CardUI from '../ui/CardUI.js';
 import { THEME } from '../theme.js';
 import { ENV_TEXTURES, UI_TEXTURES } from '../assets/art/AssetKeys.js';
 import { BATTLE_FEEDBACK_COLORS, getBattleFeedback, getSummonPayoffCue } from '../ui/BattleFeedback.js';
+import { createNineSlice, NINE_SLICE_MARGIN } from '../ui/NineSlice.js';
 import Deck from '../cards/Deck.js';
 import Hand from '../cards/Hand.js';
 import SharedCards from '../cards/SharedCards.js';
@@ -586,14 +587,9 @@ export default class UIScene extends Phaser.Scene {
   }
 
   _drawUpgradeButton(x, y, width, label, fill, stroke, onClick, options = {}) {
-    const textureKey = options.textureKey ?? this._getUpgradeButtonTexture(fill);
-    const hasTexture = textureKey && this.textures?.exists?.(textureKey) && this.add.image;
-    const bg = hasTexture
-      ? this.add.image(x, y, textureKey)
-        .setDepth(12)
-        .setDisplaySize(width + 24, 34)
-        .setInteractive({ useHandCursor: true })
-        .setAlpha(0.96)
+    const ns = createNineSlice(this, x, y, width + 24, 34, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 12);
+    const bg = ns
+      ? ns.setTint(stroke).setAlpha(0.96).setInteractive({ useHandCursor: true })
       : this.add.rectangle(x, y, width, 24, fill, 0.94)
         .setDepth(12)
         .setStrokeStyle(1, stroke, 0.85)
@@ -604,6 +600,7 @@ export default class UIScene extends Phaser.Scene {
       fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(13).setInteractive({ useHandCursor: true });
 
+    const hasTexture = !!ns;
     const over = () => {
       if (hasTexture) bg.setAlpha(1);
       else {
@@ -628,12 +625,6 @@ export default class UIScene extends Phaser.Scene {
     text.on('pointerdown', onClick);
     this._upgradeObjs.push(bg, text);
     return bg;
-  }
-
-  _getUpgradeButtonTexture(fill) {
-    if (fill === 0x17351f) return UI_TEXTURES.BUTTON_UPGRADE_GREEN;
-    if (fill === 0x3d2412 || fill === 0x332914) return UI_TEXTURES.BUTTON_UPGRADE_ORANGE;
-    return UI_TEXTURES.BUTTON_UPGRADE_BLUE;
   }
 
   _showTutorial() {
@@ -666,7 +657,8 @@ export default class UIScene extends Phaser.Scene {
 
       const s = steps[stepIdx];
       const overlay = this.add.rectangle(320, 400, 580, 360, 0x000000, 0.88).setDepth(30);
-      const box = this.add.rectangle(320, 400, 560, 340, THEME.bg.panel, 1).setDepth(30).setStrokeStyle(2, 0x3a6080, 1);
+      const box = createNineSlice(this, 320, 400, 560, 340, UI_TEXTURES.PANEL_FRAME_9S, NINE_SLICE_MARGIN.PANEL, 30)
+        || this.add.rectangle(320, 400, 560, 340, THEME.bg.panel, 1).setDepth(30).setStrokeStyle(2, 0x3a6080, 1);
       const numTxt = this.add.text(320, 262, `${stepIdx + 1} / ${steps.length}`, {
         fontSize: '11px', color: '#888888'
       }).setOrigin(0.5).setDepth(31);
@@ -703,8 +695,6 @@ export default class UIScene extends Phaser.Scene {
     show();
   }
 }
-
-
 
 
 

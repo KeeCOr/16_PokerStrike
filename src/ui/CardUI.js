@@ -1,6 +1,7 @@
 ﻿import { SUIT_COLORS, SUIT_ICONS } from '../cards/Card.js';
 import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
 import { THEME } from '../theme.js';
+import { createNineSlice, NINE_SLICE_MARGIN } from './NineSlice.js';
 
 export const CARD_LAYOUT = {
   CARD_W: 50,
@@ -255,35 +256,38 @@ export default class CardUI {
   }
 
   _drawActionGroupBackplate(group) {
+    const frame = createNineSlice(this.scene, group.x, ACTION_Y, group.w, ACTION_H + 12, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 11);
+    if (frame) {
+      frame.setAlpha(0.42);
+      frame.setTint?.(group.stroke);
+      return frame;
+    }
     return this.scene.add.rectangle(group.x, ACTION_Y, group.w, ACTION_H + 12, group.fill, 0.42)
       .setDepth(11)
       .setStrokeStyle(1, group.stroke, 0.38);
   }
 
   _drawActionButton(spec, label) {
-    const { x, w, fill, stroke, textureKey } = spec;
-    const hasTexture = textureKey && this.scene.textures?.exists?.(textureKey) && this.scene.add.image;
-    const bg = hasTexture
-      ? this.scene.add.image(x, ACTION_Y, textureKey)
-        .setDepth(12)
-        .setDisplaySize(w + CARD_LAYOUT.ACTION_TEXTURE_PAD_X, ACTION_H + 16)
-        .setInteractive({ useHandCursor: true })
-        .setAlpha(0.98)
+    const { x, w, fill, stroke } = spec;
+    const frame = createNineSlice(this.scene, x, ACTION_Y, w + CARD_LAYOUT.ACTION_TEXTURE_PAD_X, ACTION_H + 16, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 12);
+    const bg = frame
+      ? frame.setInteractive({ useHandCursor: true }).setAlpha(0.98)
       : this.scene.add.rectangle(x, ACTION_Y, w, ACTION_H, fill, 0.95)
         .setDepth(12)
         .setStrokeStyle(2, stroke, 0.9)
         .setInteractive({ useHandCursor: true });
+    frame?.setTint?.(stroke);
     const text = this.scene.add.text(x, ACTION_Y + CARD_LAYOUT.ACTION_TEXT_Y_OFFSET, label, {
       fontSize: spec.intent === 'primary' ? '14px' : '13px',
       color: '#ffffff',
       fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(13);
     bg.on('pointerover', () => {
-      if (hasTexture) bg.setAlpha(1);
+      if (frame) bg.setAlpha(1);
       else bg.setFillStyle(fill, 1);
     });
     bg.on('pointerout', () => {
-      if (hasTexture) bg.setAlpha(0.98);
+      if (frame) bg.setAlpha(0.98);
       else bg.setFillStyle(fill, 0.95);
     });
     text.setInteractive({ useHandCursor: true });
@@ -297,6 +301,5 @@ export default class CardUI {
     return bg;
   }
 }
-
 
 
