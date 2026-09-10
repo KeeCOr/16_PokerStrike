@@ -21,9 +21,9 @@
 </head>
 <body>
 <h1>PokerStrike 기획서</h1>
-<p class="meta">v0.4.0 | 최종 수정: 2026-08-08</p>
+<p class="meta">v0.6.0 | 최종 수정: 2026-09-09</p>
 <blockquote>
-<p>v0.4.0 | 최종 수정: 2026-08-08</p>
+<p>v0.6.0 | 최종 수정: 2026-09-09</p>
 </blockquote>
 <h2>문제 정의</h2>
 <p>PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 결과를 즉시 확인하고 싶은 PC 전략 카드 게임 플레이어를 위한 게임이다. 복잡한 튜토리얼보다 카드 선택, 패 교체, 소환 확정, 타격 결과가 빠르게 읽히는 전투 피드백을 우선한다.</p>
@@ -71,10 +71,10 @@
   <tbody>
     <tr><td>카드 평가</td><td>구현됨</td><td>포커 조합 판정 테스트 보유</td></tr>
     <tr><td>전투 시스템</td><td>구현됨</td><td>전투, 적, 스테이지 테스트 보유</td></tr>
-    <tr><td>UI/HUD</td><td>구현됨</td><td>카드패, 업그레이드, 강화 목록, 결과 UI 테스트 보유</td></tr>
+    <tr><td>UI/HUD</td><td>구현됨</td><td>카드패, 업그레이드, 강화 목록, 결과 UI 테스트 보유. HUD와 패널은 <code>src/assets/ui/generated/</code> PNG 키트와 9-slice(<code>src/ui/NineSlice.js</code>)로 렌더링하고, 화면은 Phaser Scale.FIT(640x960 고정 해상도)로 대응한다.</td></tr>
     <tr><td>보상 선택</td><td>구현됨</td><td>웨이브 클리어 보상 구조 적용</td></tr>
     <tr><td>SFX/VFX</td><td>구현됨</td><td>Kenney SFX 8개와 전투 VFX 텍스처 12개를 런타임 매핑</td></tr>
-    <tr><td>배포</td><td>진행 중</td><td>Electron portable 빌드 기준</td></tr>
+    <tr><td>배포</td><td>진행 중</td><td>Electron portable 빌드 기준. 패키지 실행 파일은 127.0.0.1 루프백 HTTP 서버로 <code>dist</code> 산출물을 서빙하고 loadURL로 로드한다(레거시 file:// 로드 제거).</td></tr>
   </tbody>
 </table>
 <h2>UI, HUD, 컨트롤 규칙</h2>
@@ -83,6 +83,7 @@
   <li>골드와 보석은 분리된 프레임으로 표시하고 아이콘과 수치 간격을 좁게 유지한다.</li>
   <li>게임 오버와 스테이지 클리어는 이미지 기반 버튼과 프레임 UI를 사용한다.</li>
   <li>HUD 같은 레이어의 요소는 겹치지 않도록 배치한다.</li>
+  <li>몬스터/타워 게임 아트는 레거시 SVG를 제거하고 PNG 래스터 리소스로 전환했다(<code>src/assets/art/monsters</code>, <code>src/assets/art/towers</code>).</li>
 </ul>
 <h2>SFX/VFX 적용</h2>
 <table>
@@ -118,6 +119,13 @@
   </tbody>
 </table>
 <h2>업데이트 이력</h2>
+<h3>2026-09-09 v0.6.0 UI/HUD 래스터 파이프라인과 패키징 정리</h3>
+<ul>
+  <li>HUD와 패널 UI를 <code>src/assets/ui/generated/</code> 생성 PNG 키트와 <code>src/ui/NineSlice.js</code> 9-slice 프레임으로 교체했다.</li>
+  <li>화면 대응은 Phaser Scale.FIT과 autoCenter로 고정 해상도(640x960) 기준을 유지한다.</li>
+  <li>Electron 패키지 실행 파일은 127.0.0.1 루프백 HTTP 서버로 <code>dist</code> 산출물을 서빙하고 loadURL로 로드한다(file:// 직접 로드 제거).</li>
+  <li>몬스터/타워 게임 아트에 남아있던 레거시 SVG를 제거하고 PNG 전용 구조로 정리했다.</li>
+</ul>
 <h3>2026-08-08 SFX/VFX 공용 리소스 반영</h3>
 <ul>
   <li>워크스페이스 공용 SFX/VFX 카탈로그에 PokerStrike 리소스를 등록했다.</li>

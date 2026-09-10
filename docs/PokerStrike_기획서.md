@@ -1,6 +1,6 @@
 # PokerStrike 기획서
 
-> v0.4.0 | 최종 수정: 2026-08-08
+> v0.6.0 | 최종 수정: 2026-09-09
 
 ## 문제 정의
 
@@ -49,10 +49,10 @@ PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 �
 | --- | --- | --- |
 | 카드 평가 | 구현됨 | 포커 조합 판정 테스트 보유 |
 | 전투 시스템 | 구현됨 | 전투, 적, 스테이지 테스트 보유 |
-| UI/HUD | 구현됨 | 카드패, 업그레이드, 강화 목록, 결과 UI 테스트 보유 |
+| UI/HUD | 구현됨 | 카드패, 업그레이드, 강화 목록, 결과 UI 테스트 보유. HUD와 패널은 `src/assets/ui/generated/` PNG 키트와 9-slice(`src/ui/NineSlice.js`)로 렌더링하고, 화면은 Phaser Scale.FIT(640x960 고정 해상도)로 대응한다. |
 | 보상 선택 | 구현됨 | 웨이브 클리어 보상 구조 적용 |
 | SFX/VFX | 구현됨 | Kenney SFX 8개와 전투 VFX 텍스처 12개를 런타임 매핑 |
-| 배포 | 진행 중 | Electron portable 빌드 기준 |
+| 배포 | 진행 중 | Electron portable 빌드 기준. 패키지 실행 파일은 127.0.0.1 루프백 HTTP 서버로 `dist` 산출물을 서빙하고 loadURL로 로드한다(레거시 file:// 로드 제거). |
 
 ## UI, HUD, 컨트롤 규칙
 
@@ -60,6 +60,9 @@ PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 �
 - 골드와 보석은 분리된 프레임으로 표시하고 아이콘과 수치 간격을 좁게 유지한다.
 - 게임 오버와 스테이지 클리어는 이미지 기반 버튼과 프레임 UI를 사용한다.
 - HUD 같은 레이어의 요소는 겹치지 않도록 배치한다.
+- 패널과 스트립형 프레임 UI는 9-slice 텍스처(`src/ui/NineSlice.js`, `ui-panel-frame-9s`/`ui-strip-frame-9s`)로 렌더링해 크기가 달라져도 테두리 비율을 유지한다.
+- 화면 비율은 Phaser `Scale.FIT` 기준 640x960 해상도를 유지하며 창 크기에 맞춰 자동 중앙 정렬한다.
+- 몬스터/타워 게임 아트는 레거시 SVG를 제거하고 PNG 래스터 리소스로 전환했다(`src/assets/art/monsters`, `src/assets/art/towers`).
 
 ## SFX/VFX 적용
 
@@ -94,6 +97,13 @@ PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 �
 | portable 패키지 | `npm run dist` |
 
 ## 업데이트 이력
+
+### 2026-09-09 v0.6.0 UI/HUD 래스터 파이프라인과 패키징 정리
+
+- HUD와 패널 UI를 `src/assets/ui/generated/` 생성 PNG 키트와 `src/ui/NineSlice.js` 9-slice 프레임으로 교체했다.
+- 화면 대응은 Phaser Scale.FIT과 autoCenter로 고정 해상도(640x960) 기준을 유지한다.
+- Electron 패키지 실행 파일은 127.0.0.1 루프백 HTTP 서버로 `dist` 산출물을 서빙하고 loadURL로 로드한다(file:// 직접 로드 제거).
+- 몬스터/타워 게임 아트에 남아있던 레거시 SVG를 제거하고 PNG 전용 구조로 정리했다.
 
 ### 2026-08-08 SFX/VFX 공용 리소스 반영
 
