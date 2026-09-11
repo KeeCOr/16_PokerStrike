@@ -1,6 +1,6 @@
 # PokerStrike 기획서
 
-> v0.6.0 | 최종 수정: 2026-09-10
+> v1.0.1 | 최종 수정: 2026-09-11
 
 ## 문제 정의
 
@@ -52,7 +52,7 @@ PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 �
 | UI/HUD | 구현됨 | 카드패, 업그레이드, 강화 목록, 결과 UI 테스트 보유. HUD와 패널은 `src/assets/ui/generated/` PNG 키트와 9-slice(`src/ui/NineSlice.js`)로 렌더링하고, 화면은 Phaser Scale.FIT(640x960 고정 해상도)로 대응한다. |
 | 보상 선택 | 구현됨 | 웨이브 클리어 보상 구조 적용 |
 | SFX/VFX | 구현됨 | Kenney SFX 8개와 전투 VFX 텍스처 12개를 런타임 매핑 |
-| 배포 | 진행 중 | Electron portable 빌드 기준. 패키지 실행 파일은 127.0.0.1 루프백 HTTP 서버로 `dist` 산출물을 서빙하고 loadURL로 로드한다(레거시 file:// 로드 제거). |
+| 배포 | 진행 중 | Electron portable 빌드 기준. 패키지 실행 파일은 127.0.0.1 루프백 HTTP 서버로 `dist` 산출물을 서빙하고 loadURL로 로드한다(레거시 file:// 로드 제거). Windows 포터블 아이콘(`build/icon.ico`)과 SteamCMD 빌드 스크립트 템플릿(`steam/app_build.vdf`)을 추가했다(App ID/Depot ID는 아직 placeholder). |
 
 ## UI, HUD, 컨트롤 규칙
 
@@ -97,6 +97,12 @@ PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 �
 | portable 패키지 | `npm run dist` |
 
 ## 업데이트 이력
+
+### 2026-09-11 v1.0.1 통합 릴리스: 아이콘/Steam 패키징 통합
+
+- v0.6.0 HUD/패널 9-slice UI 리팩터링(로컬 작업분)과 v1.0.0 Windows 포터블 아이콘(`build/icon.ico`), SteamCMD 빌드 스크립트(`steam/app_build.vdf`) 추가분(원격 작업분)을 병합해 통합했다.
+- `steam/app_build.vdf`는 App ID/Depot ID가 placeholder(`REPLACE_WITH_REAL_APP_ID`, `REPLACE_WITH_DEPOT_ID`)로 남아 있어 실제 Steam 배포 전 값 교체가 필요하다.
+- 두 작업분을 통합한 패치 릴리스로 버전을 1.0.1로 올렸다.
 
 ### 2026-09-10 v0.6.0 UI/HUD 래스터 파이프라인과 패키징 정리
 

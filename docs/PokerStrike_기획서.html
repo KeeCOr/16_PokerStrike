@@ -21,9 +21,9 @@
 </head>
 <body>
 <h1>PokerStrike 기획서</h1>
-<p class="meta">v0.6.0 | 최종 수정: 2026-09-10</p>
+<p class="meta">v1.0.1 | 최종 수정: 2026-09-11</p>
 <blockquote>
-<p>v0.6.0 | 최종 수정: 2026-09-10</p>
+<p>v1.0.1 | 최종 수정: 2026-09-11</p>
 </blockquote>
 <h2>문제 정의</h2>
 <p>PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 결과를 즉시 확인하고 싶은 PC 전략 카드 게임 플레이어를 위한 게임이다. 복잡한 튜토리얼보다 카드 선택, 패 교체, 소환 확정, 타격 결과가 빠르게 읽히는 전투 피드백을 우선한다.</p>
@@ -74,7 +74,7 @@
     <tr><td>UI/HUD</td><td>구현됨</td><td>카드패, 업그레이드, 강화 목록, 결과 UI 테스트 보유. HUD와 패널은 <code>src/assets/ui/generated/</code> PNG 키트와 9-slice(<code>src/ui/NineSlice.js</code>)로 렌더링하고, 화면은 Phaser Scale.FIT(640x960 고정 해상도)로 대응한다.</td></tr>
     <tr><td>보상 선택</td><td>구현됨</td><td>웨이브 클리어 보상 구조 적용</td></tr>
     <tr><td>SFX/VFX</td><td>구현됨</td><td>Kenney SFX 8개와 전투 VFX 텍스처 12개를 런타임 매핑</td></tr>
-    <tr><td>배포</td><td>진행 중</td><td>Electron portable 빌드 기준. 패키지 실행 파일은 127.0.0.1 루프백 HTTP 서버로 <code>dist</code> 산출물을 서빙하고 loadURL로 로드한다(레거시 file:// 로드 제거).</td></tr>
+    <tr><td>배포</td><td>진행 중</td><td>Electron portable 빌드 기준. 패키지 실행 파일은 127.0.0.1 루프백 HTTP 서버로 <code>dist</code> 산출물을 서빙하고 loadURL로 로드한다(레거시 file:// 로드 제거). Windows 포터블 아이콘(<code>build/icon.ico</code>)과 SteamCMD 빌드 스크립트 템플릿(<code>steam/app_build.vdf</code>)을 추가했다(App ID/Depot ID는 아직 placeholder).</td></tr>
   </tbody>
 </table>
 <h2>UI, HUD, 컨트롤 규칙</h2>
@@ -119,6 +119,12 @@
   </tbody>
 </table>
 <h2>업데이트 이력</h2>
+<h3>2026-09-11 v1.0.1 통합 릴리스: 아이콘/Steam 패키징 통합</h3>
+<ul>
+  <li>v0.6.0 HUD/패널 9-slice UI 리팩터링(로컬 작업분)과 v1.0.0 Windows 포터블 아이콘(<code>build/icon.ico</code>), SteamCMD 빌드 스크립트(<code>steam/app_build.vdf</code>) 추가분(원격 작업분)을 병합해 통합했다.</li>
+  <li><code>steam/app_build.vdf</code>는 App ID/Depot ID가 placeholder(<code>REPLACE_WITH_REAL_APP_ID</code>, <code>REPLACE_WITH_DEPOT_ID</code>)로 남아 있어 실제 Steam 배포 전 값 교체가 필요하다.</li>
+  <li>두 작업분을 통합한 패치 릴리스로 버전을 1.0.1로 올렸다.</li>
+</ul>
 <h3>2026-09-10 v0.6.0 UI/HUD 래스터 파이프라인과 패키징 정리</h3>
 <ul>
   <li>HUD와 패널 UI를 <code>src/assets/ui/generated/</code> 생성 PNG 키트와 <code>src/ui/NineSlice.js</code> 9-slice 프레임으로 교체했다.</li>
