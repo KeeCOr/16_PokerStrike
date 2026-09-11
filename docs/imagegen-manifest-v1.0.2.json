@@ -1,0 +1,31 @@
+{
+  "version": "1.0.2",
+  "target": { "width": 640, "height": 960 },
+  "planned": [
+    {
+      "key": "ps-hp-gauge-shell",
+      "file": "src/ui/generated/ps-hp-gauge-shell.png",
+      "width": 512,
+      "height": 128,
+      "transparent": true,
+      "usage": "Static bitmap shell rendered behind the code-driven HP fill (Unit/Enemy/GameScene base HP). Dynamic fill remains Graphics-drawn."
+    },
+    {
+      "key": "ps-character-frame",
+      "file": "src/ui/generated/ps-character-frame.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "usage": "Bitmap character frame drawn behind contain-scaled Unit/Enemy sprites."
+    },
+    {
+      "key": "ps-ui-frame-9s",
+      "file": "src/ui/generated/ps-ui-frame-9s.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "usage": "NineSlice-compatible UI frame texture, applied via NineSlice.js with explicit margins. No SVG or data URI."
+    }
+  ],
+  "results": []
+}
