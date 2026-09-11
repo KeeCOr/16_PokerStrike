@@ -2,9 +2,9 @@ import { ROLE } from './UnitData.js';
 import { SUIT_COLORS } from '../cards/Card.js';
 import { CELL_SIZE } from '../grid/Grid.js';
 import { HAND_RANK } from '../cards/HandEvaluator.js';
-import { getTowerTextureKey } from '../assets/art/AssetKeys.js';
+import { getTowerTextureKey, UI_TEXTURES } from '../assets/art/AssetKeys.js';
 
-// nê°í˜• ??ë°°ì—´ ({x,y} ?•ì‹, ?„ìª½ ê¼?§“??ê¸°ì?, ë¡œì»¬ ?ì  ì¤‘ì‹¬)
+// n-gon vertex array ({x,y} format, clockwise from top, centered at local origin)
 export function _ngon(n, r) {
   return Array.from({ length: n }, (_, i) => {
     const a = (i * 360 / n - 90) * Math.PI / 180;
@@ -12,7 +12,7 @@ export function _ngon(n, r) {
   });
 }
 
-// mê°?ë³???ë°°ì—´
+// m-point star vertex array
 function _star(m, r, innerRatio) {
   return Array.from({ length: m * 2 }, (_, i) => {
     const a = (i * 180 / m - 90) * Math.PI / 180;
@@ -50,11 +50,32 @@ export const TOWER_VISUAL_STYLE = {
   MAX_DISPLAY_RATIO: 1.00,
 };
 
+const HP_BAR_HALF_WIDTH = Math.floor(CELL_SIZE * 0.28);
+const HP_BAR_Y_OFFSET = Math.floor(CELL_SIZE * 0.25);
+const HP_BAR_HEIGHT = 4;
+
+function _makeCharacterFrame(scene, x, y, sz, depth) {
+  const textureKey = UI_TEXTURES.CHARACTER_FRAME;
+  if (!scene.textures?.exists?.(textureKey) || !scene.add.image) return null;
+  return scene.add.image(x, y, textureKey)
+    .setDisplaySize(sz, sz)
+    .setDepth(depth);
+}
+
+function _makeHpShell(scene, x, y) {
+  const textureKey = UI_TEXTURES.HP_GAUGE_SHELL;
+  if (!scene.textures?.exists?.(textureKey) || !scene.add.image) return null;
+  return scene.add.image(x, y, textureKey)
+    .setDisplaySize(HP_BAR_HALF_WIDTH * 2, HP_BAR_HEIGHT + 4)
+    .setDepth(2.5)
+    .setAlpha(1);
+}
+
 export function getHandRankVisual(handRank) {
   return HAND_RANK_VISUAL[handRank] ?? HAND_RANK_VISUAL[HAND_RANK.HIGH_CARD];
 }
 
-// Graphicsë¥??¬ìš©??ë¡œì»¬ (0,0) = ?”ë“œ (x,y)ë¡??•í™•??ì¤‘ì•™ ë°°ì¹˜
+// Uses Graphics so local (0,0) maps exactly to world (x,y), centered
 function _makeShape(scene, x, y, handRank, sz, color) {
   const r = Math.floor(sz / 2);
   const def = SHAPE_DEF[handRank] ?? SHAPE_DEF[HAND_RANK.ONE_PAIR];
@@ -63,14 +84,14 @@ function _makeShape(scene, x, y, handRank, sz, color) {
   const gfx = scene.add.graphics();
   gfx.setPosition(x, y);
 
-  // ?‰ìƒ/?¤íŠ¸ë¡œí¬ ?•ë³´ ë³´ê?
+  // Store color/stroke info
   gfx._shapePts = pts;
   gfx._fillColor = color;
   gfx._sw = def.sw;
   gfx._sc = def.sc;
   gfx._sa = def.sa;
 
-  // Shape ?¤ë¸Œ?íŠ¸?€ ?™ì¼???¸í„°?˜ì´???œê³µ
+  // Shape ?ï¿½ë¸Œ?ï¿½íŠ¸?ï¿½ ?ï¿½ì¼???ï¿½í„°?ï¿½ì´???ï¿½ê³µ
   gfx.setFillStyle = function (c) {
     this._fillColor = c;
     this._redraw();
@@ -189,9 +210,11 @@ export default class Unit {
         .setDepth(1);
     }
     const sz = Math.floor(CELL_SIZE * visual.size);
+    this.characterFrame = _makeCharacterFrame(scene, pos.x, pos.y, sz, 1.5);
     this.sprite = _makeTowerSprite(scene, pos.x, pos.y, handRank, suit, sz, color).setDepth(2);
     this.rankOrnament = _makeRankOrnament(scene, pos.x, pos.y, visual, color);
     this.hpBar = scene.add.graphics().setDepth(3);
+    this.hpShell = _makeHpShell(scene, pos.x, pos.y + HP_BAR_Y_OFFSET);
     this.gradeText = scene.add.text(pos.x, pos.y - Math.floor(CELL_SIZE * 0.18), `${visual.label}-${grade}`, {
       fontSize: handRank >= HAND_RANK.FULL_HOUSE ? '11px' : '9px',
       color: handRank >= HAND_RANK.STRAIGHT ? '#ffef9a' : '#dcecff',
@@ -209,6 +232,7 @@ export default class Unit {
   updateBoardPosition() {
     const pos = this.scene.grid.cellToWorld(this.col, this.row);
     this.sprite.setPosition(pos.x, pos.y);
+    if (this.characterFrame) this.characterFrame.setPosition(pos.x, pos.y);
     this.gradeText.setPosition(pos.x, pos.y - Math.floor(CELL_SIZE * 0.18));
     if (this.glowCircle) this.glowCircle.setPosition(pos.x, pos.y);
     if (this.highlightCircle) this.highlightCircle.setPosition(pos.x, pos.y);
@@ -225,17 +249,18 @@ export default class Unit {
   }
   _drawHpBar() {
     const pos = this.scene.grid.cellToWorld(this.col, this.row);
-    const hw = Math.floor(CELL_SIZE * 0.28); // half-width of bar
-    const by = Math.floor(CELL_SIZE * 0.25); // y offset from center
+    const hw = HP_BAR_HALF_WIDTH;
+    const by = HP_BAR_Y_OFFSET;
     this.hpBar.clear();
     const ratio = this.hp / this.maxHp;
     if (ratio >= 1) {
       this.hpBar.setVisible?.(false);
+      this.hpShell?.setVisible?.(false);
       return;
     }
     this.hpBar.setVisible?.(true);
-    this.hpBar.fillStyle(0x333333);
-    this.hpBar.fillRect(pos.x - hw, pos.y + by, hw * 2, 4);
+    this.hpShell?.setVisible?.(true);
+    this.hpShell?.setPosition?.(pos.x, pos.y + by);
     this.hpBar.fillStyle(ratio > 0.5 ? 0x44ff44 : ratio > 0.25 ? 0xffaa00 : 0xff4444);
     this.hpBar.fillRect(pos.x - hw, pos.y + by, Math.floor(hw * 2 * ratio), 4);
   }
@@ -248,7 +273,7 @@ export default class Unit {
 
   freeze(duration) {
     const newUntil = Date.now() + duration;
-    if (newUntil <= this.frozenUntil) return; // ?´ë? ??ê¸¸ê²Œ ?¼ì–´?ˆìœ¼ë©?ë¬´ì‹œ
+    if (newUntil <= this.frozenUntil) return; // ignore if already frozen for longer
     this.frozen = true;
     this.frozenUntil = newUntil;
     this.sprite.setFillStyle(0xaaddff);
@@ -299,8 +324,10 @@ export default class Unit {
   setDim(active) {
     const alpha = active ? 0.28 : 1.0;
     this.sprite.setAlpha(alpha);
+    if (this.characterFrame) this.characterFrame.setAlpha(alpha);
     this.gradeText.setAlpha(alpha);
     this.hpBar.setAlpha(alpha);
+    if (this.hpShell) this.hpShell.setAlpha(alpha);
     if (this.glowCircle) this.glowCircle.setAlpha(active ? 0 : 1);
     if (this.rankRing) this.rankRing.setAlpha(active ? 0.2 : 1);
     if (this.rankHalo) this.rankHalo.setAlpha(active ? 0.05 : 1);
@@ -339,7 +366,9 @@ export default class Unit {
 
   destroy() {
     this.sprite.destroy();
+    if (this.characterFrame) this.characterFrame.destroy();
     this.hpBar.destroy();
+    if (this.hpShell) this.hpShell.destroy();
     this.gradeText.destroy();
     if (this.statusTimer?.remove) this.statusTimer.remove(false);
     if (this.statusText) this.statusText.destroy();

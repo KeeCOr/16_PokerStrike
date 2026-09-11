@@ -285,6 +285,13 @@ export default class GameScene extends Phaser.Scene {
 
     // 본진 HP 바
     this._baseHpBar = this.add.graphics().setDepth(2);
+    this._baseHpShell = null;
+    if (this.textures?.exists?.(UI_TEXTURES.HP_GAUGE_SHELL) && this.add.image) {
+      const barW = CELL_SIZE;
+      this._baseHpShell = this.add.image(baseX + barW / 2, baseY - 4, UI_TEXTURES.HP_GAUGE_SHELL)
+        .setDisplaySize(barW + 2, 10)
+        .setDepth(1.5);
+    }
     this._drawBaseHpBar();
   }
 
@@ -296,8 +303,6 @@ export default class GameScene extends Phaser.Scene {
     const barW = CELL_SIZE;
     const ratio = Math.max(0, this.baseHp / BASE_HP);
     this._baseHpBar.clear();
-    this._baseHpBar.fillStyle(0x333333);
-    this._baseHpBar.fillRect(baseX, baseY - 7, barW, 6);
     this._baseHpBar.fillStyle(ratio > 0.5 ? THEME.status.hpHigh : ratio > 0.25 ? THEME.status.hpMid : THEME.status.hpLow);
     this._baseHpBar.fillRect(baseX, baseY - 7, Math.floor(barW * ratio), 6);
   }

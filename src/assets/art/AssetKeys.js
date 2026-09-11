@@ -68,6 +68,9 @@ export const UI_TEXTURES = {
   RESOURCE_GEM: 'ui-resource-gem',
   PANEL_FRAME_9S: 'ui-panel-frame-9s',
   STRIP_FRAME_9S: 'ui-strip-frame-9s',
+  HP_GAUGE_SHELL: 'ps-hp-gauge-shell',
+  CHARACTER_FRAME: 'ps-character-frame',
+  FRAME_9S: 'ps-ui-frame-9s',
 };
 
 const ENEMY_ASSETS = {
@@ -138,6 +141,9 @@ const UI_ASSETS = {
   [UI_TEXTURES.RESOURCE_GEM]: new URL('../ui/generated/resource-gem.png', import.meta.url).href,
   [UI_TEXTURES.PANEL_FRAME_9S]: new URL('../ui/generated/ps-ui-panel-frame-9s.png', import.meta.url).href,
   [UI_TEXTURES.STRIP_FRAME_9S]: new URL('../ui/generated/ps-ui-strip-frame-9s.png', import.meta.url).href,
+  [UI_TEXTURES.HP_GAUGE_SHELL]: new URL('../ui/generated/ps-hp-gauge-shell.png', import.meta.url).href,
+  [UI_TEXTURES.CHARACTER_FRAME]: new URL('../ui/generated/ps-character-frame.png', import.meta.url).href,
+  [UI_TEXTURES.FRAME_9S]: new URL('../ui/generated/ps-ui-frame-9s.png', import.meta.url).href,
 };
 
 export function preloadArtAssets(scene) {

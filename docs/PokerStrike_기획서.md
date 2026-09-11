@@ -1,6 +1,6 @@
 # PokerStrike 기획서
 
-> v1.0.1 | 최종 수정: 2026-09-11
+> v1.0.2 | 최종 수정: 2026-09-11
 
 ## 문제 정의
 
@@ -49,7 +49,7 @@ PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 �
 | --- | --- | --- |
 | 카드 평가 | 구현됨 | 포커 조합 판정 테스트 보유 |
 | 전투 시스템 | 구현됨 | 전투, 적, 스테이지 테스트 보유 |
-| UI/HUD | 구현됨 | 카드패, 업그레이드, 강화 목록, 결과 UI 테스트 보유. HUD와 패널은 `src/assets/ui/generated/` PNG 키트와 9-slice(`src/ui/NineSlice.js`)로 렌더링하고, 화면은 Phaser Scale.FIT(640x960 고정 해상도)로 대응한다. |
+| UI/HUD | 구현됨 | 카드패, 업그레이드, 강화 목록, 결과 UI 테스트 보유. <span style="color:#ff8000">HUD, 패널, 유닛/몬스터 캐릭터 프레임, HP 게이지 셸은 `src/assets/ui/generated/` PNG 키트(`ps-hp-gauge-shell`, `ps-character-frame`, `ps-ui-frame-9s` 포함)와 9-slice(`src/ui/NineSlice.js`)로 렌더링하며, 색이 변하는 채움만 Graphics로 유지한다.</span> 화면은 Phaser Scale.FIT(640x960 고정 해상도)로 대응한다. |
 | 보상 선택 | 구현됨 | 웨이브 클리어 보상 구조 적용 |
 | SFX/VFX | 구현됨 | Kenney SFX 8개와 전투 VFX 텍스처 12개를 런타임 매핑 |
 | 배포 | 진행 중 | Electron portable 빌드 기준. 패키지 실행 파일은 127.0.0.1 루프백 HTTP 서버로 `dist` 산출물을 서빙하고 loadURL로 로드한다(레거시 file:// 로드 제거). Windows 포터블 아이콘(`build/icon.ico`)과 SteamCMD 빌드 스크립트 템플릿(`steam/app_build.vdf`)을 추가했다(App ID/Depot ID는 아직 placeholder). |
@@ -63,6 +63,10 @@ PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 �
 - 패널과 스트립형 프레임 UI는 9-slice 텍스처(`src/ui/NineSlice.js`, `ui-panel-frame-9s`/`ui-strip-frame-9s`)로 렌더링해 크기가 달라져도 테두리 비율을 유지한다.
 - 화면 비율은 Phaser `Scale.FIT` 기준 640x960 해상도를 유지하며 창 크기에 맞춰 자동 중앙 정렬한다.
 - 몬스터/타워 게임 아트는 레거시 SVG를 제거하고 PNG 래스터 리소스로 전환했다(`src/assets/art/monsters`, `src/assets/art/towers`).
+- 유닛/몬스터는 캐릭터 프레임(`ps-character-frame`)을 스프라이트 뒤에 정사각형 contain 비율로 배치하고 명시적으로 더 낮은 depth를 준다.
+- HP 게이지는 정적 셸 이미지(`ps-hp-gauge-shell`)를 한 번만 생성해 위치·가시성·디밍·파괴를 유닛/몬스터/본진과 함께 관리하고, 색이 변하는 채움만 Graphics로 그린다.
+- 카드 UI 외곽 프레임은 `ps-ui-frame-9s` 텍스처를 `createNineSlice`와 PANEL 마진으로 렌더링하고, 텍스처가 없을 때만 사각형 폴백을 사용한다.
+- 새 UI 자산 3종(`ps-hp-gauge-shell`, `ps-character-frame`, `ps-ui-frame-9s`)은 `tests/assets/ImagegenV1_0_2.test.js`로 정적 셸/프레임과 동적 Graphics 채움의 레이어 분리, contain/9-slice 배치를 검증한다.
 
 ## SFX/VFX 적용
 
@@ -97,6 +101,15 @@ PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 �
 | portable 패키지 | `npm run dist` |
 
 ## 업데이트 이력
+
+### 2026-09-11 v1.0.2 ImageGen 런타임 자산 통합
+
+- 새 PNG UI 자산 3종을 추가했다: `ps-hp-gauge-shell`(512x128), `ps-character-frame`(512x512), `ps-ui-frame-9s`(512x512). 셋 다 알파 채널을 포함한 RGBA PNG이며 SVG/데이터 URI는 사용하지 않는다.
+- Unit/Enemy의 캐릭터 프레임과 HP 게이지 셸을 정적 비트맵 이미지로 분리했다. 동적으로 변하는 채움(HP/방어막 비율)만 Graphics로 유지하고, 배경/테두리는 이미지가 담당한다.
+- GameScene 본진 HP 바는 정적 셸 이미지를 씬 생성 시 한 번만 만들고, 매 갱신마다 다시 만들지 않도록 정리했다.
+- CardUI의 카드 외곽 정적 사각형 프레임을 `ps-ui-frame-9s` 9-slice(PANEL 마진)로 교체하고, 텍스처가 없을 때만 사각형 폴백을 사용한다.
+- `docs/imagegen-manifest-v1.0.2.json`에 실제 생성 결과(크기, 알파 채널, 런타임 소비처)를 기록했다.
+- 640x960 목업과 런타임 캡처를 나란히 비교 점검한 결과 겹침이나 왜곡 없이 전술 그리드 구조가 그대로 유지됨을 확인했다.
 
 ### 2026-09-11 v1.0.1 통합 릴리스: 아이콘/Steam 패키징 통합
 

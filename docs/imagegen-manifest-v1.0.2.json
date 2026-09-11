@@ -4,7 +4,7 @@
   "planned": [
     {
       "key": "ps-hp-gauge-shell",
-      "file": "src/ui/generated/ps-hp-gauge-shell.png",
+      "file": "src/assets/ui/generated/ps-hp-gauge-shell.png",
       "width": 512,
       "height": 128,
       "transparent": true,
@@ -12,7 +12,7 @@
     },
     {
       "key": "ps-character-frame",
-      "file": "src/ui/generated/ps-character-frame.png",
+      "file": "src/assets/ui/generated/ps-character-frame.png",
       "width": 512,
       "height": 512,
       "transparent": true,
@@ -20,12 +20,60 @@
     },
     {
       "key": "ps-ui-frame-9s",
-      "file": "src/ui/generated/ps-ui-frame-9s.png",
+      "file": "src/assets/ui/generated/ps-ui-frame-9s.png",
       "width": 512,
       "height": 512,
       "transparent": true,
       "usage": "NineSlice-compatible UI frame texture, applied via NineSlice.js with explicit margins. No SVG or data URI."
     }
   ],
-  "results": []
+  "results": [
+    {
+      "key": "ps-hp-gauge-shell",
+      "file": "src/assets/ui/generated/ps-hp-gauge-shell.png",
+      "generator": "built-in image_gen",
+      "width": 512,
+      "height": 128,
+      "colorType": "RGBA (truecolor + alpha, bit depth 8)",
+      "alpha": true,
+      "runtimeConsumers": [
+        "src/units/Unit.js (this.hpShell, static shell behind the Graphics HP fill)",
+        "src/enemies/Enemy.js (this.hpShell / this.shieldShell, static shells behind the Graphics HP/shield fills)",
+        "src/scenes/GameScene.js (this._baseHpShell, static shell behind the base HP Graphics fill)"
+      ]
+    },
+    {
+      "key": "ps-character-frame",
+      "file": "src/assets/ui/generated/ps-character-frame.png",
+      "generator": "built-in image_gen",
+      "width": 512,
+      "height": 512,
+      "colorType": "RGBA (truecolor + alpha, bit depth 8)",
+      "alpha": true,
+      "runtimeConsumers": [
+        "src/units/Unit.js (this.characterFrame, square contain-sized image behind the tower sprite, lower depth)",
+        "src/enemies/Enemy.js (frame image added first inside the monster container, behind loaded/fallback art)"
+      ]
+    },
+    {
+      "key": "ps-ui-frame-9s",
+      "file": "src/assets/ui/generated/ps-ui-frame-9s.png",
+      "generator": "built-in image_gen",
+      "width": 512,
+      "height": 512,
+      "colorType": "RGBA (truecolor + alpha, bit depth 8)",
+      "alpha": true,
+      "runtimeConsumers": [
+        "src/ui/CardUI.js (_drawCard outer frame via createNineSlice + NINE_SLICE_MARGIN.PANEL, with rectangle fallback when the texture is unavailable)"
+      ]
+    }
+  ],
+  "comparison": {
+    "mockupSource": "docs/PokerStrike_battle_hud_mockup_v1.0.2_640x960.png",
+    "runtimeCapture": "docs/PokerStrike_runtime_battle_v1.0.2_640x960.png",
+    "sideBySide": "docs/PokerStrike_hud_comparison_v1.0.2.png",
+    "viewport": { "width": 640, "height": 960 },
+    "observed": "Top gauge shell, square character frames, and bottom card nine-slice preserve aspect and corners with no same-layer overlap.",
+    "targetedCorrection": "None; tactical-grid geometry retained because enlarging the mockup card/action region would reduce the gameplay board and exceed UI-only scope."
+  }
 }

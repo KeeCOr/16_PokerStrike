@@ -122,8 +122,15 @@ export default class CardUI {
     const h = CARD_H * scale;
     const color = SUIT_COLORS[card.suit] ?? 0xffffff;
     const colorHex = '#' + color.toString(16).padStart(6, '0');
-    const bg = this.scene.add.rectangle(x, y, w, h, THEME.bg.mid).setDepth(12)
-      .setStrokeStyle(2, color, 0.95);
+    const frame = createNineSlice(this.scene, x, y, w, h, UI_TEXTURES.FRAME_9S, NINE_SLICE_MARGIN.PANEL, 12);
+    let bg;
+    if (frame) {
+      frame.setTint?.(color);
+      bg = frame;
+    } else {
+      bg = this.scene.add.rectangle(x, y, w, h, THEME.bg.mid).setDepth(12)
+        .setStrokeStyle(2, color, 0.95);
+    }
     const inner = this.scene.add.rectangle(x, y, w - 7 * scale, h - 7 * scale, 0xefe8dc, 1).setDepth(12)
       .setStrokeStyle(1, 0xffffff, 0.35);
     const topBand = this.scene.add.rectangle(x, y - h * 0.29, w - 12 * scale, 15 * scale, THEME.bg.panel, 0.9).setDepth(13);
@@ -149,13 +156,13 @@ export default class CardUI {
       const [bg] = objs;
       if (!bg?.active) return;
       bg.setInteractive({ useHandCursor: true });
-      bg.setFillStyle(0x2a3f22);
+      this._setCardTone(bg, 0x2a3f22);
       bg.once('pointerdown', () => {
         this.exitReplaceMode();
         onSelect(i);
       });
-      bg.on('pointerover', () => bg.setFillStyle(0x446633));
-      bg.on('pointerout',  () => bg.setFillStyle(0x2a3f22));
+      bg.on('pointerover', () => this._setCardTone(bg, 0x446633));
+      bg.on('pointerout',  () => this._setCardTone(bg, 0x2a3f22));
     });
 
     let skipFirst = true;
@@ -185,9 +192,14 @@ export default class CardUI {
     this.cardObjects.forEach((objs) => {
       const [bg] = objs;
       if (!bg?.active) return;
-      bg.setFillStyle(THEME.bg.mid);
+      this._setCardTone(bg, THEME.bg.mid);
       bg.removeAllListeners();
     });
+  }
+
+  _setCardTone(bg, color) {
+    if (bg.setFillStyle) bg.setFillStyle(color);
+    else bg.setTint?.(color);
   }
 
   renderButtons(drawCost, replaceCost, summonHandName = null, magicSkillName = null, summonImpact = null) {
