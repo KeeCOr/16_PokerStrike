@@ -1,69 +1,254 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PokerStrike</title>
+<title>PokerStrike 게임 디자인 문서 (GDD)</title>
 <style>
-  body { background-color: #ffffff; color: #000000; font-family: -apple-system, "Malgun Gothic", sans-serif; margin: 2rem; line-height: 1.6; }
-  h1, h2, h3, h4, h5, h6 { color: #000000; }
-  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
-  th, td { border: 1px solid #000000; padding: 0.5rem; text-align: left; }
-  figure { margin: 1rem 0; }
-  figure img { display: block; max-width: 100%; max-height: 62vh; width: auto; height: auto; object-fit: contain; margin: 0 auto; }
-  figcaption { font-size: 0.9rem; color: #000000; }
-  code { background-color: #f0f0f0; padding: 0 0.2rem; }
-  @media print {
-    body { background-color: #ffffff; color: #000000; margin: 0.5in; }
-    table, figure { page-break-inside: avoid; }
-  }
+:root{
+  --rev-1:#b91c1c;--rev-2:#c2410c;--rev-3:#a16207;--rev-4:#15803d;
+  --rev-5:#1d4ed8;--rev-6:#7e22ce;--rev-7:#be185d;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;padding:2rem;max-width:960px;margin-inline:auto;
+  font-family:'Malgun Gothic','Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;
+  line-height:1.75;color:#1f2328;word-break:keep-all;overflow-wrap:break-word;background:#fff;
+}
+h1,h2,h3,h4,h5,h6{line-height:1.35;margin-top:2em;margin-bottom:.6em}
+h1{font-size:1.9rem;border-bottom:2px solid #e2e2e2;padding-bottom:.3em}
+h2{font-size:1.5rem}
+h3{font-size:1.2rem}
+a{color:#1d4ed8}
+img{max-width:100%;height:auto;display:block;margin:1em 0;border-radius:4px}
+.table-wrap{overflow-x:auto;margin:1em 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{border:1px solid #d0d7de;padding:.5em .75em;text-align:left}
+th{background:#f6f8fa}
+pre{background:#f6f8fa;padding:1em;overflow-x:auto;border-radius:6px;border:1px solid #e2e2e2}
+code{font-family:'D2Coding',Consolas,'Courier New',monospace;font-size:.9em}
+:not(pre)>code{background:#f0f2f4;padding:.15em .4em;border-radius:4px}
+blockquote{border-left:4px solid #d0d7de;margin:1em 0;padding:.2em 1em;color:#57606a}
+.rev-1{color:var(--rev-1);font-weight:600}
+.rev-2{color:var(--rev-2);font-weight:600}
+.rev-3{color:var(--rev-3);font-weight:600}
+.rev-4{color:var(--rev-4);font-weight:600}
+.rev-5{color:var(--rev-5);font-weight:600}
+.rev-6{color:var(--rev-6);font-weight:600}
+.rev-7{color:var(--rev-7);font-weight:600}
+@media print{
+  body{padding:0;max-width:none}
+  a{color:inherit;text-decoration:none}
+}
 </style>
 </head>
 <body>
-<figure class="gdd-image"><img src="PokerStrike_gameplay_preview.png" alt="GDD용 콘셉트 이미지이며 실제 게임 화면이 아님"><figcaption>GDD용 콘셉트 이미지이며 실제 게임 화면이 아님</figcaption></figure>
-<h1>PokerStrike</h1>
-<ul><li>문서 유형: 게임</li><li>문서 버전: 1.0</li><li>프로젝트 버전: 0.4.0</li><li>근거 신뢰도: medium</li></ul>
-<h2>1. 문서 메타데이터와 근거 범례</h2>
-<ul><li>프로젝트: PokerStrike(패키지명 card-defense), 버전 0.4.0, Phaser 3.60 기반 웹/Electron 게임.</li><li>근거 표기: [사실] = package.json·파일 목록에서 직접 확인, [제안] = 파일명·구조 기반 추론(내용 미열람).</li><li>이번 문서는 파일 읽기 권한 제한으로 기획서 본문을 직접 인용하지 못해, 대부분의 세부 규칙/수치는 [제안]으로 표기함.</li></ul>
-<h2>2. 문제 정의</h2>
-<ul><li>[사실] <code>docs/next_improvement_instruction.md</code>, <code>docs/persona_playtest_feedback.md</code> 파일이 존재해 사용자 피드백 기반 개선 작업이 진행 중임을 시사.</li><li>[제안] 카드 뽑기와 방어 로직을 결합한 &#39;카드 디펜스&#39; 장르 특성상, 초심자가 포커 족보와 디펜스 타이밍 판단을 동시에 학습해야 하는 진입장벽이 문제로 추정됨.</li></ul>
-<h2>3. 한 줄 피치와 제품 포지셔닝</h2>
-<ul><li>[제안] &quot;포커 족보로 적을 막아내는 카드 디펜스&quot; — 포커 핸드 평가(HandEvaluator)와 전투(CombatManager) 모듈이 결합된 구조에서 유추.</li><li>포지셔닝: 캐주얼 카드 배틀 + 타워디펜스 하이브리드, PC(Electron) 단일 실행 파일 배포.</li></ul>
-<h2>4. 주 페르소나</h2>
-<ul><li>[제안] 이름: 김도현, 32세, 회사원(IT 업계 사무직), 퇴근 후 20~30분 짧은 세션으로 캐주얼 게임을 즐기는 라이트 게이머.</li><li>포커 룰은 어느 정도 알지만 복잡한 전략 게임에는 시간을 쓰기 부담스러워하며, 짧고 반복 가능한 판을 선호함(파일 목록상 근거 부족으로 페르소나 상세는 가설).</li></ul>
-<h2>5. 디자인 기둥과 핵심 재미</h2>
-<ul><li>[제안] 족보 조합의 손맛: 카드 조합을 완성했을 때의 타격감(콤보 피드백 관련 스펙 문서 <code>2026-06-26-combo-impact-feedback-design.md</code> 존재로 뒷받침).</li><li>[제안] 경제/성장 관리: <code>EconomyManager.test.js</code> 존재로 자원 관리 시스템이 핵심 루프의 일부임을 시사.</li></ul>
-<h2>6. 핵심 루프</h2>
-<p>유저가 선택을 하면 결과가 되고, 그 결과 때문에 다시 선택을 한다.</p>
-<p>카드를 뽑는다 → 포커 족보를 조합한다 → 조합된 핸드로 적을 공격/방어한다 → 자원을 획득해 덱/능력을 강화한다 → 다시 카드를 뽑는다.<br>- [사실] Deck, HandEvaluator, CombatManager, EconomyManager 각 모듈의 테스트 파일 존재가 이 순환 구조를 뒷받침함.</p>
-<h2>7. 최초 30초 플레이 흐름</h2>
-<ul><li>[제안] 실행 → 스플래시 화면(<code>docs/splash.png</code> 존재) → 메인 메뉴 → 첫 판 시작, 초기 카드 5장 배분 → 첫 족보 조합 시도.</li><li>세부 타이밍·튜토리얼 텍스트는 미확인이라 구체 수치 제시 불가.</li></ul>
-<h2>8. 게임 규칙과 승패 조건</h2>
-<ul><li>[제안] 포커 족보(원페어~로열스트레이트플러시 등급)를 조합해 적 유닛에 대응, HandEvaluator 모듈이 족보 판정 담당.</li><li>[제안] CombatManager가 전투 결과(승/패, 데미지) 처리, 자원이 고갈되거나 방어선이 뚫리면 패배로 추정됨(세부 승패 수치는 문서 미열람으로 확정 불가).</li></ul>
-<h2>9. 콘텐츠, 진행, 성장, 경제 구조</h2>
-<ul><li>[사실] EconomyManager 테스트 존재로 재화/자원 관리 시스템이 구현되어 있음.</li><li>[제안] 아트 리소스 목록(<code>PokerStrike_아트_리소스_목록.md</code>)과 UI 리소스 목록 문서가 존재해 카드/유닛 비주얼 콘텐츠가 체계적으로 관리되고 있으나, 진행 단계 수·성장 트리 구조는 본문 미열람으로 특정할 수 없음.</li></ul>
-<h2>10. MVP 가설과 검증 방법</h2>
-<ul><li>가설1: 포커 족보 조합 자체가 별도 학습 없이도 직관적으로 재미있을 것이다 → 플레이테스트 피드백 문서(<code>persona_playtest_feedback.md</code>)를 통한 정성 검증.</li><li>가설2: 경제(EconomyManager) 성장 루프가 반복 플레이 동기를 유지시킬 것이다 → 재플레이 의향 설문으로 검증 제안.</li><li>검증 방법은 기존 persona_playtest_feedback.md 문서 활용을 전제로 하되, 본문 미열람으로 실제 수행 여부는 확인하지 못함.</li></ul>
-<h2>11. 레퍼런스별 핵심 행동 단계 수와 적용 교훈</h2>
-<ul><li>[사실] <code>docs/PokerStrike_레퍼런스_플레이예시_구버전2.png</code>, <code>docs/assets/PokerStrike_레퍼런스_ui-kit-v1.png</code> 레퍼런스 이미지 파일 존재.</li><li>[제안] 레퍼런스 핵심 행동 단계(예: 카드 선택→조합 확인→공격 실행 3단계)는 이미지 내용 미열람으로 구체화 불가하며, UI 킷 레퍼런스는 카드 배치/HUD 레이아웃 참고용으로 추정됨.</li></ul>
-<p>[제안] 적용 교훈은 카드 선택 → 조합 확인 → 공격 실행의 3단계마다 현재 족보와 실행 후 기대 효과를 끊김 없이 갱신하는 것이다.</p>
-<h2>12. 수치 KPI와 측정 방법</h2>
-<ul><li>제안 KPI1: 첫 세션 완료율 70% 이상 — 측정: 첫 판 시작 후 종료(승/패)까지 도달한 세션 비율 로깅.</li><li>제안 KPI2: 재플레이율(D1) 30% 이상 — 측정: 실행 파일 재실행 또는 신규 게임 시작 이벤트 카운트.</li><li>실제 계측 로직 존재 여부는 이번 세션에서 코드 미열람으로 확인 불가하여 목표치는 검증 대상 가설로 표기함.</li></ul>
-<h2>13. UI, HUD, 컨트롤</h2>
-<p>1) 로딩/스플래시 상태 — <code>docs/splash.png</code> 참고.<br>2) 메인 메뉴 상태.<br>3) 인게임 플레이 상태(카드 핸드, HUD 자원 표시).<br>4) 결과(승/패) 상태.<br>5) 설정/일시정지 상태.<br>- 구체 레이아웃은 <code>PokerStrike_UI_리소스_목록.md</code>에 정리되어 있으나 본문 미열람으로 세부 좌표·요소는 명시 불가.</p>
-<h2>14. 로딩·빈 상태·에러·100개 이상 데이터·3배 긴 텍스트 대응</h2>
-<ul><li>[제안] 덱에 카드가 100장 이상 누적되는 경우 UI 리소스 목록 문서 기준 스크롤/페이지네이션 대응이 필요할 것으로 추정되나, 실제 처리 로직은 코드 미열람으로 확인되지 않음.</li><li>긴 텍스트(카드 이름, 족보명) 다국어 대응 여부도 문서 미열람으로 확인 불가.</li></ul>
-<h2>15. 접근성</h2>
-<ul><li>[제안] 카드 게임 특성상 색맹 사용자를 위한 카드 무늬(스페이드/하트/다이아/클로버) 식별 보조가 필요할 것으로 추정되나, 현재 구현 여부는 코드 미열람으로 확인되지 않음.</li></ul>
-<h2>16. 시각·청각·햅틱 피드백</h2>
-<ul><li>[사실] <code>docs/sfx-vfx-candidates-20260808.md</code>, <code>2026-06-26-combo-impact-feedback-design.md</code>, <code>AudioCuePlayer.test.js</code>, <code>AudioIntegration.test.js</code> 파일 존재로 사운드/비주얼 콤보 피드백 시스템이 설계·구현되고 있음이 확인됨.</li><li>햅틱 피드백 관련 근거는 파일 목록에서 확인되지 않음.</li></ul>
-<h2>17. 구현 상태 매트릭스</h2>
-<ul><li>[사실] 구현 확인: Deck, HandEvaluator, CombatManager, EconomyManager, AssetKeys, AudioAssetKeys, AudioCuePlayer, AudioIntegration — 각 대응 테스트 파일 존재.</li><li>[미확인] 진행/성장 시스템, UI 화면 전체, 접근성 기능의 실제 구현 여부는 코드 본문 미열람으로 상태 판정 불가.</li></ul>
-<h2>18. 빌드·테스트 근거</h2>
-<ul><li>[사실] package.json에 <code>vitest run</code> 테스트 스크립트와 <code>electron-builder</code> 기반 portable exe 빌드 설정 존재, 루트에 <code>PokerStrike_v0.4.0_portable.exe</code> 산출물 파일 존재.</li><li>[사실] tests 폴더 내 8개 이상 테스트 파일(cards/audio/combat/economy/assets 영역) 존재 확인. 단, 이번 세션에서 테스트 실행 결과(통과/실패)는 관측하지 못함.</li></ul>
-<h2>19. 알려진 리스크와 실패 시나리오</h2>
-<ul><li>[제안] 포커 족보 학습 곡선으로 인한 초반 이탈 리스크.</li><li>[제안] Electron 단일 exe 배포 특성상 자동 업데이트 부재 시 구버전 사용 지속 리스크(업데이트 내역서가 수동 문서화 형태로 존재하는 점에서 추정).</li></ul>
-<h2>20. 다음 우선순위</h2>
-<ul><li>[제안] persona_playtest_feedback.md 및 next_improvement_instruction.md 문서 내용을 반영한 후속 개선 작업 우선순위화가 다음 단계로 추정됨.</li><li>문서 본문 미열람으로 구체적 우선순위 항목은 특정하지 못하며, 다음 세션에서 파일 열람 권한 확보 후 재작성 필요.</li></ul>
+<main>
+<h1>PokerStrike 게임 디자인 문서 (GDD)</h1>
+<p><img src="./PokerStrike_gameplay_preview.png" alt="PokerStrike gameplay preview"></p>
+<p><strong>버전</strong>: v1.0.2 (문서 갱신일: 2026-09-11 KST)
+<strong>엔진/플랫폼</strong>: Phaser 3 + Electron (데스크톱)
+<strong>장르</strong>: 카드 핸드 기반 타워 디펜스</p>
+<h2>문제 정의</h2>
+<p>배치 후 관망이 길어지는 타워 디펜스에서, 매 웨이브마다 카드 조합 판단과 배치 결정을 요구해 의사결정 밀도를 유지한다.</p>
+<h2>주 페르소나</h2>
+<ul>
+<li><strong>민준, 31세, 사무직</strong>: 퇴근 뒤 20~30분 동안 짧지만 계산할 거리가 있는 디펜스 게임을 찾는다. 공개된 카드 2장을 보고 지금 조합을 확정할지 다음 웨이브를 버틸지 판단하는 순간에 가치를 느낀다.</li>
+</ul>
+<h2>핵심 루프</h2>
+<p>플레이어가 공유 카드와 손패로 포커 핸드를 만들면 등급 배율이 적용되고, 그 결과로 방어를 배치·강화한 뒤 웨이브 결과를 바탕으로 다시 다음 조합을 판단한다.</p>
+<h2>디자인 기둥</h2>
+<ol>
+<li><strong>판단의 밀도</strong>: 매 웨이브 카드 조합과 배치라는 개입 지점을 만든다.</li>
+<li><strong>투명한 확률</strong>: 핸드·등급·배율을 명확히 보여 블랙박스를 피한다.</li>
+<li><strong>패배도 정보</strong>: 낮은 핸드에서도 다음 배치와 자원 판단으로 회복할 여지를 둔다.</li>
+</ol>
+<h2>MVP 가설</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>가설</th>
+<th>검증 방법</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>공유 카드 2장과 등급 배율만으로 재플레이 동기가 생긴다</td>
+<td>초반 스테이지 완료율·재시작률 측정</td>
+</tr>
+<tr>
+<td>9종 핸드는 첫 3스테이지 안에 학습된다</td>
+<td>핸드 도움말 노출과 이탈 웨이브 기록</td>
+</tr>
+<tr>
+<td>1/1.8/3.2 배율이 희귀 조합의 기대감을 만든다</td>
+<td>핸드 분포와 세션 길이 비교</td>
+</tr>
+</tbody></table></div>
+<h2>레퍼런스 분석</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>레퍼런스</th>
+<th align="right">핵심 행동까지 단계</th>
+<th>적용 교훈</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>포커의 공유 카드</td>
+<td align="right">공개 → 조합 → 판정 (3단계)</td>
+<td>제한된 공용 정보가 짧은 계산을 만든다.</td>
+</tr>
+<tr>
+<td>타워 디펜스</td>
+<td align="right">배치 → 전투 → 보상 (3단계)</td>
+<td>전투 전 판단과 전투 후 결과를 분명히 분리한다.</td>
+</tr>
+</tbody></table></div>
+<h2>구성요소</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>구성요소</th>
+<th>역할</th>
+<th>플레이어 선택</th>
+<th>입력 → 판정 → 피드백</th>
+<th>구현 상태</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>공유 카드</td>
+<td>웨이브 공통 정보</td>
+<td>없음</td>
+<td>2장 공개 → 조합 재료 제공 → 카드 UI</td>
+<td>구현됨</td>
+</tr>
+<tr>
+<td>손패·핸드 판정</td>
+<td>조합 가치 산출</td>
+<td>사용할 카드 선택</td>
+<td>카드 선택 → 9종 랭크 판정 → 랭크·등급 표시</td>
+<td>구현됨</td>
+</tr>
+<tr>
+<td>등급 배율</td>
+<td>보상/전투 수치 증폭</td>
+<td>확정 타이밍</td>
+<td>등급 1~3 → 1/1.8/3.2배 → 수치 변화</td>
+<td>구현됨</td>
+</tr>
+<tr>
+<td>방어 유닛·그리드</td>
+<td>방어선 구성</td>
+<td>위치·유닛 선택</td>
+<td>배치 입력 → 자원·위치 검증 → 가능/불가와 전투 피드백</td>
+<td>구현됨</td>
+</tr>
+<tr>
+<td>웨이브</td>
+<td>위협·결과 생성</td>
+<td>방어 준비</td>
+<td>적 출현 → 전투 판정 → HP·처치·승패</td>
+<td>구현됨</td>
+</tr>
+</tbody></table></div>
+<h2>실제 콘텐츠와 공급 순서</h2>
+<ul>
+<li>공유 카드: 웨이브당 <strong>2장</strong>.</li>
+<li>핸드: 하이카드부터 스트레이트 플러시까지 <strong>9종</strong>.</li>
+<li>수트: <strong>4종</strong>, 등급: <strong>1~3</strong>, 배율: <strong>1 / 1.8 / 3.2</strong>.</li>
+<li>스테이지: 장애물 배치가 다른 <strong>10개</strong>. 스테이지당 <strong>3~6웨이브</strong>.</li>
+<li>적: basic, swarm, runner, boss, armored, berserker, shielded, aerial, magic_immune, splitter, regen의 <strong>11종</strong>.</li>
+<li>공급 순서: 카드 공개 → 핸드/등급 판정 → 배치·강화 → 웨이브 전투 → 결과와 다음 웨이브. 정확한 자원 획득량·해금 조건은 <strong>확인 필요</strong>다.</li>
+</ul>
+<h2>세션 페이싱과 재미 체인</h2>
+<ul>
+<li><strong>30초</strong>: 공개 카드 확인, 조합 판단, 등급·배율 확인.</li>
+<li><strong>5분</strong>: 하나 이상의 웨이브에서 배치와 결과를 반복.</li>
+<li><strong>30분</strong>: 3~6웨이브 스테이지를 마치고 다음 장애물 패턴에 대응.</li>
+<li><strong>장기</strong>: 10개 스테이지와 핸드·적 조합의 숙련을 축적.</li>
+</ul>
+<p><strong>재미 원천 → 발생 조건 → 판단/행동 → 즉시 피드백 → 반복 동기</strong>: 불확실한 카드 조합 → 공유 카드 2장 공개 → 핸드를 골라 방어선에 투자 → 랭크·배율·전투 결과가 즉시 표시 → 다음 웨이브에서 더 좋은 전환과 회복을 시도한다.</p>
+<h2>플레이 사례</h2>
+<ol>
+<li>플러시가 가능한 공유 카드를 보고 손패를 확정해 1.8배 결과를 얻고, 다음 swarm 웨이브 전 광역 대응 유닛을 배치한다.</li>
+<li>하이카드만 나온 상황에서는 과투자를 피하고 기본 방어를 유지한다. 일부 피해 뒤 다음 공개 카드로 원페어 이상을 만들어 부족분을 보완한다.</li>
+</ol>
+<h2>실패·피로와 완화</h2>
+<ul>
+<li>같은 판정 화면 반복은 피로를 만든다. 11종 적의 대응 차이와 10개 장애물 패턴으로 판단 대상을 바꾼다.</li>
+<li>낮은 핸드가 연속되면 무력감을 줄 수 있다. 기본 수급만으로도 진행 가능한지 검증하고, 고등급은 가속 보상으로 설계해야 한다(수치 <strong>확인 필요</strong>).</li>
+</ul>
+<h2>경제·성장·밸런스 레버</h2>
+<p>배율 1/1.8/3.2, 핸드 발생 분포, 적 조합·웨이브 수, 장애물 배치가 핵심 레버다. 유닛·자원 비용과 실제 배율 적용 대상은 <strong>확인 필요</strong>이며, 후반을 고배율 의존으로 만들지 않는 검증이 필요하다.</p>
+<h2>온보딩·UI/HUD·접근성</h2>
+<ul>
+<li>온보딩: 첫 스테이지에서 공유 카드 → 핸드 판정 → 배치 순서로 한 단계씩 보여 준다(제안).</li>
+<li>HUD 5상태: 카드 공개 전, 조합 선택, 판정 결과, 전투 진행, 승패 결과.</li>
+<li>로딩은 스켈레톤, 빈 상태는 안내+CTA, 오류는 원인·재시도, 많은 데이터는 스크롤/요약, 긴 텍스트는 줄바꿈을 제공해야 한다(제안·구현 확인 필요).</li>
+<li>수트 색상만으로 구분하지 않고 아이콘·패턴·텍스트를 병기한다. 고등급에는 더 분명한 음향·시각 큐를 둔다.</li>
+</ul>
+<h2>구현 / 기획 / 제안</h2>
+<ul>
+<li><strong>구현됨</strong>: 공유 카드 2장, 9종 핸드, 4수트, 3등급 배율, 10스테이지·3~6웨이브, 11종 적, game/UI/audio/combat/economy 테스트.</li>
+<li><strong>기획 확인 필요</strong>: 자원 공식, 유닛 해금·비용, 난이도 증가율, 실제 계측.</li>
+<li><strong>제안</strong>: 초반 핸드 튜토리얼, 색각 보조, 고등급 피드백 강화.</li>
+</ul>
+<h2>콘텐츠 제공 방식</h2>
+<ul>
+<li>공유 카드 2장 + 개인 카드로 9종 핸드 조합, 4수트 체계</li>
+<li>등급별 배율(1 / 1.8 / 3.2) 적용한 점수 산출 방식</li>
+</ul>
+<h2>세션 구조</h2>
+<h3>30초</h3>
+<ul>
+<li>즉시 핸드 확인 및 승부 판정 가능한 라운드 단위 제공</li>
+</ul>
+<h3>5분</h3>
+<ul>
+<li>1개 스테이지 내 3~6웨이브 진행, 적 유형 조합 체감</li>
+</ul>
+<h3>30분</h3>
+<ul>
+<li>10개 스테이지 전반 순환, 난이도 곡선 및 등급 배율 체감</li>
+</ul>
+<h3>장기</h3>
+<ul>
+<li>11종 적 유형 조합에 따른 전략 다양화, 반복 플레이 유도</li>
+</ul>
+<h2>구현됨 / 계획됨 / 제안</h2>
+<p><strong>구현됨</strong></p>
+<ul>
+<li>공유 카드 2장 시스템</li>
+<li>9종 핸드 판정</li>
+<li>4수트 체계</li>
+<li>등급 배율(1 / 1.8 / 3.2)</li>
+<li>10개 스테이지, 3~6웨이브 구조</li>
+<li>11종 적 유형</li>
+</ul>
+<p><strong>계획됨</strong></p>
+<ul>
+<li>(기존 자료 기준 명시된 계획 항목 없음)</li>
+</ul>
+<p><strong>제안</strong></p>
+<ul>
+<li>(기존 자료 기준 명시된 제안 항목 없음)</li>
+</ul>
+<h2>성공 KPI</h2>
+<p><strong>제안(현재 실측 데이터 없음, 검증 필요):</strong></p>
+<ul>
+<li><strong>포뮬러 명확성</strong>: 9종 포커 핸드 × 등급 배율(1 / 1.8 / 3.2) 조합에 대한 플레이어 이해도 — 튜토리얼 완료 후 정답률 또는 핸드-배율 매칭 퀴즈 정답률(제안 목표 ≥80%)</li>
+<li><strong>분석(Analytics) 적재율</strong>: 10개 스테이지 × 웨이브(3~6) 단위 진행 이벤트, 공유 카드(cards2) 사용 로그, 적 타입(11종) 조우 이벤트의 수집 성공률(제안 목표 ≥99%)</li>
+<li><strong>온보딩 완주율</strong>: 신규 유저의 스테이지 1 완료율 및 첫 세션 내 핵심 룰(공유 카드, 배율 시스템) 노출 도달률</li>
+<li><strong>접근성 준수율</strong>: 색맹 모드/텍스트 대체 등 접근성 옵션 적용 후 UI 요소 인지 테스트 통과율</li>
+</ul>
+<h2>다음 우선순위</h2>
+<ol>
+<li><strong>포뮬러 명확성 강화</strong>: 배율(1/1.8/3.2) 및 9종 핸드 판정 로직을 툴팁/결과 화면에 명시적으로 노출</li>
+<li><strong>분석 이벤트 스키마 정비</strong>: 스테이지·웨이브·공유 카드·적 타입(11종)을 키로 하는 이벤트 로깅 표준화 (실측 KPI 산출 기반 마련)</li>
+<li><strong>온보딩 플로우 개선</strong>: 3~6웨이브 구조와 공유 카드 개념을 초반 스테이지에서 단계적으로 학습시키는 튜토리얼 설계</li>
+<li><strong>접근성 점검</strong>: 카드/등급 배율 표시에 대한 색상 대비 및 텍스트 라벨 병행 적용</li>
+</ol>
+
+</main>
 </body>
 </html>
