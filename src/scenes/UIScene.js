@@ -41,31 +41,6 @@ const SUMMON_ROLE_LABELS = Object.freeze({
   [HAND_RANK.STRAIGHT_FLUSH]: '오라 지휘관',
 });
 
-const SUIT_EFFECT_LABELS = Object.freeze({
-  H: '불 광역',
-  D: '물 감속',
-  C: '땅 파쇄',
-  S: '바람 저격',
-});
-
-const SUMMON_RANK_IMPACT_LABELS = Object.freeze({
-  [HAND_RANK.HIGH_CARD]: '기본 단일 타격',
-  [HAND_RANK.ONE_PAIR]: '긴 사거리 포탑',
-  [HAND_RANK.TWO_PAIR]: '전방 방어 강화',
-  [HAND_RANK.THREE_OF_A_KIND]: '마법 화력 집중',
-  [HAND_RANK.STRAIGHT]: '전방 라인 유지',
-  [HAND_RANK.FLUSH]: '최대 3명 동시 타격',
-  [HAND_RANK.FULL_HOUSE]: '근접 초고화력',
-  [HAND_RANK.FOUR_OF_A_KIND]: '직선 관통 활성',
-  [HAND_RANK.STRAIGHT_FLUSH]: '동일 문양 오라 강화',
-});
-
-const SUIT_COMBAT_IMPACT_LABELS = Object.freeze({
-  H: '스플래시 확률 증가',
-  D: '감속으로 진입 지연',
-  C: '방어 파쇄 후 피해',
-  S: '후열 우선 저격',
-});
 export default class UIScene extends Phaser.Scene {
   constructor() { super('UIScene'); }
 
@@ -98,13 +73,15 @@ export default class UIScene extends Phaser.Scene {
 
     this._onBattleFeedback = payload => this._showBattleFeedback(payload);
     this._onAttackFeedback = payload => this._showAttackFeedback(payload);
-    gameScene.events.on('refreshSharedCards', () => {
+    this._onRefreshSharedCards = () => {
       this.sharedCards.consume(this.deck);
       this._refreshUI();
-    });
+    };
+    gameScene.events.on('refreshSharedCards', this._onRefreshSharedCards);
     gameScene.events.on('battle-feedback', this._onBattleFeedback);
     gameScene.events.on('attack-feedback', this._onAttackFeedback);
     this.events.once('shutdown', () => {
+      gameScene.events.off('refreshSharedCards', this._onRefreshSharedCards);
       gameScene.events.off('battle-feedback', this._onBattleFeedback);
       gameScene.events.off('attack-feedback', this._onAttackFeedback);
       this._clearBattleFeedback();
@@ -194,7 +171,14 @@ export default class UIScene extends Phaser.Scene {
       if (card) this.hand.addCard(card);
     }
 
-    gameScene.unitManager.placeUnitRandom(rank, dominantSuit, 1);
+    const placedUnit = gameScene.unitManager.placeUnitRandom(rank, dominantSuit, 1);
+    if (placedUnit) {
+      gameScene.recordWaveHandPlay?.({
+        rankName,
+        suitLabel,
+        swing: placedUnit.stats.atk,
+      });
+    }
     const bonusGold = gameScene.rogueliteManager?.getGoldOnSummon(rank) ?? 0;
     if (bonusGold > 0) eco.addGold(bonusGold);
     gameScene.events.emit('battle-feedback', {
@@ -202,15 +186,10 @@ export default class UIScene extends Phaser.Scene {
       rankName,
       suitLabel,
       roleLabel: SUMMON_ROLE_LABELS[rank],
-      suitEffect: SUIT_EFFECT_LABELS[dominantSuit],
       payoffCue: getSummonPayoffCue({
         rankName,
-        rankImpact: SUMMON_RANK_IMPACT_LABELS[rank],
-        suitEffect: SUIT_EFFECT_LABELS[dominantSuit],
         bonusGold,
       }),
-      rankImpact: SUMMON_RANK_IMPACT_LABELS[rank],
-      suitImpact: SUIT_COMBAT_IMPACT_LABELS[dominantSuit],
       cost,
       bonusGold,
     });
@@ -302,10 +281,10 @@ export default class UIScene extends Phaser.Scene {
       ? evaluateHand(this.hand.cards)
       : null;
     const summonPreview = summonEvaluation
-      ? HAND_NAMES[summonEvaluation.rank]
-      : null;
-    const summonImpact = summonEvaluation
-      ? `ATTACK ${summonEvaluation.dominantSuit} -> ${SUIT_EFFECT_LABELS[summonEvaluation.dominantSuit]}`
+      ? {
+        hand: HAND_NAMES[summonEvaluation.rank],
+        suit: summonEvaluation.dominantSuit,
+      }
       : null;
 
     let magicPreview = null;
@@ -329,7 +308,7 @@ export default class UIScene extends Phaser.Scene {
     this.cardUI.render(this.hand, this.sharedCards, this.deck.burnCount);
     const buttons = this.cardUI.renderButtons(
       eco.getDrawCost(), eco.getReplaceCost(),
-      summonPreview, magicPreview, summonImpact,
+      summonPreview, magicPreview,
     );
 
     buttons.summonBtn.on('pointerdown', () => this._summon());
@@ -703,9 +682,3 @@ export default class UIScene extends Phaser.Scene {
     show();
   }
 }
-
-
-
-
-
-

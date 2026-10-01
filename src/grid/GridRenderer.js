@@ -4,6 +4,8 @@ import { ENV_TEXTURES } from '../assets/art/AssetKeys.js';
 export const GRID_RENDERER_STYLE = {
   WALKABLE_TILE_ALPHA: 0.98,
   WALKABLE_TILE_TEXTURES: [ENV_TEXTURES.BOARD_TILE_MOVE, ENV_TEXTURES.BOARD_TILE_ALT_MOVE],
+  NATURAL_BOARD_BACKGROUND_ENABLED: true,
+  NATURAL_BOARD_BACKGROUND_ALPHA: 0.98,
   WALKABLE_OVERLAY_COLOR: 0x020610,
   WALKABLE_OVERLAY_ALPHA: 0,
   GRID_LINE_ALPHA_WITH_TILE: 0.22,
@@ -44,6 +46,20 @@ export default class GridRenderer {
     this.tileImages.forEach(img => { if (img?.active) img.destroy(); });
     this.tileImages = [];
 
+    const boardTexture = ENV_TEXTURES.BOARD_TILE;
+    const hasNaturalBoard = GRID_RENDERER_STYLE.NATURAL_BOARD_BACKGROUND_ENABLED
+      && this.scene.textures?.exists?.(boardTexture)
+      && this.scene.add.image;
+    if (hasNaturalBoard) {
+      const boardWidth = GRID_COLS * CELL_SIZE;
+      const boardHeight = GRID_ROWS * CELL_SIZE;
+      this.tileImages.push(this.scene.add.image(
+        GRID_OFFSET_X + boardWidth / 2,
+        GRID_OFFSET_Y + boardHeight / 2,
+        boardTexture,
+      ).setDepth(-1).setDisplaySize(boardWidth, boardHeight).setAlpha(GRID_RENDERER_STYLE.NATURAL_BOARD_BACKGROUND_ALPHA));
+    }
+
     for (let row = 0; row < GRID_ROWS; row++) {
       for (let col = 0; col < GRID_COLS; col++) {
         const x = GRID_OFFSET_X + col * CELL_SIZE;
@@ -66,7 +82,7 @@ export default class GridRenderer {
           const moveKey = (col + row) % 2 === 0 ? GRID_RENDERER_STYLE.WALKABLE_TILE_TEXTURES[0] : GRID_RENDERER_STYLE.WALKABLE_TILE_TEXTURES[1];
           const fallbackKey = (col + row) % 2 === 0 ? ENV_TEXTURES.BOARD_TILE : ENV_TEXTURES.BOARD_TILE_ALT;
           const key = this.scene.textures?.exists?.(moveKey) ? moveKey : fallbackKey;
-          const hasTileTexture = this.scene.textures?.exists?.(key) && this.scene.add.image;
+          const hasTileTexture = !hasNaturalBoard && this.scene.textures?.exists?.(key) && this.scene.add.image;
           if (hasTileTexture) {
             this.tileImages.push(this.scene.add.image(cx, cy, key)
               .setDepth(-1)

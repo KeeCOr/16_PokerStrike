@@ -2,7 +2,7 @@
 
 ## 빌드 및 실행파일 배치
 
-지시사항 수행 완료 후 반드시 아래 순서로 실행한다.
+실행파일 생성은 사용자가 명시적으로 요청한 릴리스·배포 작업에서만 수행한다. 일반 기능·UI 수정에서는 `npm run dist`, `electron-builder`, 포터블 EXE 생성을 실행하지 않는다.
 
 ### 빌드 명령어
 
@@ -12,13 +12,15 @@ cd C:/Development/16_PS && npm run dist
 
 `npm run dist` = `vite build && electron-builder` (한 번에 처리)
 
+일반 검증은 가능한 범위에서 `npm test`, `npm run build`, 문법 검사로 끝낸다. 기존 EXE를 복사·덮어쓰기·삭제하지 않는다.
+
 ### 실행파일 배치
 - 빌드 출력: `C:/Development/16_PS/release/PokerStrike_v{버전}_portable.exe`
 - 루트에도 동일하게 배치: `C:/Development/16_PS/PokerStrike_v{버전}_portable.exe`
 - 이전 버전 루트 파일은 삭제
 
 ### 버전 관리
-- `C:/Development/16_PS/package.json`의 `version` 패치 버전 증가 후 빌드
+- 사용자가 릴리스를 요청했을 때만 `C:/Development/16_PS/package.json`의 `version` 패치 버전을 증가한 뒤 빌드한다.
 
 ## 기획서 최신화
 

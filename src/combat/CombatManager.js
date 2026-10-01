@@ -21,6 +21,7 @@ function getProjectileRotation(from, to, vfx) {
 export const COMBAT_VFX_STYLE = {
   MAX_IMPACT_SIZE: 38,
   IMPACT_EXPAND_SCALE: 1.14,
+  MAX_ACTIVE_PROJECTILES: 96,
 };
 
 export const ROLE_VFX = {
@@ -307,6 +308,10 @@ export default class CombatManager {
     });
   }
   _spawnProjectile(from, to, role) {
+    while (this.projectiles.length >= COMBAT_VFX_STYLE.MAX_ACTIVE_PROJECTILES) {
+      const oldest = this.projectiles.shift();
+      oldest?.sprite?.destroy?.();
+    }
     const color = PROJ_COLOR[role] ?? 0xffffff;
     const size  = role === ROLE.SNIPER ? 5 : role === ROLE.AREA ? 6 : 4;
     const vfx = ROLE_VFX[role];

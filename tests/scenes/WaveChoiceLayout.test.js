@@ -15,6 +15,15 @@ describe('Wave choice layout', () => {
     expect(WAVE_CHOICE_LAYOUT.TYPE_FONT).toBeGreaterThanOrEqual(14);
   });
 
+  it('reserves a readable recap band between the heading and reward cards', () => {
+    const titleBottom = WAVE_CHOICE_LAYOUT.TITLE_Y + WAVE_CHOICE_LAYOUT.TITLE_FRAME.h / 2;
+    const firstCardTop = WAVE_CHOICE_LAYOUT.START_Y - WAVE_CHOICE_LAYOUT.CARD_H / 2;
+    expect(WAVE_CHOICE_LAYOUT.RECAP_Y).toBeGreaterThan(titleBottom);
+    expect(WAVE_CHOICE_LAYOUT.RECAP_DETAIL_Y).toBeGreaterThan(WAVE_CHOICE_LAYOUT.RECAP_Y);
+    expect(firstCardTop).toBeGreaterThan(WAVE_CHOICE_LAYOUT.RECAP_DETAIL_Y);
+    expect(WAVE_CHOICE_LAYOUT.RECAP_WRAP_WIDTH).toBeLessThanOrEqual(WAVE_CHOICE_LAYOUT.CARD_W);
+  });
+
   it('uses image-backed cards that match the rest of the UI kit', () => {
     expect(WAVE_CHOICE_LAYOUT.CARD_W).toBeGreaterThanOrEqual(500);
     expect(WAVE_CHOICE_LAYOUT.CARD_H).toBeGreaterThanOrEqual(148);

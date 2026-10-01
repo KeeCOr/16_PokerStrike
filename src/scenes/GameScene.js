@@ -18,6 +18,7 @@ import { STAGE_INTRO_LAYOUT } from './StageIntroLayout.js';
 import { ENV_TEXTURES, UI_TEXTURES, preloadArtAssets } from '../assets/art/AssetKeys.js';
 import { preloadAudioAssets } from '../assets/audio/AudioAssetKeys.js';
 import { AUDIO_CUES, playAudioCue } from '../audio/AudioCuePlayer.js';
+import { buildWaveDecisionRecap } from '../combat/HandOutcomePreview.js';
 
 const BASE_HP = 100;
 
@@ -77,6 +78,7 @@ export default class GameScene extends Phaser.Scene {
     this._baseHpBar = null;
     this.selectedEnemy = null;
     this._enemyInfoObjs = [];
+    this.waveHandPlays = [];
 
     this.enemyManager.onEnemyReachBase = (dmg) => {
       this.baseHp = Math.max(0, this.baseHp - dmg);
@@ -341,6 +343,8 @@ export default class GameScene extends Phaser.Scene {
 
   _showWaveChoices(resumeFn) {
     const pool = pickWaveUpgrades(UPGRADE_POOL, this.unitManager.units, this.rogueliteManager, 3);
+    const waveRecap = buildWaveDecisionRecap({ plays: this.waveHandPlays, baseHp: this.baseHp });
+    this.waveHandPlays = [];
     this.economyManager.paused = true;
 
     // 전체 화면 가림 + UIScene 입력 차단
@@ -373,7 +377,18 @@ export default class GameScene extends Phaser.Scene {
       stroke: '#06111c', strokeThickness: 3,
     }).setOrigin(0.5).setDepth(22);
 
-    const objs = [overlay, titleFrame, titleEyebrow, titleText, titleSubtitle];
+    const recapTitle = this.add.text(320, WAVE_CHOICE_LAYOUT.RECAP_Y, waveRecap.decisivePlay, {
+      fontSize: `${WAVE_CHOICE_LAYOUT.RECAP_FONT}px`, color: '#ffe08a', fontStyle: 'bold',
+      stroke: '#06111c', strokeThickness: 3,
+      wordWrap: { width: WAVE_CHOICE_LAYOUT.RECAP_WRAP_WIDTH }, align: 'center',
+    }).setOrigin(0.5).setDepth(22);
+    const recapDetail = this.add.text(320, WAVE_CHOICE_LAYOUT.RECAP_DETAIL_Y, waveRecap.nextFocus, {
+      fontSize: `${WAVE_CHOICE_LAYOUT.RECAP_DETAIL_FONT}px`, color: '#bceeff',
+      stroke: '#06111c', strokeThickness: 3,
+      wordWrap: { width: WAVE_CHOICE_LAYOUT.RECAP_WRAP_WIDTH }, align: 'center',
+    }).setOrigin(0.5).setDepth(22);
+
+    const objs = [overlay, titleFrame, titleEyebrow, titleText, titleSubtitle, recapTitle, recapDetail];
     pool.forEach((upgrade, i) => {
       const y = WAVE_CHOICE_LAYOUT.START_Y + i * WAVE_CHOICE_LAYOUT.ROW_GAP;
       const textureKey = getWaveChoiceTextureKey(upgrade);
@@ -582,6 +597,15 @@ export default class GameScene extends Phaser.Scene {
     this._drawGameOverButton(320, layout.primaryY, '다시 시작', UI_TEXTURES.BUTTON_ACTION_GOLD, () => {
       this.scene.stop('UIScene');
       this.scene.restart();
+    });
+  }
+
+  recordWaveHandPlay(play) {
+    if (!play?.rankName) return;
+    this.waveHandPlays.push({
+      rankName: play.rankName,
+      suitLabel: play.suitLabel ?? '',
+      swing: Math.max(0, Math.round(play.swing ?? 0)),
     });
   }
 

@@ -48,6 +48,9 @@ describe('CardUI layout', () => {
     expect(ACTION_BUTTON_SPECS.summon.intent).toBe('primary');
     expect(ACTION_BUTTON_SPECS.magic.intent).toBe('utility');
     expect(ACTION_BUTTON_SPECS.replace.intent).toBe('utility');
+    expect(ACTION_BUTTON_SPECS.replace.icon).toBe('replace');
+    expect(ACTION_BUTTON_SPECS.summon.costIcon).toBe('gold');
+    expect(ACTION_BUTTON_SPECS.replace.costIcon).toBe('gold');
     expect(ACTION_BUTTON_SPECS.summon.w).toBeGreaterThan(ACTION_BUTTON_SPECS.magic.w);
     expect(ACTION_BUTTON_SPECS.summon.w).toBeGreaterThan(ACTION_BUTTON_SPECS.replace.w);
   });
@@ -66,5 +69,10 @@ describe('CardUI layout', () => {
   it('uses fixed preview text padding so long poker labels wrap inside strips', () => {
     expect(CARD_LAYOUT.PREVIEW_TEXT_PAD).toBeGreaterThanOrEqual(14);
     expect(CARD_LAYOUT.PREVIEW_TEXT_PAD).toBeLessThanOrEqual(24);
+  });
+
+  it('reserves the full hand-action width for three pre-commit decision zones', () => {
+    expect(ACTION_GROUP_SPECS.hand.w).toBeGreaterThanOrEqual(420);
+    expect(CARD_LAYOUT.PREVIEW_H).toBeGreaterThanOrEqual(22);
   });
 });

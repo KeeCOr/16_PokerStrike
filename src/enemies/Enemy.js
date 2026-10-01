@@ -60,10 +60,26 @@ export default class Enemy {
       .setInteractive({ useHandCursor: true });
 
     const textureKey = getEnemyTextureKey(this.type);
+    const animationKey = this.type === ENEMY_TYPE.BASIC ? 'enemy-basic-walk' : null;
     if (this.scene.textures?.exists?.(textureKey) && this.scene.add.image) {
       const size = this.type === ENEMY_TYPE.BOSS ? 56 : 44;
-      const image = this.scene.add.image(0, 0, textureKey)
-        .setDisplaySize(size, size);
+      const canAnimate = animationKey
+        && this.scene.add.sprite
+        && this.scene.anims?.create
+        && this.scene.anims?.generateFrameNumbers;
+      if (canAnimate && !this.scene.anims.exists?.(animationKey)) {
+        this.scene.anims.create({
+          key: animationKey,
+          frames: this.scene.anims.generateFrameNumbers(textureKey, { start: 0, end: 3 }),
+          frameRate: 7,
+          repeat: -1,
+        });
+      }
+      const image = canAnimate
+        ? this.scene.add.sprite(0, 0, textureKey)
+        : this.scene.add.image(0, 0, textureKey);
+      image.setDisplaySize(size, size);
+      if (canAnimate) image.play(animationKey);
       sprite.add(image);
 
       if (this.isAerial) {
