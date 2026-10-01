@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PokerStrike 기획서</title>
+  <style>
+    :root { --ink:#172033; --muted:#5c667a; --line:#d9dfeb; --panel:#f7f9fc; --accent:#b22735; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif; color:var(--ink); background:#fff; line-height:1.68; }
+    main { max-width:1080px; margin:0 auto; padding:42px 28px 72px; }
+    h1 { font-size:38px; margin:0 0 18px; line-height:1.18; }
+    h2 { margin:46px 0 14px; padding-top:8px; border-top:2px solid var(--ink); font-size:25px; }
+    h3 { margin:30px 0 10px; font-size:19px; color:#26324a; }
+    p { margin:10px 0 14px; }
+    main > p:first-of-type { font-size:18px; padding:16px 18px; background:var(--panel); border-left:5px solid var(--accent); }
+    table { width:100%; border-collapse:collapse; margin:14px 0 24px; table-layout:fixed; font-size:14px; }
+    th, td { border:1px solid var(--line); padding:10px 12px; vertical-align:top; word-break:keep-all; overflow-wrap:anywhere; }
+    th { background:#eef2f7; text-align:left; color:#222b3e; }
+    tr:nth-child(even) td { background:#fbfcfe; }
+    ul, ol { padding-left:24px; margin:8px 0 18px; }
+    li { margin:4px 0; }
+    code { background:#eef2f7; padding:2px 5px; border-radius:4px; font-family:Consolas,"SFMono-Regular",monospace; font-size:.92em; }
+    .check { font-family:Consolas,monospace; color:#465268; }
+    figure { margin:22px 0 30px; border:1px solid var(--line); background:#f9fbfe; padding:12px; }
+    figure img { display:block; max-width:100%; height:auto; margin:0 auto; border:1px solid #c9d2e1; }
+    figcaption { margin-top:8px; color:var(--muted); font-size:13px; text-align:center; }
+    @media (max-width:720px){ main{padding:28px 16px 56px;} h1{font-size:30px;} table{display:block; overflow-x:auto; table-layout:auto;} th,td{min-width:160px;} }
+  </style>
+</head>
+<body>
+<main>
+<h1>PokerStrike 기획서</h1>
+<p>문제 정의: 카드 게임을 좋아하는 플레이어가 포커 족보를 계산하는 데서 멈추지 않고, 좋은 패가 곧바로 전장의 유닛, 마법, 생존 결과로 바뀌는 손맛을 원한다.</p>
+<h2>한눈에 보는 게임</h2>
+<table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+<tr><td>한 줄 소개</td><td>포커 패를 유닛과 마법으로 바꾸는 세로형 카드 디펜스 게임</td></tr>
+<tr><td>핵심 재미</td><td>좋은 족보를 만들수록 전장이 즉시 강해지고, 약한 패도 교체/마법/배치 판단으로 살릴 수 있다</td></tr>
+<tr><td>30초 목표</td><td>핸드 5장과 공용 카드 2장을 읽고, 소환 또는 마법으로 적 웨이브를 막는다</td></tr>
+<tr><td>플레이 감각</td><td>짧은 판단, 즉각적인 피드백, 다음 웨이브 대비가 끊기지 않는 압축된 전략 플레이</td></tr>
+<tr><td>현재 개발 상태</td><td>핵심 전투 루프와 화면 구조는 잡혔고, 반복 성장/보상/밸런스는 다음 PR에서 집중 점검해야 한다</td></tr>
+<tr><td>기준 GDD</td><td><code>16_PokerStrike_GDD.html</code>, <code>card-defense-gdd.html</code>, <code>superpowers/specs/2026-05-07-card-defense-game-design.md</code></td></tr>
+</tbody></table>
+<h2>소개용 핵심 메시지</h2>
+<p>PokerStrike는 “포커를 잘 치는 게임”이라기보다 “포커 패를 전투 자원으로 해석하는 게임”이다. 플레이어는 매 웨이브마다 핸드와 공용 카드를 보고 지금 강한 유닛을 뽑을지, 마법으로 위기를 넘길지, 골드를 써서 패를 바꿀지 결정한다.</p>
+<p>소개할 때는 아래 세 문장만 잡히면 된다.</p>
+<ul>
+<li>좋은 패는 강한 유닛이나 마법으로 바로 바뀐다.</li>
+<li>약한 패도 교체 비용, 배치 위치, 웨이브 타이밍으로 만회할 수 있다.</li>
+<li>한 판의 재미는 “이번 패로 어디까지 버틸 수 있나”를 빠르게 판단하는 데 있다.</li>
+</ul>
+<h2>30초 플레이 흐름</h2>
+<table><thead><tr><th>순서</th><th>플레이어 행동</th><th>화면에서 보여야 하는 것</th><th>재미 포인트</th></tr></thead><tbody>
+<tr><td>1</td><td>웨이브와 본진 HP를 확인한다</td><td>상단 HUD, 적 진행 방향, 위험 알림</td><td>지금 막아야 할 압박이 즉시 보인다</td></tr>
+<tr><td>2</td><td>핸드 5장과 공용 카드 2장을 읽는다</td><td>카드, 족보 후보, 소환/마법 예측</td><td>포커 판단이 전투 선택으로 연결된다</td></tr>
+<tr><td>3</td><td>소환, 마법, 교체 중 하나를 고른다</td><td>선택 가능한 버튼과 비용</td><td>좋은 패를 쓸지 더 좋은 패를 노릴지 고민한다</td></tr>
+<tr><td>4</td><td>전장이 즉시 반응한다</td><td>유닛 배치, 공격, 피격, 마법 효과</td><td>선택 결과가 바로 보상 또는 위기로 돌아온다</td></tr>
+<tr><td>5</td><td>웨이브 보상과 강화 방향을 고른다</td><td>보상 선택지, 다음 웨이브 예고</td><td>다음 판을 더 잘 풀기 위한 전략이 생긴다</td></tr>
+</tbody></table>
+<h2>공유용 이미지 미리보기</h2>
+<p>아래 이미지는 문서를 공유했을 때 바로 보이도록 본문에 직접 삽입한다. 첫 이미지는 현재 구현 화면, 두 번째는 소개용 플레이 예시, 세 번째는 초기 GDD 방향성 참고 이미지다.</p>
+<figure><img src="PokerStrike_플레이예시_현재구현.png" alt="PokerStrike 현재 구현 화면"><figcaption>PokerStrike 현재 구현 화면</figcaption></figure>
+<figure><img src="PokerStrike_01_플레이예시.png" alt="PokerStrike 소개용 플레이 예시"><figcaption>PokerStrike 소개용 플레이 예시</figcaption></figure>
+<figure><img src="archive/PokerStrike_gameplay_preview_v1.png" alt="PokerStrike GDD 방향성 참고"><figcaption>PokerStrike GDD 방향성 참고</figcaption></figure>
+<h2>개발 점검 요약</h2>
+<h3>구현 상태 매트릭스</h3>
+<table><thead><tr><th>영역</th><th>GDD 기준</th><th>현재 체감 상태</th><th>PR에서 먼저 볼 것</th></tr></thead><tbody>
+<tr><td>카드/덱</td><td>32장 덱, 핸드 5장, 공용 카드 2장</td><td>핵심 구조 구현됨</td><td>드로우, 버림, 덱 재순환, 교체 비용이 예외 상황에서도 안정적인지 확인</td></tr>
+<tr><td>족보 판정</td><td>포커 족보가 소환/마법 결과를 결정</td><td>핵심 판단 가능</td><td>같은 패가 소환과 마법에서 다르게 해석될 때 설명이 충분한지 확인</td></tr>
+<tr><td>소환</td><td>족보에 따라 유닛 역할과 능력 차등</td><td>전투 연결은 가능</td><td>유닛별 역할 차이가 시각/수치로 충분히 구분되는지 확인</td></tr>
+<tr><td>마법</td><td>공용 카드 포함 조합으로 즉시 효과 발동</td><td>기능 방향 있음</td><td>마법 사용 조건, 쿨다운 또는 비용이 악용되지 않는지 확인</td></tr>
+<tr><td>웨이브</td><td>적이 본진으로 이동하고 방어선 압박</td><td>기본 루프 있음</td><td>길막, 타겟팅, 본진 피해, 웨이브 종료 판정의 엣지 케이스 확인</td></tr>
+<tr><td>보상/성장</td><td>웨이브 후 강화 선택으로 다음 판단 변화</td><td>아직 소개력이 약함</td><td>보상이 다음 웨이브 선택을 실제로 바꾸는지 확인</td></tr>
+<tr><td>UI/피드백</td><td>선택 전 예측과 선택 후 결과를 즉시 전달</td><td>개선 필요</td><td>버튼, 카드, 족보, 피해, 보상이 한눈에 읽히는지 확인</td></tr>
+<tr><td>빌드/배포</td><td>Electron portable로 공유 가능</td><td>배포 경로 보유</td><td>문서/실행파일/버전 정보가 서로 어긋나지 않는지 확인</td></tr>
+</tbody></table>
+<h3>잘못 기획되었는지 보기 쉬운 지점</h3>
+<table><thead><tr><th>점검 항목</th><th>위험 신호</th><th>판단 기준</th><th>권장 조치</th></tr></thead><tbody>
+<tr><td>포커와 디펜스의 결합</td><td>플레이어가 족보를 만들었는데 전투 결과가 약하게 느껴짐</td><td>좋은 패일수록 화면 반응과 생존 기여가 명확해야 함</td><td>족보별 유닛/마법 효과를 더 과장하거나 보상 차이를 키운다</td></tr>
+<tr><td>교체 비용</td><td>항상 교체가 정답이거나, 반대로 절대 누르지 않음</td><td>비용이 웨이브 압박과 맞물려 선택지가 되어야 함</td><td>교체 비용 증가폭과 골드 지급량을 함께 조정한다</td></tr>
+<tr><td>공용 카드</td><td>공용 카드 2장이 그냥 장식처럼 느껴짐</td><td>플레이어가 매 턴 공용 카드를 근거로 결정을 바꿔야 함</td><td>공용 카드가 마법/상위 족보에 주는 영향 설명을 강화한다</td></tr>
+<tr><td>유닛 역할</td><td>유닛이 다 비슷하게 공격하는 느낌</td><td>각 족보 유닛의 사거리, 속도, 타겟팅, 특수성이 구분되어야 함</td><td>역할별 대표 상황을 GDD와 테스트 케이스에 고정한다</td></tr>
+<tr><td>소개 화면</td><td>처음 보는 사람이 장르와 재미를 10초 안에 못 잡음</td><td>카드, 전장, 족보 결과가 한 화면에 연결되어야 함</td><td>문서 첫 화면과 게임 HUD의 정보 우선순위를 맞춘다</td></tr>
+</tbody></table>
+<h3>PR 체크리스트</h3>
+<ul>
+<li><span class="check">□</span> 핸드 5장, 공용 카드 2장, 덱 재순환이 정상 동작한다.</li>
+<li><span class="check">□</span> 족보 판정 결과가 소환/마법 UI에 같은 용어로 표시된다.</li>
+<li><span class="check">□</span> 소환 전 예측과 소환 후 실제 유닛 결과가 어긋나지 않는다.</li>
+<li><span class="check">□</span> 마법 사용 조건, 비용, 효과 범위가 화면에서 설명된다.</li>
+<li><span class="check">□</span> 웨이브 시작, 종료, 본진 피해, 게임오버 판정이 테스트 가능하다.</li>
+<li><span class="check">□</span> 보상 선택이 다음 웨이브 전략을 바꿀 만큼 의미가 있다.</li>
+<li><span class="check">□</span> 문서 이미지와 실제 현재 구현 화면이 크게 어긋나지 않는다.</li>
+</ul>
+<h2>게임 구성과 규칙 (GDD 요약)</h2>
+<p>원본 GDD의 장점은 “무엇을 구현했는지, 무엇이 빠졌는지, 어떤 규칙이 충돌하는지”를 표로 빠르게 찾을 수 있다는 점이다. 이 기획서는 소개용 흐름을 먼저 보여주고, 아래에는 개발 점검에 필요한 규칙만 요약한다.</p>
+<h3>화면 구조</h3>
+<table><thead><tr><th>구역</th><th>역할</th><th>구현/검토 메모</th></tr></thead><tbody>
+<tr><td>상단 HUD</td><td>스테이지, 웨이브, 골드, 본진 HP 표시</td><td>전투 중 가장 먼저 읽혀야 하는 정보</td></tr>
+<tr><td>전장 그리드</td><td>적 이동, 유닛 배치, 충돌/타겟팅 처리</td><td>길막과 타겟팅 예외가 핵심 테스트 포인트</td></tr>
+<tr><td>카드 패널</td><td>핸드, 공용 카드, 족보 후보 표시</td><td>소개용 스크린샷에서 게임 정체성을 만드는 영역</td></tr>
+<tr><td>액션 버튼</td><td>소환, 마법, 교체, 다음 진행</td><td>사용 가능/불가 이유가 즉시 보여야 함</td></tr>
+<tr><td>결과 피드백</td><td>피해, 보상, 실패, 다음 웨이브 예고</td><td>선택 결과를 400ms 안에 체감하게 만든다</td></tr>
+</tbody></table>
+<h3>카드와 족보</h3>
+<table><thead><tr><th>규칙</th><th>내용</th></tr></thead><tbody>
+<tr><td>덱</td><td>A, K, Q, J, 10, 9, 8, 7의 8개 랭크와 4개 무늬로 구성된 32장 덱</td></tr>
+<tr><td>핸드</td><td>항상 5장을 기준으로 판단하며, 소환/마법/교체 후 새 판단 상태로 갱신</td></tr>
+<tr><td>공용 카드</td><td>2장을 공개해 마법 또는 상위 조합 판단에 영향을 준다</td></tr>
+<tr><td>교체</td><td>핸드 카드 1장을 바꾸며, 반복 사용 시 비용 부담이 커져야 한다</td></tr>
+<tr><td>족보</td><td>High Card부터 Straight Flush까지 단계별로 전투 결과를 차등화한다</td></tr>
+</tbody></table>
+<h3>족보별 전투 역할</h3>
+<table><thead><tr><th>족보</th><th>기본 역할</th><th>소개/밸런스 포인트</th></tr></thead><tbody>
+<tr><td>High Card</td><td>기본 방어 유닛</td><td>약하지만 최소 대응은 가능해야 한다</td></tr>
+<tr><td>One Pair</td><td>원거리 견제</td><td>초반 안정감을 준다</td></tr>
+<tr><td>Two Pair</td><td>근접 방어</td><td>라인 유지에 강점을 둔다</td></tr>
+<tr><td>Three of a Kind</td><td>마법형 공격</td><td>다수 적 대응의 첫 재미를 만든다</td></tr>
+<tr><td>Straight</td><td>균형형 기사</td><td>초중반 표준 강한 선택지</td></tr>
+<tr><td>Flush</td><td>빠른 공격 유닛</td><td>속도와 타격감이 보여야 한다</td></tr>
+<tr><td>Full House</td><td>고내구 전투 유닛</td><td>버티는 맛을 만든다</td></tr>
+<tr><td>Four of a Kind</td><td>장거리 고화력</td><td>좋은 패의 보상감이 확실해야 한다</td></tr>
+<tr><td>Straight Flush</td><td>최상위 유닛</td><td>화면 반응과 성능 모두 특별해야 한다</td></tr>
+</tbody></table>
+<h3>현재 개발 상태 예상 수치</h3>
+<p>아래 수치는 성공 KPI가 아니라, 현재 구현/문서/이미지 상태를 기준으로 본 “지금 소개하거나 PR할 때의 체감 완성도 추정”이다. 실제 플레이 테스트 후 보정이 필요하다.</p>
+<table><thead><tr><th>항목</th><th>현재 예상</th><th>근거</th></tr></thead><tbody>
+<tr><td>핵심 루프 전달력</td><td>약 72%</td><td>카드 선택, 전투, 웨이브 구조는 설명 가능하지만 성장 보상 설명이 약함</td></tr>
+<tr><td>소개용 설득력</td><td>약 64%</td><td>이미지와 한 줄 콘셉트는 있으나 실제 재미 포인트를 더 짧게 보여줘야 함</td></tr>
+<tr><td>개발 점검 용이성</td><td>약 68%</td><td>체크리스트와 불일치 항목을 추가했지만 테스트 링크/자동 검증은 더 필요함</td></tr>
+<tr><td>UI/피드백 완성도</td><td>약 60%</td><td>현재 구현 화면 기준으로 정보는 있으나 시선 우선순위와 결과 예측 표시가 더 필요함</td></tr>
+<tr><td>반복 플레이 기대감</td><td>약 54%</td><td>보상/성장/빌드 변화가 아직 문서와 구현에서 가장 약한 축</td></tr>
+</tbody></table>
+<h2>현재 구현 상태</h2>
+<ul>
+<li>기준 버전: <code>0.1.64</code></li>
+<li>실행 형태: Phaser 3 기반 웹 게임과 Electron portable 배포 구조.</li>
+<li>현재 강점: 카드 기반 판단과 디펜스 전투를 한 화면에 묶는 핵심 방향이 명확하다.</li>
+<li>현재 약점: 소개용 문장, 보상/성장 설계, PR 점검 기준이 충분히 분리되어 있지 않았다.</li>
+<li>이번 문서 정리 방향: 처음 1분은 소개용, 이후 섹션은 개발 점검용으로 읽히게 분리한다.</li>
+</ul>
+<h2>적용 리소스</h2>
+<table><thead><tr><th>리소스</th><th>용도</th></tr></thead><tbody>
+<tr><td><code>docs/PokerStrike_플레이예시_현재구현.png</code></td><td>현재 구현 화면 공유용 이미지</td></tr>
+<tr><td><code>docs/PokerStrike_01_플레이예시.png</code></td><td>소개용 플레이 예시 이미지</td></tr>
+<tr><td><code>docs/archive/PokerStrike_gameplay_preview_v1.png</code></td><td>초기 GDD 방향성 참고 이미지</td></tr>
+<tr><td><code>docs/assets/PokerStrike_레퍼런스_ui-kit-v1.png</code></td><td>UI 톤 참고 리소스</td></tr>
+</tbody></table>
+<h2>빌드, 테스트, 릴리스</h2>
+<table><thead><tr><th>목적</th><th>명령</th></tr></thead><tbody>
+<tr><td>테스트</td><td><code>npm test</code></td></tr>
+<tr><td>웹 빌드</td><td><code>npm run build</code></td></tr>
+<tr><td>실행파일 패키징</td><td><code>npm run dist</code></td></tr>
+</tbody></table>
+<p>문서만 수정한 경우 실행파일 재빌드는 필요하지 않다. 게임플레이, UI, 리소스, 패키징 설정을 바꾸는 PR에서는 테스트와 빌드 후 기획서/업데이트 내역서를 함께 확인한다.</p>
+<h2>남은 리스크와 다음 우선순위</h2>
+<table><thead><tr><th>우선순위</th><th>작업</th><th>이유</th></tr></thead><tbody>
+<tr><td>1</td><td>보상/성장 선택지를 실제 플레이 판단에 연결</td><td>반복 플레이 기대감이 현재 가장 약한 축이다</td></tr>
+<tr><td>2</td><td>소환/마법 예측 UI 강화</td><td>플레이어가 좋은 패를 왜 쓰는지 즉시 이해해야 한다</td></tr>
+<tr><td>3</td><td>족보별 유닛 차이를 화면 반응으로 강화</td><td>포커와 디펜스가 결합됐다는 첫인상을 만든다</td></tr>
+<tr><td>4</td><td>PR 템플릿 또는 테스트 항목을 문서 체크리스트와 연결</td><td>구현 상태 점검을 매번 같은 기준으로 할 수 있다</td></tr>
+</tbody></table>
+<h2>문서 운영 규칙</h2>
+<ul>
+<li>소개용 문장은 문서 상단에 유지하고, 변경 이력은 업데이트 내역서로 분리한다.</li>
+<li>GDD 전체를 복붙하지 않고, 개발자가 점검해야 할 규칙만 요약한다.</li>
+<li>공유용 이미지는 본문에 직접 삽입해 HTML에서도 바로 보이게 유지한다.</li>
+<li>성공 KPI 대신 현재 개발 상태 예상 수치를 쓰고, 실제 플레이 테스트 후 수치를 갱신한다.</li>
+<li>GDD 원본은 삭제하지 않고 상세 규칙 참고용으로 남긴다.</li>
+</ul>
+</main>
+</body>
+</html>
