@@ -1,6 +1,6 @@
 export function previewHandOutcome({ baseDamage = 0, handMultiplier = 1, enemyHp = 0, incomingDamage = 0, blockers = 0 }) {
   const damage = Math.max(0, Math.round(baseDamage * handMultiplier));
-  const lethal = damage >= enemyHp;
+  const lethal = enemyHp > 0 && damage >= enemyHp;
   return {
     damage,
     lethal,
@@ -25,7 +25,7 @@ export function buildMatchRecap({ plays = [], lostTo = 'unknown threat' } = {}) 
   };
 }
 
-export function buildWaveDecisionRecap({ plays = [] } = {}) {
+export function buildWaveDecisionRecap({ plays = [], baseHp = Number.POSITIVE_INFINITY } = {}) {
   const decisive = [...plays].sort((a, b) => (b.swing ?? 0) - (a.swing ?? 0))[0] ?? null;
 
   if (!decisive) {
@@ -36,8 +36,14 @@ export function buildWaveDecisionRecap({ plays = [] } = {}) {
   }
 
   const handLabel = `${decisive.rankName}${decisive.suitLabel ? ` ${decisive.suitLabel}` : ''}`;
+  // A strong combo is useful context, but it is the wrong recommendation when
+  // the base is one mistake from defeat. Keep the recap factual and make the
+  // following reward choice immediately actionable.
+  const nextFocus = baseHp <= 35
+    ? '다음 선택 기준: 방어 또는 회복 우선'
+    : `다음 선택 기준: ${handLabel} 시너지 검토`;
   return {
     decisivePlay: `핵심 패: ${handLabel}`,
-    nextFocus: `다음 선택 기준: ${handLabel} 시너지 검토`,
+    nextFocus,
   };
 }
