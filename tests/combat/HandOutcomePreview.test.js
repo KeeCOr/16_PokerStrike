@@ -35,11 +35,15 @@ describe('wave decision recap', () => {
     });
   });
 
-  it('keeps the next choice focused on hand synergy', () => {
+  it('prioritizes defence or recovery when the base is in danger', () => {
     expect(buildWaveDecisionRecap({
       plays: [{ rankName: '풀하우스', suitLabel: '♥', swing: 55 }],
       baseHp: 34,
-    }).nextFocus).toBe('다음 선택 기준: 풀하우스 ♥ 시너지 검토');
+    }).nextFocus).toBe('다음 선택 기준: 방어 또는 회복 우선');
+  });
+
+  it('does not mark a zero-health target as a lethal preview', () => {
+    expect(previewHandOutcome({ baseDamage: 12, handMultiplier: 2, enemyHp: 0 }).lethal).toBe(false);
   });
 
   it('provides a safe empty-state criterion when no summon was recorded', () => {
