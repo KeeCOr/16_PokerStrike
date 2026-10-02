@@ -42,6 +42,7 @@ export default class MagicManager {
           .forEach(u => {
             u.stats.atk = Math.floor(u.stats.atk * skill.multiplier);
             scene.time.delayedCall(skill.duration, () => {
+              if (!this._isActiveUnit(u)) return;
               u.stats.atk = Math.floor(u.stats.atk / skill.multiplier);
             });
           });
@@ -86,10 +87,15 @@ export default class MagicManager {
         scene.unitManager.units.forEach(u => {
           u.stats.atkSpeed = +(u.stats.atkSpeed * skill.multiplier).toFixed(3);
           scene.time.delayedCall(skill.duration, () => {
+            if (!this._isActiveUnit(u)) return;
             u.stats.atkSpeed = +(u.stats.atkSpeed / skill.multiplier).toFixed(3);
           });
         });
         break;
     }
+  }
+
+  _isActiveUnit(unit) {
+    return Boolean(unit?.stats && this.scene?.unitManager?.units?.includes(unit));
   }
 }

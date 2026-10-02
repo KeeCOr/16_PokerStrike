@@ -1,5 +1,5 @@
 import { ENEMY_STATS, ENEMY_TYPE } from './EnemyData.js';
-import { getEnemyTextureKey, UI_TEXTURES } from '../assets/art/AssetKeys.js';
+import { getEnemyTextureKey } from '../assets/art/AssetKeys.js';
 
 export default class Enemy {
   constructor(scene, col, row, type) {
@@ -43,16 +43,6 @@ export default class Enemy {
     });
 
     this.hpBar = scene.add.graphics().setDepth(3);
-    this.hpShell = null;
-    this.shieldShell = null;
-    if (scene.textures?.exists?.(UI_TEXTURES.HP_GAUGE_SHELL) && scene.add.image) {
-      this.hpShell = scene.add.image(this.x, this.y - 22, UI_TEXTURES.HP_GAUGE_SHELL)
-        .setDisplaySize(34, 8).setDepth(2.5);
-      if (this.maxShield > 0) {
-        this.shieldShell = scene.add.image(this.x, this.y - 28, UI_TEXTURES.HP_GAUGE_SHELL)
-          .setDisplaySize(34, 8).setDepth(2.5);
-      }
-    }
     this._drawHpBar();
 
     this.atkRange = stats.atkRange ?? 1.5; // 공격 사정거리 (셀 단위)
@@ -69,17 +59,27 @@ export default class Enemy {
       .setSize(46, 46)
       .setInteractive({ useHandCursor: true });
 
-    const frameKey = UI_TEXTURES.CHARACTER_FRAME;
-    if (this.scene.textures?.exists?.(frameKey) && this.scene.add.image) {
-      const frameSize = this.type === ENEMY_TYPE.BOSS ? 60 : 48;
-      sprite.add(this.scene.add.image(0, 0, frameKey).setDisplaySize(frameSize, frameSize));
-    }
-
     const textureKey = getEnemyTextureKey(this.type);
+    const animationKey = this.type === ENEMY_TYPE.BASIC ? 'enemy-basic-walk' : null;
     if (this.scene.textures?.exists?.(textureKey) && this.scene.add.image) {
       const size = this.type === ENEMY_TYPE.BOSS ? 56 : 44;
-      const image = this.scene.add.image(0, 0, textureKey)
-        .setDisplaySize(size, size);
+      const canAnimate = animationKey
+        && this.scene.add.sprite
+        && this.scene.anims?.create
+        && this.scene.anims?.generateFrameNumbers;
+      if (canAnimate && !this.scene.anims.exists?.(animationKey)) {
+        this.scene.anims.create({
+          key: animationKey,
+          frames: this.scene.anims.generateFrameNumbers(textureKey, { start: 0, end: 3 }),
+          frameRate: 7,
+          repeat: -1,
+        });
+      }
+      const image = canAnimate
+        ? this.scene.add.sprite(0, 0, textureKey)
+        : this.scene.add.image(0, 0, textureKey);
+      image.setDisplaySize(size, size);
+      if (canAnimate) image.play(animationKey);
       sprite.add(image);
 
       if (this.isAerial) {
@@ -222,13 +222,15 @@ export default class Enemy {
   _drawHpBar() {
     this.hpBar.clear();
     const ratio = this.hp / this.maxHp;
-    this.hpShell?.setPosition?.(this.x, this.y - 22);
+    this.hpBar.fillStyle(0x333333);
+    this.hpBar.fillRect(this.x - 16, this.y - 22, 32, 4);
     this.hpBar.fillStyle(0xff3333);
     this.hpBar.fillRect(this.x - 16, this.y - 22, Math.floor(32 * ratio), 4);
     // 방어막 바 (하늘색, HP바 위)
     if (this.maxShield > 0) {
       const sr = this.shield / this.maxShield;
-      this.shieldShell?.setPosition?.(this.x, this.y - 28);
+      this.hpBar.fillStyle(0x224466);
+      this.hpBar.fillRect(this.x - 16, this.y - 28, 32, 4);
       this.hpBar.fillStyle(0x44ccff);
       this.hpBar.fillRect(this.x - 16, this.y - 28, Math.floor(32 * sr), 4);
     }
@@ -392,7 +394,5 @@ export default class Enemy {
     this._clearFreezeTint();
     this.sprite.destroy();
     this.hpBar.destroy();
-    if (this.hpShell) this.hpShell.destroy();
-    if (this.shieldShell) this.shieldShell.destroy();
   }
 }

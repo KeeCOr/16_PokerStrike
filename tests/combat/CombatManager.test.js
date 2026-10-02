@@ -336,6 +336,20 @@ describe('CombatManager', () => {
       }),
     });
   });
+
+  it('bounds active projectiles so combat VFX cannot accumulate indefinitely', () => {
+    const scene = createScene();
+    const manager = new CombatManager(scene);
+    const destroyed = [];
+    for (let i = 0; i < COMBAT_VFX_STYLE.MAX_ACTIVE_PROJECTILES + 1; i++) {
+      manager.projectiles.push({ sprite: { destroy() { destroyed.push(i); } } });
+    }
+
+    manager._spawnProjectile({ x: 0, y: 0 }, { x: 40, y: 0 }, ROLE.ATTACK);
+
+    expect(manager.projectiles).toHaveLength(COMBAT_VFX_STYLE.MAX_ACTIVE_PROJECTILES);
+    expect(destroyed.length).toBe(2);
+  });
 });
 
 

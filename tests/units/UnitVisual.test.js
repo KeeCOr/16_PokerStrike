@@ -248,6 +248,29 @@ describe('Unit hand-rank visuals', () => {
     expect(destroyed).toContain('decal');
     expect(manager._dragRangeDecal).toBe(null);
   });
+
+  it('cancels a drag that leaves the game canvas', () => {
+    const destroyed = [];
+    const events = {};
+    const scene = {
+      grid: { isWalkable() { return true; } },
+      input: { on(type, handler) { events[type] = handler; } },
+    };
+    const manager = new UnitManager(scene);
+    manager.units = [{ setDim() {} }];
+    manager.setupMergeInteraction();
+    manager._pointerDownActive = true;
+    manager._isDragging = true;
+    manager._dimApplied = true;
+    manager._dragIndicator = { destroy() { destroyed.push('indicator'); } };
+    manager._dragRangeDecal = { destroy() { destroyed.push('decal'); } };
+
+    events.gameout();
+
+    expect(destroyed).toEqual(['indicator', 'decal']);
+    expect(manager._pointerDownActive).toBe(false);
+    expect(manager._isDragging).toBe(false);
+  });
 });
 
 

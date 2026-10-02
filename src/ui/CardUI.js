@@ -1,7 +1,6 @@
 ﻿import { SUIT_COLORS, SUIT_ICONS } from '../cards/Card.js';
-import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
+import { UI_TEXTURES, getTowerTextureKey } from '../assets/art/AssetKeys.js';
 import { THEME } from '../theme.js';
-import { createNineSlice, NINE_SLICE_MARGIN } from './NineSlice.js';
 
 export const CARD_LAYOUT = {
   CARD_W: 50,
@@ -36,8 +35,8 @@ export const ACTION_GROUP_SPECS = Object.freeze({
 
 export const ACTION_BUTTON_SPECS = Object.freeze({
   magic: { x: 104, w: 172, group: 'magic', intent: 'utility', fill: 0x56308f, stroke: 0xb776ff, textureKey: UI_TEXTURES.BUTTON_ACTION_PURPLE },
-  summon: { x: 318, w: 204, group: 'hand', intent: 'primary', fill: THEME.ui.btnGold, stroke: THEME.text.gold, textureKey: UI_TEXTURES.BUTTON_ACTION_GOLD },
-  replace: { x: 528, w: 168, group: 'hand', intent: 'utility', fill: 0x0f5878, stroke: THEME.economy.gem, textureKey: UI_TEXTURES.BUTTON_ACTION_CYAN },
+  summon: { x: 318, w: 204, group: 'hand', intent: 'primary', fill: THEME.ui.btnGold, stroke: THEME.text.gold, textureKey: UI_TEXTURES.BUTTON_ACTION_GOLD, costIcon: 'gold' },
+  replace: { x: 528, w: 168, group: 'hand', intent: 'utility', fill: 0x0f5878, stroke: THEME.economy.gem, textureKey: UI_TEXTURES.BUTTON_ACTION_CYAN, icon: 'replace', costIcon: 'gold' },
 });
 
 const {
@@ -122,15 +121,8 @@ export default class CardUI {
     const h = CARD_H * scale;
     const color = SUIT_COLORS[card.suit] ?? 0xffffff;
     const colorHex = '#' + color.toString(16).padStart(6, '0');
-    const frame = createNineSlice(this.scene, x, y, w, h, UI_TEXTURES.FRAME_9S, NINE_SLICE_MARGIN.PANEL, 12);
-    let bg;
-    if (frame) {
-      frame.setTint?.(color);
-      bg = frame;
-    } else {
-      bg = this.scene.add.rectangle(x, y, w, h, THEME.bg.mid).setDepth(12)
-        .setStrokeStyle(2, color, 0.95);
-    }
+    const bg = this.scene.add.rectangle(x, y, w, h, THEME.bg.mid).setDepth(12)
+      .setStrokeStyle(2, color, 0.95);
     const inner = this.scene.add.rectangle(x, y, w - 7 * scale, h - 7 * scale, 0xefe8dc, 1).setDepth(12)
       .setStrokeStyle(1, 0xffffff, 0.35);
     const topBand = this.scene.add.rectangle(x, y - h * 0.29, w - 12 * scale, 15 * scale, THEME.bg.panel, 0.9).setDepth(13);
@@ -156,13 +148,13 @@ export default class CardUI {
       const [bg] = objs;
       if (!bg?.active) return;
       bg.setInteractive({ useHandCursor: true });
-      this._setCardTone(bg, 0x2a3f22);
+      bg.setFillStyle(0x2a3f22);
       bg.once('pointerdown', () => {
         this.exitReplaceMode();
         onSelect(i);
       });
-      bg.on('pointerover', () => this._setCardTone(bg, 0x446633));
-      bg.on('pointerout',  () => this._setCardTone(bg, 0x2a3f22));
+      bg.on('pointerover', () => bg.setFillStyle(0x446633));
+      bg.on('pointerout',  () => bg.setFillStyle(0x2a3f22));
     });
 
     let skipFirst = true;
@@ -192,26 +184,18 @@ export default class CardUI {
     this.cardObjects.forEach((objs) => {
       const [bg] = objs;
       if (!bg?.active) return;
-      this._setCardTone(bg, THEME.bg.mid);
+      bg.setFillStyle(THEME.bg.mid);
       bg.removeAllListeners();
     });
   }
 
-  _setCardTone(bg, color) {
-    if (bg.setFillStyle) bg.setFillStyle(color);
-    else bg.setTint?.(color);
-  }
-
-  renderButtons(drawCost, replaceCost, summonHandName = null, magicSkillName = null, summonImpact = null) {
+  renderButtons(drawCost, replaceCost, summonPreview = null, magicSkillName = null) {
     Object.values(this._buttons).forEach(obj => { if (obj?.active) obj.destroy(); });
     this._buttons = {};
 
-    let summonPreview = null;
-    let summonPreviewBg = null;
-    if (summonHandName) {
-      const previewLabel = summonImpact ? `SUMMON ${summonHandName} / ${summonImpact}` : `SUMMON ${summonHandName}`;
-      [summonPreviewBg, summonPreview] = this._drawPreviewStrip(320, 208, previewLabel, '#ffdd88', summonImpact ? 10 : 15);
-    }
+    const summonPreviewObjects = summonPreview
+      ? this._drawSummonPreview(421, 430, summonPreview)
+      : [];
 
     let magicPreview = null;
     let magicPreviewBg = null;
@@ -222,10 +206,11 @@ export default class CardUI {
     const magicGroup = this._drawActionGroupBackplate(ACTION_GROUP_SPECS.magic);
     const handGroup = this._drawActionGroupBackplate(ACTION_GROUP_SPECS.hand);
     const magicBtn = this._drawActionButton(ACTION_BUTTON_SPECS.magic, '마법 발동');
-    const summonBtn = this._drawActionButton(ACTION_BUTTON_SPECS.summon, `유닛 소환 ${drawCost}G`);
-    const replaceBtn = this._drawActionButton(ACTION_BUTTON_SPECS.replace, `카드 교체 ${replaceCost}G`);
+    const summonBtn = this._drawActionButton(ACTION_BUTTON_SPECS.summon, `${drawCost}`);
+    const replaceBtn = this._drawActionButton(ACTION_BUTTON_SPECS.replace, `${replaceCost}`);
 
-    this._buttons = { summonBtn, magicBtn, replaceBtn, magicGroup, handGroup, summonPreviewBg, summonPreview, magicPreviewBg, magicPreview };
+    this._buttons = { summonBtn, magicBtn, replaceBtn, magicGroup, handGroup, magicPreviewBg, magicPreview };
+    summonPreviewObjects.forEach((object, index) => { this._buttons[`summonDecision${index}`] = object; });
     return { summonBtn, magicBtn, replaceBtn };
   }
 
@@ -267,39 +252,65 @@ export default class CardUI {
     return [bg, text];
   }
 
+  _drawSummonPreview(x, w, preview) {
+    const bg = this.scene.add.rectangle(x, PREVIEW_Y, w, PREVIEW_H, 0x091421, 0.97)
+      .setDepth(12)
+      .setStrokeStyle(1, 0xa67a32, 0.85);
+    const suitColor = SUIT_COLORS[preview.suit] ?? 0xffffff;
+    const unitFrame = this.scene.add.circle(x - 184, PREVIEW_Y, 10, suitColor, 0.13)
+      .setDepth(13)
+      .setStrokeStyle(1, suitColor, 0.72);
+    const towerTexture = getTowerTextureKey(preview.suit);
+    const unit = this.scene.textures?.exists?.(towerTexture) && this.scene.add.image
+      ? this.scene.add.image(x - 184, PREVIEW_Y, towerTexture).setDisplaySize(18, 18).setDepth(14)
+      : this.scene.add.circle(x - 184, PREVIEW_Y, 6, suitColor, 0.95).setDepth(14);
+    const hand = this.scene.add.text(x - 160, PREVIEW_Y, preview.hand, {
+      fontSize: '12px', color: '#ffcf7e', fontStyle: 'bold',
+      stroke: '#000000', strokeThickness: 2, align: 'center',
+    }).setOrigin(0, 0.5).setDepth(13);
+    const divider = this.scene.add.rectangle(x + 105, PREVIEW_Y, 1, PREVIEW_H - 6, 0x40546d, 0.9).setDepth(13);
+    const suit = this.scene.add.text(x + 150, PREVIEW_Y - 1, SUIT_ICONS[preview.suit] ?? '', {
+      fontSize: '19px', color: `#${suitColor.toString(16).padStart(6, '0')}`,
+      stroke: '#000000', strokeThickness: 2, align: 'center',
+    }).setOrigin(0.5).setDepth(13);
+    return [bg, unitFrame, unit, hand, divider, suit];
+  }
+
   _drawActionGroupBackplate(group) {
-    const frame = createNineSlice(this.scene, group.x, ACTION_Y, group.w, ACTION_H + 12, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 11);
-    if (frame) {
-      frame.setAlpha(0.42);
-      frame.setTint?.(group.stroke);
-      return frame;
-    }
     return this.scene.add.rectangle(group.x, ACTION_Y, group.w, ACTION_H + 12, group.fill, 0.42)
       .setDepth(11)
       .setStrokeStyle(1, group.stroke, 0.38);
   }
 
   _drawActionButton(spec, label) {
-    const { x, w, fill, stroke } = spec;
-    const frame = createNineSlice(this.scene, x, ACTION_Y, w + CARD_LAYOUT.ACTION_TEXTURE_PAD_X, ACTION_H + 16, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 12);
-    const bg = frame
-      ? frame.setInteractive({ useHandCursor: true }).setAlpha(0.98)
+    const { x, w, fill, stroke, textureKey, icon: iconType, costIcon } = spec;
+    const hasTexture = textureKey && this.scene.textures?.exists?.(textureKey) && this.scene.add.image;
+    const bg = hasTexture
+      ? this.scene.add.image(x, ACTION_Y, textureKey)
+        .setDepth(12)
+        .setDisplaySize(w + CARD_LAYOUT.ACTION_TEXTURE_PAD_X, ACTION_H + 16)
+        .setInteractive({ useHandCursor: true })
+        .setAlpha(0.98)
       : this.scene.add.rectangle(x, ACTION_Y, w, ACTION_H, fill, 0.95)
         .setDepth(12)
         .setStrokeStyle(2, stroke, 0.9)
         .setInteractive({ useHandCursor: true });
-    frame?.setTint?.(stroke);
-    const text = this.scene.add.text(x, ACTION_Y + CARD_LAYOUT.ACTION_TEXT_Y_OFFSET, label, {
+    const hasReplaceIcon = iconType === 'replace';
+    const hasGoldCost = costIcon === 'gold';
+    const icon = hasReplaceIcon ? this._drawReplaceButtonIcon(x + (hasGoldCost ? -20 : -25), ACTION_Y) : null;
+    const goldIcon = hasGoldCost ? this._drawGoldCostIcon(x + (hasReplaceIcon ? 0 : -14), ACTION_Y) : null;
+    const textX = x + (hasReplaceIcon ? 20 : hasGoldCost ? 14 : 0);
+    const text = this.scene.add.text(textX, ACTION_Y + CARD_LAYOUT.ACTION_TEXT_Y_OFFSET, label, {
       fontSize: spec.intent === 'primary' ? '14px' : '13px',
       color: '#ffffff',
       fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(13);
     bg.on('pointerover', () => {
-      if (frame) bg.setAlpha(1);
+      if (hasTexture) bg.setAlpha(1);
       else bg.setFillStyle(fill, 1);
     });
     bg.on('pointerout', () => {
-      if (frame) bg.setAlpha(0.98);
+      if (hasTexture) bg.setAlpha(0.98);
       else bg.setFillStyle(fill, 0.95);
     });
     text.setInteractive({ useHandCursor: true });
@@ -308,10 +319,36 @@ export default class CardUI {
     text.on('pointerdown', () => bg.emit('pointerdown'));
     bg.destroy = ((originalDestroy) => function (...args) {
       if (text?.active) text.destroy();
+      if (icon?.active) icon.destroy();
+      if (goldIcon?.active) goldIcon.destroy();
       return originalDestroy.apply(this, args);
     })(bg.destroy);
     return bg;
   }
+
+  _drawReplaceButtonIcon(x, y) {
+    const icon = this.scene.add.graphics().setDepth(13);
+    icon.lineStyle(1.5, 0xffffff, 0.95);
+    icon.strokeRoundedRect(x - 11, y - 8, 9, 12, 1);
+    icon.strokeRoundedRect(x - 6, y - 5, 9, 12, 1);
+    icon.beginPath();
+    icon.moveTo(x - 12, y + 9);
+    icon.lineTo(x + 8, y + 9);
+    icon.lineTo(x + 4, y + 5);
+    icon.moveTo(x + 8, y + 9);
+    icon.lineTo(x + 4, y + 13);
+    icon.strokePath();
+    return icon;
+  }
+
+  _drawGoldCostIcon(x, y) {
+    if (this.scene.textures?.exists?.(UI_TEXTURES.RESOURCE_GOLD) && this.scene.add.image) {
+      return this.scene.add.image(x, y, UI_TEXTURES.RESOURCE_GOLD)
+        .setDisplaySize(15, 15)
+        .setDepth(13);
+    }
+    return this.scene.add.circle(x, y, 7, THEME.text.gold, 0.95)
+      .setDepth(13)
+      .setStrokeStyle(1, 0xffffff, 0.65);
+  }
 }
-
-

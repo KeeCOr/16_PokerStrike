@@ -4,7 +4,6 @@ import CardUI from '../ui/CardUI.js';
 import { THEME } from '../theme.js';
 import { ENV_TEXTURES, UI_TEXTURES } from '../assets/art/AssetKeys.js';
 import { BATTLE_FEEDBACK_COLORS, getBattleFeedback, getSummonPayoffCue } from '../ui/BattleFeedback.js';
-import { createNineSlice, NINE_SLICE_MARGIN } from '../ui/NineSlice.js';
 import Deck from '../cards/Deck.js';
 import Hand from '../cards/Hand.js';
 import SharedCards from '../cards/SharedCards.js';
@@ -42,31 +41,6 @@ const SUMMON_ROLE_LABELS = Object.freeze({
   [HAND_RANK.STRAIGHT_FLUSH]: '오라 지휘관',
 });
 
-const SUIT_EFFECT_LABELS = Object.freeze({
-  H: '불 광역',
-  D: '물 감속',
-  C: '땅 파쇄',
-  S: '바람 저격',
-});
-
-const SUMMON_RANK_IMPACT_LABELS = Object.freeze({
-  [HAND_RANK.HIGH_CARD]: '기본 단일 타격',
-  [HAND_RANK.ONE_PAIR]: '긴 사거리 포탑',
-  [HAND_RANK.TWO_PAIR]: '전방 방어 강화',
-  [HAND_RANK.THREE_OF_A_KIND]: '마법 화력 집중',
-  [HAND_RANK.STRAIGHT]: '전방 라인 유지',
-  [HAND_RANK.FLUSH]: '최대 3명 동시 타격',
-  [HAND_RANK.FULL_HOUSE]: '근접 초고화력',
-  [HAND_RANK.FOUR_OF_A_KIND]: '직선 관통 활성',
-  [HAND_RANK.STRAIGHT_FLUSH]: '동일 문양 오라 강화',
-});
-
-const SUIT_COMBAT_IMPACT_LABELS = Object.freeze({
-  H: '스플래시 확률 증가',
-  D: '감속으로 진입 지연',
-  C: '방어 파쇄 후 피해',
-  S: '후열 우선 저격',
-});
 export default class UIScene extends Phaser.Scene {
   constructor() { super('UIScene'); }
 
@@ -99,13 +73,15 @@ export default class UIScene extends Phaser.Scene {
 
     this._onBattleFeedback = payload => this._showBattleFeedback(payload);
     this._onAttackFeedback = payload => this._showAttackFeedback(payload);
-    gameScene.events.on('refreshSharedCards', () => {
+    this._onRefreshSharedCards = () => {
       this.sharedCards.consume(this.deck);
       this._refreshUI();
-    });
+    };
+    gameScene.events.on('refreshSharedCards', this._onRefreshSharedCards);
     gameScene.events.on('battle-feedback', this._onBattleFeedback);
     gameScene.events.on('attack-feedback', this._onAttackFeedback);
     this.events.once('shutdown', () => {
+      gameScene.events.off('refreshSharedCards', this._onRefreshSharedCards);
       gameScene.events.off('battle-feedback', this._onBattleFeedback);
       gameScene.events.off('attack-feedback', this._onAttackFeedback);
       this._clearBattleFeedback();
@@ -195,7 +171,14 @@ export default class UIScene extends Phaser.Scene {
       if (card) this.hand.addCard(card);
     }
 
-    gameScene.unitManager.placeUnitRandom(rank, dominantSuit, 1);
+    const placedUnit = gameScene.unitManager.placeUnitRandom(rank, dominantSuit, 1);
+    if (placedUnit) {
+      gameScene.recordWaveHandPlay?.({
+        rankName,
+        suitLabel,
+        swing: placedUnit.stats.atk,
+      });
+    }
     const bonusGold = gameScene.rogueliteManager?.getGoldOnSummon(rank) ?? 0;
     if (bonusGold > 0) eco.addGold(bonusGold);
     gameScene.events.emit('battle-feedback', {
@@ -203,15 +186,10 @@ export default class UIScene extends Phaser.Scene {
       rankName,
       suitLabel,
       roleLabel: SUMMON_ROLE_LABELS[rank],
-      suitEffect: SUIT_EFFECT_LABELS[dominantSuit],
       payoffCue: getSummonPayoffCue({
         rankName,
-        rankImpact: SUMMON_RANK_IMPACT_LABELS[rank],
-        suitEffect: SUIT_EFFECT_LABELS[dominantSuit],
         bonusGold,
       }),
-      rankImpact: SUMMON_RANK_IMPACT_LABELS[rank],
-      suitImpact: SUIT_COMBAT_IMPACT_LABELS[dominantSuit],
       cost,
       bonusGold,
     });
@@ -303,10 +281,10 @@ export default class UIScene extends Phaser.Scene {
       ? evaluateHand(this.hand.cards)
       : null;
     const summonPreview = summonEvaluation
-      ? HAND_NAMES[summonEvaluation.rank]
-      : null;
-    const summonImpact = summonEvaluation
-      ? `ATTACK ${summonEvaluation.dominantSuit} -> ${SUIT_EFFECT_LABELS[summonEvaluation.dominantSuit]}`
+      ? {
+        hand: HAND_NAMES[summonEvaluation.rank],
+        suit: summonEvaluation.dominantSuit,
+      }
       : null;
 
     let magicPreview = null;
@@ -330,7 +308,7 @@ export default class UIScene extends Phaser.Scene {
     this.cardUI.render(this.hand, this.sharedCards, this.deck.burnCount);
     const buttons = this.cardUI.renderButtons(
       eco.getDrawCost(), eco.getReplaceCost(),
-      summonPreview, magicPreview, summonImpact,
+      summonPreview, magicPreview,
     );
 
     buttons.summonBtn.on('pointerdown', () => this._summon());
@@ -587,9 +565,14 @@ export default class UIScene extends Phaser.Scene {
   }
 
   _drawUpgradeButton(x, y, width, label, fill, stroke, onClick, options = {}) {
-    const ns = createNineSlice(this, x, y, width + 24, 34, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 12);
-    const bg = ns
-      ? ns.setTint(stroke).setAlpha(0.96).setInteractive({ useHandCursor: true })
+    const textureKey = options.textureKey ?? this._getUpgradeButtonTexture(fill);
+    const hasTexture = textureKey && this.textures?.exists?.(textureKey) && this.add.image;
+    const bg = hasTexture
+      ? this.add.image(x, y, textureKey)
+        .setDepth(12)
+        .setDisplaySize(width + 24, 34)
+        .setInteractive({ useHandCursor: true })
+        .setAlpha(0.96)
       : this.add.rectangle(x, y, width, 24, fill, 0.94)
         .setDepth(12)
         .setStrokeStyle(1, stroke, 0.85)
@@ -600,7 +583,6 @@ export default class UIScene extends Phaser.Scene {
       fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(13).setInteractive({ useHandCursor: true });
 
-    const hasTexture = !!ns;
     const over = () => {
       if (hasTexture) bg.setAlpha(1);
       else {
@@ -625,6 +607,12 @@ export default class UIScene extends Phaser.Scene {
     text.on('pointerdown', onClick);
     this._upgradeObjs.push(bg, text);
     return bg;
+  }
+
+  _getUpgradeButtonTexture(fill) {
+    if (fill === 0x17351f) return UI_TEXTURES.BUTTON_UPGRADE_GREEN;
+    if (fill === 0x3d2412 || fill === 0x332914) return UI_TEXTURES.BUTTON_UPGRADE_ORANGE;
+    return UI_TEXTURES.BUTTON_UPGRADE_BLUE;
   }
 
   _showTutorial() {
@@ -657,8 +645,7 @@ export default class UIScene extends Phaser.Scene {
 
       const s = steps[stepIdx];
       const overlay = this.add.rectangle(320, 400, 580, 360, 0x000000, 0.88).setDepth(30);
-      const box = createNineSlice(this, 320, 400, 560, 340, UI_TEXTURES.PANEL_FRAME_9S, NINE_SLICE_MARGIN.PANEL, 30)
-        || this.add.rectangle(320, 400, 560, 340, THEME.bg.panel, 1).setDepth(30).setStrokeStyle(2, 0x3a6080, 1);
+      const box = this.add.rectangle(320, 400, 560, 340, THEME.bg.panel, 1).setDepth(30).setStrokeStyle(2, 0x3a6080, 1);
       const numTxt = this.add.text(320, 262, `${stepIdx + 1} / ${steps.length}`, {
         fontSize: '11px', color: '#888888'
       }).setOrigin(0.5).setDepth(31);
@@ -695,7 +682,3 @@ export default class UIScene extends Phaser.Scene {
     show();
   }
 }
-
-
-
-

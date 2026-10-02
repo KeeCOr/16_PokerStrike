@@ -18,7 +18,7 @@ import { STAGE_INTRO_LAYOUT } from './StageIntroLayout.js';
 import { ENV_TEXTURES, UI_TEXTURES, preloadArtAssets } from '../assets/art/AssetKeys.js';
 import { preloadAudioAssets } from '../assets/audio/AudioAssetKeys.js';
 import { AUDIO_CUES, playAudioCue } from '../audio/AudioCuePlayer.js';
-import { createNineSlice, NINE_SLICE_MARGIN } from '../ui/NineSlice.js';
+import { buildWaveDecisionRecap } from '../combat/HandOutcomePreview.js';
 
 const BASE_HP = 100;
 
@@ -78,11 +78,11 @@ export default class GameScene extends Phaser.Scene {
     this._baseHpBar = null;
     this.selectedEnemy = null;
     this._enemyInfoObjs = [];
+    this.waveHandPlays = [];
 
     this.enemyManager.onEnemyReachBase = (dmg) => {
       this.baseHp = Math.max(0, this.baseHp - dmg);
       this.registry.set('baseHp', this.baseHp);
-      if (dmg > 0) playAudioCue(this, AUDIO_CUES.BASE_HIT);
       if (this.baseHp <= 0) this._gameOver();
     };
 
@@ -285,13 +285,6 @@ export default class GameScene extends Phaser.Scene {
 
     // 본진 HP 바
     this._baseHpBar = this.add.graphics().setDepth(2);
-    this._baseHpShell = null;
-    if (this.textures?.exists?.(UI_TEXTURES.HP_GAUGE_SHELL) && this.add.image) {
-      const barW = CELL_SIZE;
-      this._baseHpShell = this.add.image(baseX + barW / 2, baseY - 4, UI_TEXTURES.HP_GAUGE_SHELL)
-        .setDisplaySize(barW + 2, 10)
-        .setDepth(1.5);
-    }
     this._drawBaseHpBar();
   }
 
@@ -303,6 +296,8 @@ export default class GameScene extends Phaser.Scene {
     const barW = CELL_SIZE;
     const ratio = Math.max(0, this.baseHp / BASE_HP);
     this._baseHpBar.clear();
+    this._baseHpBar.fillStyle(0x333333);
+    this._baseHpBar.fillRect(baseX, baseY - 7, barW, 6);
     this._baseHpBar.fillStyle(ratio > 0.5 ? THEME.status.hpHigh : ratio > 0.25 ? THEME.status.hpMid : THEME.status.hpLow);
     this._baseHpBar.fillRect(baseX, baseY - 7, Math.floor(barW * ratio), 6);
   }
@@ -348,6 +343,8 @@ export default class GameScene extends Phaser.Scene {
 
   _showWaveChoices(resumeFn) {
     const pool = pickWaveUpgrades(UPGRADE_POOL, this.unitManager.units, this.rogueliteManager, 3);
+    const waveRecap = buildWaveDecisionRecap({ plays: this.waveHandPlays, baseHp: this.baseHp });
+    this.waveHandPlays = [];
     this.economyManager.paused = true;
 
     // 전체 화면 가림 + UIScene 입력 차단
@@ -380,7 +377,18 @@ export default class GameScene extends Phaser.Scene {
       stroke: '#06111c', strokeThickness: 3,
     }).setOrigin(0.5).setDepth(22);
 
-    const objs = [overlay, titleFrame, titleEyebrow, titleText, titleSubtitle];
+    const recapTitle = this.add.text(320, WAVE_CHOICE_LAYOUT.RECAP_Y, waveRecap.decisivePlay, {
+      fontSize: `${WAVE_CHOICE_LAYOUT.RECAP_FONT}px`, color: '#ffe08a', fontStyle: 'bold',
+      stroke: '#06111c', strokeThickness: 3,
+      wordWrap: { width: WAVE_CHOICE_LAYOUT.RECAP_WRAP_WIDTH }, align: 'center',
+    }).setOrigin(0.5).setDepth(22);
+    const recapDetail = this.add.text(320, WAVE_CHOICE_LAYOUT.RECAP_DETAIL_Y, waveRecap.nextFocus, {
+      fontSize: `${WAVE_CHOICE_LAYOUT.RECAP_DETAIL_FONT}px`, color: '#bceeff',
+      stroke: '#06111c', strokeThickness: 3,
+      wordWrap: { width: WAVE_CHOICE_LAYOUT.RECAP_WRAP_WIDTH }, align: 'center',
+    }).setOrigin(0.5).setDepth(22);
+
+    const objs = [overlay, titleFrame, titleEyebrow, titleText, titleSubtitle, recapTitle, recapDetail];
     pool.forEach((upgrade, i) => {
       const y = WAVE_CHOICE_LAYOUT.START_Y + i * WAVE_CHOICE_LAYOUT.ROW_GAP;
       const textureKey = getWaveChoiceTextureKey(upgrade);
@@ -551,11 +559,9 @@ export default class GameScene extends Phaser.Scene {
     const layout = GAME_OVER_LAYOUT;
     const panel = layout.panel;
     this.add.rectangle(320, 480, 640, 960, 0x000000, 0.82).setDepth(20);
-    const panelFrame = createNineSlice(this, panel.x, panel.y, panel.w, panel.h, UI_TEXTURES.PANEL_FRAME_9S, NINE_SLICE_MARGIN.PANEL, 21);
-    if (!panelFrame) this.add.rectangle(panel.x, panel.y, panel.w, panel.h, 0x02070d, 0.94).setDepth(21)
+    this.add.rectangle(panel.x, panel.y, panel.w, panel.h, 0x02070d, 0.94).setDepth(21)
       .setStrokeStyle(2, 0xf2c96b, 0.86);
-    const headerFrame = createNineSlice(this, panel.x, panel.y - 36, panel.w - 28, 82, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 22);
-    if (!headerFrame) this.add.rectangle(panel.x, panel.y - 36, panel.w - 28, 82, 0x0b1725, 0.96).setDepth(22)
+    this.add.rectangle(panel.x, panel.y - 36, panel.w - 28, 82, 0x0b1725, 0.96).setDepth(22)
       .setStrokeStyle(1, 0x65d9ff, 0.55);
 
     this.add.text(320, layout.titleY, 'GAME OVER', {
@@ -594,16 +600,27 @@ export default class GameScene extends Phaser.Scene {
     });
   }
 
+  recordWaveHandPlay(play) {
+    if (!play?.rankName) return;
+    this.waveHandPlays.push({
+      rankName: play.rankName,
+      suitLabel: play.suitLabel ?? '',
+      swing: Math.max(0, Math.round(play.swing ?? 0)),
+    });
+  }
+
   _drawGameOverButton(x, y, label, textureKey, onClick, options = {}) {
     const { buttonW, buttonH } = GAME_OVER_LAYOUT;
-    const tint = options.secondary ? 0xff6f65 : 0xffd766;
-    const baseAlpha = options.secondary ? 0.9 : 0.98;
-    const ns = createNineSlice(this, x, y, buttonW, buttonH, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 23);
-    const bg = ns
-      ? ns.setTint(tint).setAlpha(baseAlpha).setInteractive({ useHandCursor: true })
+    const hasTexture = this.textures?.exists?.(textureKey) && this.add.image;
+    const bg = hasTexture
+      ? this.add.image(x, y, textureKey)
+        .setDepth(23)
+        .setDisplaySize(buttonW, buttonH)
+        .setAlpha(options.secondary ? 0.9 : 0.98)
+        .setInteractive({ useHandCursor: true })
       : this.add.rectangle(x, y, buttonW, buttonH, options.secondary ? 0x401719 : 0x7a5420, 0.96)
         .setDepth(23)
-        .setStrokeStyle(2, tint, 0.88)
+        .setStrokeStyle(2, options.secondary ? 0xff6f65 : 0xffd766, 0.88)
         .setInteractive({ useHandCursor: true });
     const text = this.add.text(x, y, label, {
       fontSize: options.secondary ? '16px' : '17px',
@@ -623,7 +640,7 @@ export default class GameScene extends Phaser.Scene {
       text.setStyle({ color: '#ffe08a' });
     });
     bg.on('pointerout', () => {
-      bg.setAlpha(baseAlpha);
+      bg.setAlpha(options.secondary ? 0.9 : 0.98);
       text.setStyle({ color: '#ffffff' });
     });
     bg.on('pointerdown', press);
@@ -641,10 +658,9 @@ export default class GameScene extends Phaser.Scene {
 
   _showUpgradeTutorial(onDone) {
     const overlay = this.add.rectangle(320, 480, 640, 960, 0x000000, 0.78).setDepth(30);
-    const box = createNineSlice(this, 320, 420, 520, 300, UI_TEXTURES.PANEL_FRAME_9S, NINE_SLICE_MARGIN.PANEL, 31)
-      || this.add.rectangle(320, 420, 520, 300, THEME.bg.panel, 1)
-        .setDepth(31)
-        .setStrokeStyle(2, 0x8cd3ff, 0.95);
+    const box = this.add.rectangle(320, 420, 520, 300, THEME.bg.panel, 1)
+      .setDepth(31)
+      .setStrokeStyle(2, 0x8cd3ff, 0.95);
     const title = this.add.text(320, 315, '업그레이드 안내', {
       fontSize: '24px', color: '#ffdd44', fontStyle: 'bold',
       stroke: '#000000', strokeThickness: 4,

@@ -292,6 +292,18 @@ export default class UnitManager {
     });
   }
 
+  _cancelActiveDrag() {
+    if (this._dimApplied) this._clearDim();
+    this._dimApplied = false;
+    this._dragIndicator?.destroy();
+    this._dragRangeDecal?.destroy();
+    this._dragIndicator = null;
+    this._dragRangeDecal = null;
+    this._pointerDownActive = false;
+    this._pointerDownUnit = null;
+    this._isDragging = false;
+  }
+
   // ?? Input setup ???????????????????????????????????????????????
   setupMergeInteraction() {
     const scene = this.scene;
@@ -305,7 +317,7 @@ export default class UnitManager {
     this._dragRangeDecal = null;
 
     scene.input.on('pointerdown', (ptr) => {
-      this._pointerDownActive = false;
+      this._cancelActiveDrag();
       if (ptr.y > PANEL_Y) return;
       this._pointerDownActive = true;
       const { col, row } = scene.grid.worldToCell(ptr.x, ptr.y);
@@ -395,6 +407,8 @@ export default class UnitManager {
       this._pointerDownUnit = null;
       this._isDragging = false;
     });
+
+    scene.input.on('gameout', () => this._cancelActiveDrag());
   }
 
   _handleClick(ptr) {

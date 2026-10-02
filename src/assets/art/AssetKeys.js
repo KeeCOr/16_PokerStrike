@@ -66,15 +66,10 @@ export const UI_TEXTURES = {
   BADGE_WAVE: 'ui-badge-wave',
   RESOURCE_GOLD: 'ui-resource-gold',
   RESOURCE_GEM: 'ui-resource-gem',
-  PANEL_FRAME_9S: 'ui-panel-frame-9s',
-  STRIP_FRAME_9S: 'ui-strip-frame-9s',
-  HP_GAUGE_SHELL: 'ps-hp-gauge-shell',
-  CHARACTER_FRAME: 'ps-character-frame',
-  FRAME_9S: 'ps-ui-frame-9s',
 };
 
 const ENEMY_ASSETS = {
-  [ENEMY_TEXTURES[ENEMY_TYPE.BASIC]]: new URL('./monsters/basic.png', import.meta.url).href,
+  [ENEMY_TEXTURES[ENEMY_TYPE.BASIC]]: new URL('./monsters/basic-walk.png', import.meta.url).href,
   [ENEMY_TEXTURES[ENEMY_TYPE.TANK]]: new URL('./monsters/tank.png', import.meta.url).href,
   [ENEMY_TEXTURES[ENEMY_TYPE.RUNNER]]: new URL('./monsters/runner.png', import.meta.url).href,
   [ENEMY_TEXTURES[ENEMY_TYPE.AERIAL]]: new URL('./monsters/aerial.png', import.meta.url).href,
@@ -90,10 +85,10 @@ const ENEMY_ASSETS = {
 };
 
 const TOWER_ASSETS = {
-  [TOWER_TEXTURES.H]: new URL('./towers/H.png', import.meta.url).href,
-  [TOWER_TEXTURES.D]: new URL('./towers/D.png', import.meta.url).href,
-  [TOWER_TEXTURES.C]: new URL('./towers/C.png', import.meta.url).href,
-  [TOWER_TEXTURES.S]: new URL('./towers/S.png', import.meta.url).href,
+  [TOWER_TEXTURES.H]: new URL('./towers/H-altar-guardian.png', import.meta.url).href,
+  [TOWER_TEXTURES.D]: new URL('./towers/D-altar-guardian.png', import.meta.url).href,
+  [TOWER_TEXTURES.C]: new URL('./towers/C-altar-guardian.png', import.meta.url).href,
+  [TOWER_TEXTURES.S]: new URL('./towers/S-altar-guardian.png', import.meta.url).href,
 };
 
 const VFX_ASSETS = {
@@ -112,13 +107,13 @@ const VFX_ASSETS = {
 };
 
 const ENV_ASSETS = {
-  [ENV_TEXTURES.BOARD_TILE]: new URL('./environment/board-tile.png', import.meta.url).href,
+  [ENV_TEXTURES.BOARD_TILE]: new URL('./environment/board-tile-natural.png', import.meta.url).href,
   [ENV_TEXTURES.BOARD_TILE_ALT]: new URL('./environment/board-tile-alt.png', import.meta.url).href,
   [ENV_TEXTURES.BOARD_TILE_MOVE]: new URL('./environment/board-tile-move.png', import.meta.url).href,
   [ENV_TEXTURES.BOARD_TILE_ALT_MOVE]: new URL('./environment/board-tile-alt-move.png', import.meta.url).href,
-  [ENV_TEXTURES.OBSTACLE_STONE]: new URL('./environment/obstacle-stone.png', import.meta.url).href,
-  [ENV_TEXTURES.OBSTACLE_BARRICADE]: new URL('./environment/obstacle-barricade.png', import.meta.url).href,
-  [ENV_TEXTURES.SPAWN_GATE]: new URL('./environment/spawn-gate.png', import.meta.url).href,
+  [ENV_TEXTURES.OBSTACLE_STONE]: new URL('./environment/obstacle-mossy-rock.png', import.meta.url).href,
+  [ENV_TEXTURES.OBSTACLE_BARRICADE]: new URL('./environment/obstacle-root-thicket.png', import.meta.url).href,
+  [ENV_TEXTURES.SPAWN_GATE]: new URL('./environment/spawn-gate-arcane.png', import.meta.url).href,
   [ENV_TEXTURES.BASE_CORE]: new URL('./environment/base-core.png', import.meta.url).href,
   [ENV_TEXTURES.BASE_SHIELD]: new URL('./environment/base-shield.png', import.meta.url).href,
   [ENV_TEXTURES.BATTLE_LABEL_FRAME]: new URL('./environment/battle-label-frame.png', import.meta.url).href,
@@ -139,17 +134,16 @@ const UI_ASSETS = {
   [UI_TEXTURES.BADGE_WAVE]: new URL('../ui/generated/badge-wave.png', import.meta.url).href,
   [UI_TEXTURES.RESOURCE_GOLD]: new URL('../ui/generated/resource-gold.png', import.meta.url).href,
   [UI_TEXTURES.RESOURCE_GEM]: new URL('../ui/generated/resource-gem.png', import.meta.url).href,
-  [UI_TEXTURES.PANEL_FRAME_9S]: new URL('../ui/generated/ps-ui-panel-frame-9s.png', import.meta.url).href,
-  [UI_TEXTURES.STRIP_FRAME_9S]: new URL('../ui/generated/ps-ui-strip-frame-9s.png', import.meta.url).href,
-  [UI_TEXTURES.HP_GAUGE_SHELL]: new URL('../ui/generated/ps-hp-gauge-shell.png', import.meta.url).href,
-  [UI_TEXTURES.CHARACTER_FRAME]: new URL('../ui/generated/ps-character-frame.png', import.meta.url).href,
-  [UI_TEXTURES.FRAME_9S]: new URL('../ui/generated/ps-ui-frame-9s.png', import.meta.url).href,
 };
 
 export function preloadArtAssets(scene) {
   if (!scene?.load?.image) return;
   for (const [key, url] of Object.entries(ENEMY_ASSETS)) {
-    scene.load.image(key, url);
+    if (key === ENEMY_TEXTURES[ENEMY_TYPE.BASIC] && scene.load.spritesheet) {
+      scene.load.spritesheet(key, url, { frameWidth: 256, frameHeight: 341 });
+    } else {
+      scene.load.image(key, url);
+    }
   }
   for (const [key, url] of Object.entries(TOWER_ASSETS)) {
     scene.load.image(key, url);

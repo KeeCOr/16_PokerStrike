@@ -1,7 +1,6 @@
 ﻿import { PANEL_Y } from '../grid/Grid.js';
 import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
 import { THEME } from '../theme.js';
-import { createNineSlice, NINE_SLICE_MARGIN } from './NineSlice.js';
 
 export const HUD_LAYOUT = {
   RESOURCE_PANEL: { x: 540, y: 26, w: 174, h: 32, paddingX: 12 },
@@ -23,17 +22,13 @@ export default class HUD {
     this.scene = scene;
     const panelY = PANEL_Y;
 
-    const outerShell = createNineSlice(scene, 320, panelY + 104, 640, 208, UI_TEXTURES.PANEL_FRAME_9S, NINE_SLICE_MARGIN.PANEL, 8);
-    if (!outerShell) scene.add.rectangle(320, panelY + 104, 640, 208, THEME.bg.base, 0.98).setDepth(8)
+    scene.add.rectangle(320, panelY + 104, 640, 208, THEME.bg.base, 0.98).setDepth(10)
       .setStrokeStyle(2, 0x17496a, 0.9);
-    const topStrip = createNineSlice(scene, 320, panelY + 22, 612, 42, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 9);
-    if (!topStrip) scene.add.rectangle(320, panelY + 22, 612, 42, 0x050b14, 0.96).setDepth(9)
+    scene.add.rectangle(320, panelY + 22, 612, 42, 0x050b14, 0.96).setDepth(10)
       .setStrokeStyle(1, THEME.ui.border, 0.75);
-    const midStrip = createNineSlice(scene, 320, panelY + 86, 612, 82, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 9);
-    if (!midStrip) scene.add.rectangle(320, panelY + 86, 612, 82, 0x0b1725, 0.92).setDepth(9)
+    scene.add.rectangle(320, panelY + 86, 612, 82, 0x0b1725, 0.92).setDepth(10)
       .setStrokeStyle(1, THEME.ui.border, 0.65);
-    const bottomStrip = createNineSlice(scene, 320, panelY + 170, 612, 62, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 9);
-    if (!bottomStrip) scene.add.rectangle(320, panelY + 170, 612, 62, 0x081522, 0.92).setDepth(9)
+    scene.add.rectangle(320, panelY + 170, 612, 62, 0x081522, 0.92).setDepth(10)
       .setStrokeStyle(1, THEME.ui.border, 0.75);
 
     this._drawResourceCluster();
@@ -79,21 +74,25 @@ export default class HUD {
 
   _drawResourceFrame(panel, stroke) {
     const { x, y, w, h } = panel;
-    const frame = createNineSlice(this.scene, x, y, w, h, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 10);
-    if (!frame) {
-      this.scene.add.rectangle(x, y, w, h, 0x101f32, 0.9).setDepth(10)
-        .setStrokeStyle(1, stroke, 0.78);
-    }
+    this.scene.add.rectangle(x, y, w, h, 0x02070d, 0.72).setDepth(9);
+    this.scene.add.rectangle(x, y, w - 4, h - 4, 0x101f32, 0.9).setDepth(10)
+      .setStrokeStyle(1, stroke, 0.78);
     this.scene.add.rectangle(x - w / 2 + 30, y, 1, h - 12, stroke, 0.32).setDepth(11);
   }
   _drawWaveBadge() {
     const { x, y, w, h } = HUD_LAYOUT.WAVE_PANEL;
-    const frame = createNineSlice(this.scene, x, y, w, h, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 10);
-    if (!frame) {
-      this.scene.add.rectangle(x, y, w, h, 0x0b2840, 0.92).setDepth(10)
+    const display = HUD_LAYOUT.WAVE_BADGE_DISPLAY;
+    if (this.scene.textures?.exists?.(UI_TEXTURES.BADGE_WAVE) && this.scene.add.image) {
+      this.scene.add.image(x, y, UI_TEXTURES.BADGE_WAVE)
+        .setDepth(10)
+        .setDisplaySize(display.w, display.h)
+        .setAlpha(0.96);
+    } else {
+      this.scene.add.rectangle(x, y, w, h, 0x02070d, 0.78).setDepth(9);
+      this.scene.add.rectangle(x, y, w - 4, h - 4, 0x0b2840, 0.92).setDepth(10)
         .setStrokeStyle(2, 0x65d9ff, 0.9);
+      this.scene.add.rectangle(x - 70, y, 2, h - 10, 0x65d9ff, 0.45).setDepth(11);
     }
-    this.scene.add.rectangle(x - 70, y, 2, h - 10, 0x65d9ff, 0.45).setDepth(11);
   }
 
   _drawResourceIcon(textureKey, layout, fallbackColor) {

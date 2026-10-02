@@ -12,18 +12,20 @@
 
 ## 환경 PNG
 
-- `src/assets/art/environment/board-tile.png` - 기본 보드 타일
-- `src/assets/art/environment/board-tile-alt.png` - 교차 배치용 어두운 보드 타일
-- `src/assets/art/environment/obstacle-stone.png` - 석재 장애물
-- `src/assets/art/environment/obstacle-barricade.png` - 목재/철제 바리케이드 장애물
-- `src/assets/art/environment/spawn-gate.png` - 적 스폰 포털
+- `src/assets/art/environment/board-tile-natural.png` - 보드 전체에 한 장으로 표시하는 자연 초원 전장 배경
+- `src/assets/art/environment/board-tile-natural-alt.png` - 자연 초원 배경의 대체 타일
+- `src/assets/art/environment/board-tile-natural-move.png` - 자연 초원 이동 가능 구역 대체 타일
+- `src/assets/art/environment/board-tile-natural-alt-move.png` - 자연 초원 이동 가능 구역 교차 대체 타일
+- `src/assets/art/environment/obstacle-mossy-rock.png` - 이끼와 양치식물이 자란 바위 장애물
+- `src/assets/art/environment/obstacle-root-thicket.png` - 뿌리·수풀 자연 장애물
+- `src/assets/art/environment/spawn-gate-arcane.png` - 룬 원·청록/보랏빛 균열로 적 스폰 위치를 명확히 알리는 마법 포털
 - `src/assets/art/environment/base-core.png` - 플레이어 본진 코어
 - `src/assets/art/environment/base-shield.png` - 본진 방어판 보조 리소스
 - `src/assets/art/environment/battle-label-frame.png` - 전투 메시지/결과 배너 프레임, `ENV_TEXTURES.BATTLE_LABEL_FRAME` 런타임 키로 로드
 
 ## 몬스터 PNG
 
-- `src/assets/art/monsters/basic.png` - 기본 몬스터
+- `src/assets/art/monsters/basic-walk.png` - 4프레임 보행 애니메이션을 가진 기본 고블린 몬스터 스프라이트시트
 - `src/assets/art/monsters/tank.png` - 탱커 몬스터
 - `src/assets/art/monsters/runner.png` - 고속 몬스터
 - `src/assets/art/monsters/aerial.png` - 공중 몬스터
@@ -39,10 +41,10 @@
 
 ## 타워 PNG
 
-- `src/assets/art/towers/H.png` - 하트 타워, 단순형 화염 실루엣
-- `src/assets/art/towers/D.png` - 다이아 타워, 단순형 빙결 실루엣
-- `src/assets/art/towers/C.png` - 클로버 타워, 단순형 둔기/방어 약화 실루엣
-- `src/assets/art/towers/S.png` - 스페이드 타워, 단순형 저격 실루엣
+- `src/assets/art/towers/H-altar-guardian.png` - 하트 타워, 화염 마법사가 선 제단
+- `src/assets/art/towers/D-altar-guardian.png` - 다이아 타워, 궁수가 선 제단
+- `src/assets/art/towers/C-altar-guardian.png` - 클로버 타워, 드루이드가 선 제단
+- `src/assets/art/towers/S-altar-guardian.png` - 스페이드 타워, 창 수호자가 선 제단
 
 ## VFX PNG
 

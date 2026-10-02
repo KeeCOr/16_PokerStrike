@@ -1,8 +1,5 @@
 ﻿import Phaser from 'phaser';
 
-import { UI_TEXTURES } from '../assets/art/AssetKeys.js';
-import { createNineSlice, NINE_SLICE_MARGIN } from '../ui/NineSlice.js';
-
 export default class MenuScene extends Phaser.Scene {
   constructor() { super('MenuScene'); }
 
@@ -52,8 +49,7 @@ export default class MenuScene extends Phaser.Scene {
 
     const boxY = 400;
     const boxH = 130;
-    const infoFrame = createNineSlice(this, W / 2, boxY, 360, boxH, UI_TEXTURES.PANEL_FRAME_9S, NINE_SLICE_MARGIN.PANEL, 0);
-    if (!infoFrame) this.add.rectangle(W / 2, boxY, 360, boxH, 0x161b22).setStrokeStyle(1, 0x30363d);
+    this.add.rectangle(W / 2, boxY, 360, boxH, 0x161b22).setStrokeStyle(1, 0x30363d);
     const lines = [
       { icon: 'HAND', text: '포커 패로 유닛을 소환하라' },
       { icon: 'WAVE', text: '웨이브를 막고 강화를 선택하라' },
@@ -65,24 +61,18 @@ export default class MenuScene extends Phaser.Scene {
       this.add.text(W / 2 - 88, y, text, { fontSize: '13px', color: '#8b949e' }).setOrigin(0, 0.5);
     });
 
-    const btnFrame = createNineSlice(this, W / 2, 560, 220, 52, UI_TEXTURES.STRIP_FRAME_9S, NINE_SLICE_MARGIN.STRIP, 0);
-    const btnBg = btnFrame
-      ? btnFrame.setInteractive({ useHandCursor: true })
-      : this.add.rectangle(W / 2, 560, 220, 52, 0x1a5e2a)
-        .setStrokeStyle(2, 0x3fb950).setInteractive({ useHandCursor: true });
-    btnFrame?.setTint?.(0x3fb950);
+    const btnBg = this.add.rectangle(W / 2, 560, 220, 52, 0x1a5e2a)
+      .setStrokeStyle(2, 0x3fb950).setInteractive({ useHandCursor: true });
     const btnText = this.add.text(W / 2, 560, '게임 시작', {
       fontSize: '22px', color: '#ffffff', fontStyle: 'bold',
     }).setOrigin(0.5);
 
     btnBg.on('pointerover', () => {
-      if (btnFrame) btnFrame.setTint?.(0x66e28a);
-      else btnBg.setFillStyle(0x238636);
+      btnBg.setFillStyle(0x238636);
       btnText.setStyle({ color: '#ffdd44' });
     });
     btnBg.on('pointerout', () => {
-      if (btnFrame) btnFrame.setTint?.(0x3fb950);
-      else btnBg.setFillStyle(0x1a5e2a);
+      btnBg.setFillStyle(0x1a5e2a);
       btnText.setStyle({ color: '#ffffff' });
     });
     btnBg.on('pointerdown', () => this.scene.start('GameScene'));

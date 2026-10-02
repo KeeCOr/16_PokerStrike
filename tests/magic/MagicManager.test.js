@@ -44,4 +44,18 @@ describe('MagicManager', () => {
     expect(scene.economyManager.summonCount).toBe(3);
     expect(scene.economyManager.resetReplaceCostCalls).toBe(1);
   });
+
+  it('does not restore a timed buff to a unit removed before the callback fires', () => {
+    const scene = createScene();
+    let restore;
+    scene.time.delayedCall = (_, callback) => { restore = callback; };
+    const unit = { suit: 'H', stats: { atk: 10 } };
+    scene.unitManager.units = [unit];
+    const manager = new MagicManager(scene);
+
+    manager.cast(HAND_RANK.FLUSH, 'H');
+    scene.unitManager.units = [];
+    expect(() => restore()).not.toThrow();
+    expect(unit.stats.atk).toBe(15);
+  });
 });

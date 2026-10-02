@@ -49,12 +49,15 @@ describe('AssetKeys', () => {
     expect(getUiTextureKey('unknown')).toBe(UI_TEXTURES.BUTTON_ACTION_DISABLED);
   });
 
-  it('preloads art as image assets', () => {
+  it('preloads art as image assets and the basic enemy as a sprite sheet', () => {
     const loaded = [];
     preloadArtAssets({
       load: {
         image(key, url) {
           loaded.push({ key, url });
+        },
+        spritesheet(key, url, config) {
+          loaded.push({ key, url, config });
         },
       },
     });
@@ -70,6 +73,9 @@ describe('AssetKeys', () => {
     expect(loaded.map(item => item.key)).toContain('ui-resource-gold');
     expect(loaded.map(item => item.key)).toContain('ui-resource-gem');
     expect(loaded.every(item => item.url.endsWith('.png'))).toBe(true);
+    expect(loaded.find(item => item.key === 'enemy-basic')).toMatchObject({
+      config: { frameWidth: 256, frameHeight: 341 },
+    });
   });
 });
 
