@@ -5,6 +5,7 @@
 - 원본 참고 시트: `src/assets/ui/pokerstrike-ui-kit-v1.png`
 - 새 생성 UI 시트 분할 결과: `src/assets/ui/generated/`
 - 런타임 로더: `src/assets/art/AssetKeys.js`
+- 타이틀 로고: `public/assets/brand/title-logo.png` - BootScene에서 로드하여 메뉴 타이틀에 표시
 
 ## 버튼/프레임 PNG
 

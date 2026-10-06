@@ -33,15 +33,7 @@ export default class MenuScene extends Phaser.Scene {
       g.setAngle(angle);
     });
 
-    this.add.text(W / 2, 200, 'POKER', {
-      fontSize: '56px', color: '#e8c97a', fontStyle: 'bold',
-      stroke: '#000000', strokeThickness: 4,
-    }).setOrigin(0.5);
-
-    this.add.text(W / 2, 258, 'STRIKE', {
-      fontSize: '56px', color: '#ffffff', fontStyle: 'bold',
-      stroke: '#000000', strokeThickness: 4,
-    }).setOrigin(0.5);
+    this.add.image(W / 2, 226, 'title-logo').setDisplaySize(490, 177);
 
     this.add.text(W / 2, 310, '포커 족보 기반 타워 디펜스', {
       fontSize: '15px', color: '#8ab4d4',
