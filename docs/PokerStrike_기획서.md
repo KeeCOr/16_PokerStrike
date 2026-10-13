@@ -148,3 +148,48 @@ PokerStrike는 짧은 시간 안에 카드 조합을 읽고, 소환과 전투 �
 - <span style="color:#ff0000">Kenney CC0 OGG 효과음과 Music Loops OGG만 사용하며 생성 PCM, 런타임 합성음, Phaser 직접 재생은 사용하지 않는다.</span>
 - <span style="color:#ff0000">위험·결과 큐는 디코딩된 전체 꼬리 구간 동안 BGM을 0.55배로 낮추고 최소 지속시간과 중첩 최대 데드라인을 보장한다.</span>
 - <span style="color:#ff0000">동시 효과음은 최대 8개로 제한하며 생성·재생 오류를 안전하게 복구한다.</span>
+
+
+## 현재 구현 · 검증 · 제한 (2026-10-14)
+
+### 구현 현황
+
+- **로컬 복원본 v0.4.1**: 테스트 160개 + 웹 빌드 통과
+- **원격 최신 버전 v1.0.2**: PNG 렌더링·캐릭터·체력 게이지 프레임·NineSlice 기능이 GitHub master에 이미 구현되어 있음
+- **병합 정책**: 로컬 복원본 코드로 원격 v1.0.2를 덮어쓰지 않음; 원격 구현을 기준으로 재검증 및 문서 정합성 확보
+
+### 검증 범위
+
+- 로컬 복원본: 테스트 160개 + 웹 빌드 통과
+- 원격 v1.0.2 테스트 결과: 별도 검증 기록 참조
+
+### 제한 및 특이사항
+
+- Git LFS EXE 객체 404 오류로 소스 checkout 시 `skip-smudge` 옵션 사용
+- EXE 바이너리 배포 검증은 이번 범위에 포함되지 않음
+
+```json
+{
+  "date": "2026-10-14",
+  "vitest": 147,
+  "build": "Vite production build passed"
+}
+```
+
+
+## 리소스 목록
+
+이 프로젝트의 미디어·참조·스펙 연결 현황은 아래 두 파일에 기록됩니다.
+
+- 사람이 읽는 요약: [`./RESOURCE_INVENTORY.md`](./RESOURCE_INVENTORY.md)
+- 도구가 읽는 원본: [`./RESOURCE_INVENTORY.json`](./RESOURCE_INVENTORY.json)
+
+**판독 안내**
+
+`media` 항목은 현재 보유한 파일입니다. `zeroByte: true`는 내용이 없는 빈 파일, `lfsPointer: true`는 LFS 포인터만 존재하고 실제 본체가 없는 파일을 의미합니다.
+
+`references` 항목의 `kind`가 `unresolved-candidate` 또는 `basename-candidate`인 경우 누락이 확정된 것이 아니라 경로 일치 여부를 검토해야 할 후보입니다.
+
+`specDocs.missingLines`는 기획 문서상 필요하다고 기록된 항목의 근거이며, 현행 구현에서 반드시 누락된 에셋을 뜻하지 않습니다. 절차적으로 생성되는 그래픽은 비트맵 파일이 없어도 구현을 충족할 수 있습니다.
+
+엔진 실행, 품질, 라이선스 검증은 이 목록에 포함되지 않습니다.
