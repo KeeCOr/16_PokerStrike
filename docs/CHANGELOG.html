@@ -1,0 +1,27 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><body><section>
+  <h1>수정 이력</h1>
+  <h2>2026-10-14</h2>
+  <h3>변경 이유</h3>
+  <p>로컬 복원본(v0.4.1)에서 작업한 PNG/프레임/NineSlice 기능이 원격 master v1.0.2에 이미 구현되어 있음을 확인. 덮어쓰기 방지 및 원격 기준 정합성 기록.</p>
+  <h3>수정 내용</h3>
+  <ul>
+    <li>로컬 복원본 v0.4.1 테스트 160개 + 웹 빌드 통과 확인</li>
+    <li>원격 v1.0.2 PNG 렌더링·캐릭터·체력 게이지 프레임·NineSlice 기능 기존 구현 확인</li>
+    <li>로컬 코드로 원격을 덮어쓰지 않는 병합 정책 결정</li>
+    <li>GDD 문서 정합성 보충 기록</li>
+  </ul>
+  <h3>검증</h3>
+  <ul>
+    <li>로컬: 테스트 160개 + 웹 빌드 통과</li>
+    <li>원격 v1.0.2 테스트: 별도 검증 기록 참조</li>
+  </ul>
+  <h3>미검증</h3>
+  <ul>
+    <li>GitHub Actions 실제 실행 및 전체 플레이</li>
+    <li>EXE 배포 (LFS 404 문제)</li>
+  </ul>
+  <h3>특이사항</h3>
+  <p>Git LFS EXE 객체 404로 <code>skip-smudge</code> 사용</p>
+  <h3>커밋</h3>
+  <p>검증 후 GitHub 검토 브랜치에 반영하며 커밋 식별자는 Git 이력과 별도 동기화 기록을 참조한다.</p>
+</section></body></html>
