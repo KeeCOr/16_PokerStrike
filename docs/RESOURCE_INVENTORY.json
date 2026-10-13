@@ -1,0 +1,1425 @@
+{
+  "name": "PokerStrike",
+  "project": "C:\\Users\\bada\\Documents\\Codex\\2026-10-14\\new-chat-3\\work\\github-publish\\16_PokerStrike",
+  "source": "C:\\Users\\bada\\Documents\\Codex\\2026-10-14\\new-chat-3\\work\\github-publish\\16_PokerStrike",
+  "kind": "publish",
+  "scanErrors": null,
+  "media": [
+    {
+      "path": "build/icon.ico",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/build/icon.ico",
+      "size": 206478,
+      "category": "image",
+      "ext": "ico",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "docs/app_icon.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/docs/app_icon.png",
+      "size": 2567728,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "docs/archive/PokerStrike_gameplay_preview_v1.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/docs/archive/PokerStrike_gameplay_preview_v1.png",
+      "size": 2523928,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "docs/assets/PokerStrike_레퍼런스_ui-kit-v1.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/docs/assets/PokerStrike_레퍼런스_ui-kit-v1.png",
+      "size": 2065054,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "docs/PokerStrike_01_플레이예시.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/docs/PokerStrike_01_플레이예시.png",
+      "size": 402861,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "docs/PokerStrike_battle_hud_mockup_v1.0.2_640x960.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/docs/PokerStrike_battle_hud_mockup_v1.0.2_640x960.png",
+      "size": 1001493,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "docs/PokerStrike_gameplay_preview.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/docs/PokerStrike_gameplay_preview.png",
+      "size": 2390798,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "docs/PokerStrike_hud_comparison_v1.0.2.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/docs/PokerStrike_hud_comparison_v1.0.2.png",
+      "size": 1538535,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "docs/PokerStrike_runtime_battle_v1.0.2_640x960.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/docs/PokerStrike_runtime_battle_v1.0.2_640x960.png",
+      "size": 527367,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "docs/PokerStrike_레퍼런스_플레이예시_구버전2.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/docs/PokerStrike_레퍼런스_플레이예시_구버전2.png",
+      "size": 2575195,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "docs/splash.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/docs/splash.png",
+      "size": 2550038,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "electron/build/icon.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/electron/build/icon.png",
+      "size": 2567728,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "icon.ico",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/icon.ico",
+      "size": 2917,
+      "category": "image",
+      "ext": "ico",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "public/assets/audio/original/bgm-loop.ogg",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/public/assets/audio/original/bgm-loop.ogg",
+      "size": 154248,
+      "category": "audio",
+      "ext": "ogg",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/environment/base-core.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/base-core.png",
+      "size": 130512,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/environment/base-shield.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/base-shield.png",
+      "size": 108324,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/environment/battle-label-frame.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/battle-label-frame.png",
+      "size": 70122,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/environment/board-tile-alt-move.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/board-tile-alt-move.png",
+      "size": 87571,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/environment/board-tile-alt.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/board-tile-alt.png",
+      "size": 132677,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/environment/board-tile-move.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/board-tile-move.png",
+      "size": 88840,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/environment/board-tile.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/board-tile.png",
+      "size": 132221,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/environment/obstacle-barricade.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/obstacle-barricade.png",
+      "size": 133092,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/environment/obstacle-stone.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/obstacle-stone.png",
+      "size": 149210,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/environment/spawn-gate.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/spawn-gate.png",
+      "size": 125514,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/aerial.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/aerial.png",
+      "size": 74300,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/armored.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/armored.png",
+      "size": 81018,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/basic.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/basic.png",
+      "size": 72952,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/berserker.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/berserker.png",
+      "size": 92993,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/boss.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/boss.png",
+      "size": 110899,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/freezer.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/freezer.png",
+      "size": 102593,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/magicImmune.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/magicImmune.png",
+      "size": 98134,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/regen.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/regen.png",
+      "size": 98937,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/runner.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/runner.png",
+      "size": 74626,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/shielded.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/shielded.png",
+      "size": 100931,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/splitter.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/splitter.png",
+      "size": 69937,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/swarm.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/swarm.png",
+      "size": 69088,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/monsters/tank.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/tank.png",
+      "size": 92866,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/towers/C.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/towers/C.png",
+      "size": 62504,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/towers/D.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/towers/D.png",
+      "size": 56270,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/towers/H.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/towers/H.png",
+      "size": 56168,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/towers/S.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/towers/S.png",
+      "size": 49880,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/armor-break-impact.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/armor-break-impact.png",
+      "size": 100340,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/aura-ring.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/aura-ring.png",
+      "size": 96475,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/club-projectile.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/club-projectile.png",
+      "size": 80624,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/fire-impact.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/fire-impact.png",
+      "size": 98009,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/fire-projectile.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/fire-projectile.png",
+      "size": 67804,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/hit-spark.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/hit-spark.png",
+      "size": 75800,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/ice-impact.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/ice-impact.png",
+      "size": 101127,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/ice-projectile.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/ice-projectile.png",
+      "size": 66791,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/magic-burst.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/magic-burst.png",
+      "size": 117879,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/pierce-impact.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/pierce-impact.png",
+      "size": 88663,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/shield-ripple.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/shield-ripple.png",
+      "size": 117660,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/art/vfx/spade-projectile.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/spade-projectile.png",
+      "size": 60826,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/audio/kenney/card-select.ogg",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/audio/kenney/card-select.ogg",
+      "size": 6317,
+      "category": "audio",
+      "ext": "ogg",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/audio/kenney/failure.ogg",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/audio/kenney/failure.ogg",
+      "size": 7373,
+      "category": "audio",
+      "ext": "ogg",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/audio/kenney/hit.ogg",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/audio/kenney/hit.ogg",
+      "size": 8126,
+      "category": "audio",
+      "ext": "ogg",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/audio/kenney/ko.ogg",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/audio/kenney/ko.ogg",
+      "size": 5956,
+      "category": "audio",
+      "ext": "ogg",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/audio/kenney/magic-cast.ogg",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/audio/kenney/magic-cast.ogg",
+      "size": 6733,
+      "category": "audio",
+      "ext": "ogg",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/audio/kenney/stage-clear.ogg",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/audio/kenney/stage-clear.ogg",
+      "size": 9011,
+      "category": "audio",
+      "ext": "ogg",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/audio/kenney/summon-confirm.ogg",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/audio/kenney/summon-confirm.ogg",
+      "size": 8968,
+      "category": "audio",
+      "ext": "ogg",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/audio/kenney/ui-click.ogg",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/audio/kenney/ui-click.ogg",
+      "size": 4876,
+      "category": "audio",
+      "ext": "ogg",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/badge-wave.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/badge-wave.png",
+      "size": 50574,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/button-action-cyan.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-action-cyan.png",
+      "size": 62962,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/button-action-disabled.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-action-disabled.png",
+      "size": 53384,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/button-action-gold.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-action-gold.png",
+      "size": 62791,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/button-action-purple.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-action-purple.png",
+      "size": 62643,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/button-danger-red.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-danger-red.png",
+      "size": 58350,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/button-upgrade-blue.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-upgrade-blue.png",
+      "size": 60255,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/button-upgrade-green.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-upgrade-green.png",
+      "size": 62134,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/button-upgrade-orange.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-upgrade-orange.png",
+      "size": 59958,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/panel-resource.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/panel-resource.png",
+      "size": 60300,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/ps-character-frame.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/ps-character-frame.png",
+      "size": 205826,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/ps-hp-gauge-shell.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/ps-hp-gauge-shell.png",
+      "size": 23780,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/ps-ui-frame-9s.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/ps-ui-frame-9s.png",
+      "size": 243755,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/ps-ui-panel-frame-9s.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/ps-ui-panel-frame-9s.png",
+      "size": 352910,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/ps-ui-strip-frame-9s.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/ps-ui-strip-frame-9s.png",
+      "size": 78914,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/resource-gem.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/resource-gem.png",
+      "size": 10601,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/resource-gold.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/resource-gold.png",
+      "size": 8191,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/tab-active.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/tab-active.png",
+      "size": 78294,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/generated/tab-inactive.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/tab-inactive.png",
+      "size": 72625,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "src/assets/ui/pokerstrike-ui-kit-v1.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/pokerstrike-ui-kit-v1.png",
+      "size": 2065054,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "_temp/battle-label-frame_backup_20260626-163324.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/_temp/battle-label-frame_backup_20260626-163324.png",
+      "size": 99481,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    },
+    {
+      "path": "_temp/battle-label-frame_generated_source_20260626-163324.png",
+      "absPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/_temp/battle-label-frame_generated_source_20260626-163324.png",
+      "size": 1102235,
+      "category": "image",
+      "ext": "png",
+      "zeroByte": false,
+      "lfsPointer": false,
+      "isAlias": false
+    }
+  ],
+  "mediaCount": 83,
+  "aliasCount": 0,
+  "zeroByteCount": 0,
+  "lfsPointerCount": 0,
+  "references": [
+    {
+      "file": "docs/PokerStrike_GDD.html",
+      "line": 48,
+      "value": "./PokerStrike_gameplay_preview.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/docs/PokerStrike_gameplay_preview.png",
+      "context": "document"
+    },
+    {
+      "file": "docs/_deprecated_planning/PokerStrike_기획서_deprecated.html",
+      "line": 62,
+      "value": "PokerStrike_플레이예시_현재구현.png",
+      "kind": "unresolved-candidate",
+      "resolved": false,
+      "note": "Not found in scan; requires runtime binding review",
+      "context": "historical-document"
+    },
+    {
+      "file": "docs/_deprecated_planning/PokerStrike_기획서_deprecated.html",
+      "line": 63,
+      "value": "PokerStrike_01_플레이예시.png",
+      "kind": "basename-candidate",
+      "resolved": false,
+      "note": "Basename match only — NOT resolved; requires runtime binding review",
+      "context": "historical-document"
+    },
+    {
+      "file": "docs/_deprecated_planning/PokerStrike_기획서_deprecated.html",
+      "line": 64,
+      "value": "archive/PokerStrike_gameplay_preview_v1.png",
+      "kind": "basename-candidate",
+      "resolved": false,
+      "note": "Basename match only — NOT resolved; requires runtime binding review",
+      "context": "historical-document"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 77,
+      "value": "./monsters/basic.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/basic.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 78,
+      "value": "./monsters/tank.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/tank.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 79,
+      "value": "./monsters/runner.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/runner.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 80,
+      "value": "./monsters/aerial.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/aerial.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 81,
+      "value": "./monsters/magicImmune.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/magicImmune.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 82,
+      "value": "./monsters/splitter.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/splitter.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 83,
+      "value": "./monsters/regen.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/regen.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 84,
+      "value": "./monsters/freezer.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/freezer.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 85,
+      "value": "./monsters/boss.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/boss.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 86,
+      "value": "./monsters/armored.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/armored.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 87,
+      "value": "./monsters/swarm.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/swarm.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 88,
+      "value": "./monsters/berserker.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/berserker.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 89,
+      "value": "./monsters/shielded.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/monsters/shielded.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 93,
+      "value": "./towers/H.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/towers/H.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 94,
+      "value": "./towers/D.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/towers/D.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 95,
+      "value": "./towers/C.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/towers/C.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 96,
+      "value": "./towers/S.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/towers/S.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 100,
+      "value": "./vfx/fire-projectile.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/fire-projectile.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 101,
+      "value": "./vfx/fire-impact.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/fire-impact.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 102,
+      "value": "./vfx/ice-projectile.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/ice-projectile.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 103,
+      "value": "./vfx/ice-impact.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/ice-impact.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 104,
+      "value": "./vfx/club-projectile.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/club-projectile.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 105,
+      "value": "./vfx/armor-break-impact.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/armor-break-impact.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 106,
+      "value": "./vfx/spade-projectile.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/spade-projectile.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 107,
+      "value": "./vfx/pierce-impact.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/pierce-impact.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 108,
+      "value": "./vfx/aura-ring.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/aura-ring.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 109,
+      "value": "./vfx/magic-burst.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/magic-burst.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 110,
+      "value": "./vfx/hit-spark.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/hit-spark.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 111,
+      "value": "./vfx/shield-ripple.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/vfx/shield-ripple.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 115,
+      "value": "./environment/board-tile.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/board-tile.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 116,
+      "value": "./environment/board-tile-alt.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/board-tile-alt.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 117,
+      "value": "./environment/board-tile-move.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/board-tile-move.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 118,
+      "value": "./environment/board-tile-alt-move.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/board-tile-alt-move.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 119,
+      "value": "./environment/obstacle-stone.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/obstacle-stone.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 120,
+      "value": "./environment/obstacle-barricade.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/obstacle-barricade.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 121,
+      "value": "./environment/spawn-gate.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/spawn-gate.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 122,
+      "value": "./environment/base-core.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/base-core.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 123,
+      "value": "./environment/base-shield.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/base-shield.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 124,
+      "value": "./environment/battle-label-frame.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/art/environment/battle-label-frame.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 128,
+      "value": "../ui/generated/button-action-gold.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-action-gold.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 129,
+      "value": "../ui/generated/button-action-cyan.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-action-cyan.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 130,
+      "value": "../ui/generated/button-action-purple.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-action-purple.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 131,
+      "value": "../ui/generated/button-action-disabled.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-action-disabled.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 132,
+      "value": "../ui/generated/button-upgrade-green.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-upgrade-green.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 133,
+      "value": "../ui/generated/button-upgrade-orange.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-upgrade-orange.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 134,
+      "value": "../ui/generated/button-upgrade-blue.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-upgrade-blue.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 135,
+      "value": "../ui/generated/button-danger-red.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/button-danger-red.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 136,
+      "value": "../ui/generated/tab-active.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/tab-active.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 137,
+      "value": "../ui/generated/tab-inactive.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/tab-inactive.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 138,
+      "value": "../ui/generated/panel-resource.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/panel-resource.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 139,
+      "value": "../ui/generated/badge-wave.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/badge-wave.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 140,
+      "value": "../ui/generated/resource-gold.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/resource-gold.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 141,
+      "value": "../ui/generated/resource-gem.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/resource-gem.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 142,
+      "value": "../ui/generated/ps-ui-panel-frame-9s.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/ps-ui-panel-frame-9s.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 143,
+      "value": "../ui/generated/ps-ui-strip-frame-9s.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/ps-ui-strip-frame-9s.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 144,
+      "value": "../ui/generated/ps-hp-gauge-shell.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/ps-hp-gauge-shell.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 145,
+      "value": "../ui/generated/ps-character-frame.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/ps-character-frame.png",
+      "context": "source-or-config"
+    },
+    {
+      "file": "src/assets/art/AssetKeys.js",
+      "line": 146,
+      "value": "../ui/generated/ps-ui-frame-9s.png",
+      "kind": "resolved",
+      "resolved": true,
+      "resolvedPath": "C:/Users/bada/Documents/Codex/2026-10-14/new-chat-3/work/github-publish/16_PokerStrike/src/assets/ui/generated/ps-ui-frame-9s.png",
+      "context": "source-or-config"
+    }
+  ],
+  "specDocs": [
+    {
+      "path": "docs/PokerStrike_UI_리소스_목록.md",
+      "missingLines": []
+    },
+    {
+      "path": "docs/PokerStrike_아트_리소스_목록.md",
+      "missingLines": []
+    },
+    {
+      "path": "docs/sfx-vfx-candidates-20260808.md",
+      "missingLines": []
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-15-kenney-sfx-application.md",
+      "missingLines": []
+    }
+  ],
+  "historical": null,
+  "repo": "16_PokerStrike",
+  "gdd": "PokerStrike_GDD",
+  "branch": "codex/development-20261014"
+}
